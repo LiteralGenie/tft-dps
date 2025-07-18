@@ -2,3 +2,4 @@ aiohttp
 pillow
 requests
 ujson
+xxhash
