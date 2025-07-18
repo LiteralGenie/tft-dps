@@ -10,25 +10,18 @@ cast_count(T) = mana_regen(T) + auto_count(T) * auto_mana
 auto_count(T) = [simulated]
 """
 
-from calc_ctx import CalcCtx
+import json
+from pathlib import Path
+
+from lib.resolver import get_units
+from lib.utils.misc_utils import log_http_requests
+
+log_http_requests()
 
 
 def main():
-    ctx = CalcCtx(
-        T=10,
-        stats=dict(),
-        items=dict(),
-    )
-
-    calc_dps(ctx)
-
-
-def calc_dps(ctx: CalcCtx):
-    pass
-
-
-def calc_total_auto_damage(ctx: CalcCtx):
-    pass
+    units = get_units()
+    Path("/tmp/units").write_text(json.dumps(units, indent=2))
 
 
 main()

@@ -1,0 +1,3 @@
+[submodule "tft_dps/src/lol_resolver"]
+	path = tft_dps/src/lol_resolver
+	url = https://github.com/TERAB1T/LoL-Resolver
