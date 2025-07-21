@@ -1,5 +1,6 @@
 aiohttp
 pillow
+pytest
 requests
 ujson
 xxhash

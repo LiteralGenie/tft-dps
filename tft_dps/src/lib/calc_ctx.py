@@ -10,8 +10,11 @@ class CalcCtx:
 
 @dataclass
 class CalcCtxStats:
+    stars: int
+
     ad: float
     ap: float
+    health: int
     speed: float
 
     cast_time: float
