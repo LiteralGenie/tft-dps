@@ -1,15 +1,3 @@
-"""
-dps(T) = total_auto_dmg + total_spell_dmg
-
-total_auto_dmg(T) = auto_count(T) * auto_dmg(T)
-
-total_spell_dmg(T) = cast_count(T) * cast_dmg(T)
-
-cast_count(T) = mana_regen(T) + auto_count(T) * auto_mana
-
-auto_count(T) = [simulated]
-"""
-
 import json
 from pathlib import Path
 
