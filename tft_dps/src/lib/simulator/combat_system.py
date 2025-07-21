@@ -8,7 +8,6 @@ class CombatSystem(SimSystem):
 
     """
     @todo
-        mana per auto
         cast damage
         events
     """
@@ -19,8 +18,6 @@ class CombatSystem(SimSystem):
             until=0,
         )
 
-        self.mana_per_auto = 10
-
     def run(self, s: SimState):
         match self.state["type"]:
             case "POST_AUTO":
@@ -30,7 +27,7 @@ class CombatSystem(SimSystem):
 
                 # Auto
                 self._auto(s)
-                s.stats.mana += self.mana_per_auto
+                s.stats.mana += s.ctx.stats.mana_per_auto
 
                 if s.stats.mana >= s.stats.mana_max:
                     # Start casting
@@ -54,7 +51,7 @@ class CombatSystem(SimSystem):
                 self._cast(s)
 
                 # Start auto
-                delay = (1 / s.stats.speed,)
+                delay = 1 / s.stats.speed
                 self.state = dict(
                     type="POST_AUTO",
                     until=delay,

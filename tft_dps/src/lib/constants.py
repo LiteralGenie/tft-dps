@@ -53,7 +53,7 @@ ITEMS = [
     "TFT_Item_DragonsClaw",
 ]
 
-UNITS = [
+CHAMPION_UNITS = [
     "Characters/TFT15_Aatrox",
     "Characters/TFT15_Ahri",
     "Characters/TFT15_Akali",

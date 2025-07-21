@@ -26,6 +26,20 @@ class SimStats:
     health: int
     health_max: int
 
+    def __add__(self, other: "SimStats") -> "SimStats":
+        return SimStats(
+            ad=self.ad + other.ad,
+            ap=self.ap + other.ap,
+            speed=self.speed + other.speed,
+            mana=self.mana + other.mana,
+            mana_max=self.mana_max + other.mana_max,
+            health=self.health + other.health,
+            health_max=self.health_max + other.health_max,
+        )
+
+    def __radd__(self, other: "SimStats") -> "SimStats":
+        return self.__add__(other)
+
 
 @dataclass(frozen=True)
 class SimAttack:
