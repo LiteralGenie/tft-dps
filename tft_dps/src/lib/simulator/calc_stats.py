@@ -4,7 +4,10 @@ from lib.simulator.sim_state import SimState, SimStats
 
 def calc_stats(s: SimState) -> SimStats:
     curr = s.stats
-    bonus = _sum_item_bonus(s)
+
+    bonus = SimStats.zeros()
+    bonus += _sum_item_bonus(s)
+    bonus += s.ctx.unit_quirks.get_unit_bonus(s)
 
     return SimStats(
         ad=_calc_ad(s, bonus),
@@ -48,11 +51,14 @@ def _item_to_stats(item: dict) -> SimStats:
 
 
 def _sum_item_bonus(s: SimState) -> SimStats:
-    items: list[dict] = []
-    for name, count in s.ctx.item_inventory.items():
-        items += [s.ctx.item_info[name]] * count
+    bonus = SimStats(0, 0, 0, 0, 0, 0, 0)
 
-    return sum(_item_to_stats(x) for x in items)  # type: ignore
+    for name, count in s.ctx.item_inventory.items():
+        for _ in range(count):
+            item = _item_to_stats(s.ctx.item_info[name])
+            bonus += item
+
+    return bonus
 
 
 def _calc_ad(s: SimState, bonus: SimStats):

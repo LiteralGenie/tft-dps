@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -6,8 +6,8 @@ if TYPE_CHECKING:
 
 
 class SimSystem(ABC):
-    @abstractmethod
-    def run(self, s: "SimState"): ...
+    def run(self, s: "SimState"):
+        pass
 
     def run_events(self, s: "SimState"):
         pass

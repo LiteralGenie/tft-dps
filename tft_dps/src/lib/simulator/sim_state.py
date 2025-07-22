@@ -1,19 +1,24 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any
 
-from lib.calc_ctx import CalcCtx
 from lib.simulator.sim_event import SimEvent
 from lib.simulator.sim_system import SimSystem
+
+if TYPE_CHECKING:
+    from lib.calc_ctx import CalcCtx
 
 
 @dataclass
 class SimState:
-    ctx: CalcCtx
+    ctx: "CalcCtx"
     systems: list[SimSystem]
     events: list[SimEvent]
     t: float
     attacks: list["SimAttack"]
     casts: list["SimCast"]
     stats: "SimStats"
+    buffs: dict[str, Any]
+    mana_locks: int
 
 
 @dataclass
@@ -55,6 +60,10 @@ class SimStats:
             29: 0,
             34: 1,
         }
+
+    @classmethod
+    def zeros(cls):
+        return cls(0, 0, 0, 0, 0, 0, 0)
 
 
 @dataclass(frozen=True)

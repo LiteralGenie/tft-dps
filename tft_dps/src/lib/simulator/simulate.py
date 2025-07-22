@@ -1,5 +1,5 @@
 from lib.calc_ctx import CalcCtx
-from lib.simulator.calc_stats import init_stats
+from lib.simulator.calc_stats import calc_stats, init_stats
 from lib.simulator.combat_system import CombatSystem
 from lib.simulator.sim_state import SimState
 from lib.simulator.sim_system import SimSystem
@@ -27,10 +27,14 @@ def simulate(ctx: CalcCtx):
         attacks=[],
         casts=[],
         stats=init_stats(ctx),
+        buffs=dict(),
+        mana_locks=0,
     )
 
     while s.t <= ctx.T:
         for sys in s.systems:
+            s.stats = calc_stats(s)
+
             s.events = []
             sys.run(s)
 
