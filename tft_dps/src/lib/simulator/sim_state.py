@@ -40,14 +40,32 @@ class SimStats:
     def __radd__(self, other: "SimStats") -> "SimStats":
         return self.__add__(other)
 
+    def to_raw(self):
+        return {
+            0: self.ap,
+            1: 0,
+            2: self.ad,
+            3: 1,
+            4: self.speed,
+            6: 0,
+            7: 0,
+            8: 0,
+            9: 1.4,
+            12: self.health_max,
+            29: 0,
+            34: 1,
+        }
+
 
 @dataclass(frozen=True)
 class SimAttack:
     t: float
-    damage: float
+    physical_damage: float
+    magical_damage: float
 
 
 @dataclass(frozen=True)
 class SimCast:
     t: float
-    damage: float
+    physical_damage: float
+    magical_damage: float

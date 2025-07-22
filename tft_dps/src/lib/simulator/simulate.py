@@ -2,6 +2,7 @@ from lib.calc_ctx import CalcCtx
 from lib.simulator.calc_stats import init_stats
 from lib.simulator.combat_system import CombatSystem
 from lib.simulator.sim_state import SimState
+from lib.simulator.sim_system import SimSystem
 
 """
 Simulate combat with N ms ticks via an event-loop-like approach
@@ -14,13 +15,13 @@ Systems can react to other systems through an event queue.
 Each system populates the queue when the system is run. After that system finishes, all systems get a chance to inspect the queue before it is emptied.
 """
 
-TICK_PERIOD_MS = 50
+TICK_PERIOD_MS = 10
 
 
 def simulate(ctx: CalcCtx):
     s = SimState(
         t=0,
-        systems=[],
+        systems=_init_systems(ctx),
         events=[],
         ctx=ctx,
         attacks=[],
@@ -28,11 +29,7 @@ def simulate(ctx: CalcCtx):
         stats=init_stats(ctx),
     )
 
-    # Init systems
-    s.systems.append(CombatSystem())
-
     while s.t <= ctx.T:
-        # print(f"{s.t:.1f}s", s.attacks, s.casts)
         for sys in s.systems:
             s.events = []
             sys.run(s)
@@ -43,3 +40,9 @@ def simulate(ctx: CalcCtx):
         s.t += TICK_PERIOD_MS / 1000
 
     return s
+
+
+def _init_systems(ctx: CalcCtx):
+    systems: list[SimSystem] = [CombatSystem()]
+
+    return systems

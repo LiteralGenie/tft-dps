@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from lib.simulator.unit_quirks import UnitQuirks
 from lol_resolver.tft.units import TFTUnitsProcessor
 
 
@@ -11,6 +12,7 @@ class CalcCtx:
     item_inventory: dict[str, int]
     item_info: dict[str, dict]
     unit_proc: TFTUnitsProcessor
+    unit_quirks: UnitQuirks
 
 
 @dataclass
@@ -28,17 +30,18 @@ class CalcCtxStats:
     mana_per_auto: int
 
     @classmethod
-    def from_unit(cls, stars: int, unit: dict):
-        s = unit["stats"]
+    def from_unit(cls, id: str, stars: int, unit_proc: TFTUnitsProcessor):
+        base = unit_proc.get_base_stats(id)
+        root = unit_proc.get_root_record(id)
 
         return cls(
             stars=stars,
-            ad=s["attackDamage"],
+            ad=base[2],
             ap=100,
-            health=s["health"],
-            speed=s["attackSpeed"],
+            health=base[12],
+            speed=base[4],
             cast_time=0.5,
-            mana_initial=s["startingMana"],
-            mana_max=s["maxMana"],
-            mana_per_auto=s["manaPerAttack"],
+            mana_initial=base[12],
+            mana_max=root.get("maxMana", 0),
+            mana_per_auto=root.get("primaryAbilityResource", dict()).get("arBase", 100),
         )
