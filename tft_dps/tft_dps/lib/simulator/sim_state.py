@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from lib.simulator.sim_event import SimEvent
-from lib.simulator.sim_system import SimSystem
+from .sim_event import SimEvent
+from .sim_system import SimSystem
 
 if TYPE_CHECKING:
     from lib.calc_ctx import CalcCtx

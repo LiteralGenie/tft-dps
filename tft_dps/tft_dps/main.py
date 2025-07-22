@@ -1,15 +1,15 @@
 import json
 from pathlib import Path
 
-from lib.cache import NativeFileCache
-from lib.calc_ctx import CalcCtx, CalcCtxStats
-from lib.resolver import (
+from tft_dps.lib.cache import NativeFileCache
+from tft_dps.lib.calc_ctx import CalcCtx, CalcCtxStats
+from tft_dps.lib.resolver import (
     fetch_cached_and_get_items,
     fetch_cached_and_init_unit_processor,
 )
-from lib.simulator.plot import calc_total_damage
-from lib.simulator.simulate import simulate
-from lib.simulator.unit_quirks import GarenQuirks
+from tft_dps.lib.simulator.plot import calc_total_damage
+from tft_dps.lib.simulator.simulate import simulate
+from tft_dps.lib.simulator.unit_quirks import GarenQuirks
 
 # log_http_requests()
 
@@ -55,4 +55,5 @@ def main():
         print(f"{pt['t']},{pt['physical']},{pt['magical']}")
 
 
-main()
+if __name__ == "__main__":
+    main()

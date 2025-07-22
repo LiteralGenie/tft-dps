@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from lib.simulator.unit_quirks import UnitQuirks
-from lol_resolver.tft.units import TFTUnitsProcessor
+from ..lol_resolver.tft.units import TFTUnitsProcessor
+from .simulator.unit_quirks import UnitQuirks
 
 
 @dataclass

@@ -1,8 +1,8 @@
-from lib.calc_ctx import CalcCtx
-from lib.simulator.calc_stats import calc_stats, init_stats
-from lib.simulator.combat_system import CombatSystem
-from lib.simulator.sim_state import SimState
-from lib.simulator.sim_system import SimSystem
+from ..calc_ctx import CalcCtx
+from .calc_stats import calc_stats, init_stats
+from .combat_system import CombatSystem
+from .sim_state import SimState
+from .sim_system import SimSystem
 
 """
 Simulate combat with N ms ticks via an event-loop-like approach

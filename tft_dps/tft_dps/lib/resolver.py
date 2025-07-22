@@ -1,8 +1,9 @@
 import requests
-from lib.cache import Cache, fetch_cached_json
-from lol_resolver.tft.generator import filter_unit_props, get_set_items, get_unit_ids
-from lol_resolver.tft.items import TFTItemsProcessor
-from lol_resolver.tft.units import TFTUnitsProcessor
+
+from ..lol_resolver.tft.generator import filter_unit_props, get_set_items, get_unit_ids
+from ..lol_resolver.tft.items import TFTItemsProcessor
+from ..lol_resolver.tft.units import TFTUnitsProcessor
+from .cache import Cache, fetch_cached_json
 
 
 def fetch_cached_and_init_unit_processor(cache: Cache, version: str):

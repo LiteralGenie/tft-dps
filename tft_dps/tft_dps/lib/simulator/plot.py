@@ -1,4 +1,4 @@
-from lib.simulator.sim_state import SimAttack, SimCast, SimState
+from .sim_state import SimAttack, SimCast, SimState
 
 
 def calc_total_damage(s: SimState) -> list[dict]:

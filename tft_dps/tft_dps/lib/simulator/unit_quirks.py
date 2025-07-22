@@ -1,11 +1,11 @@
 import abc
 from typing import TYPE_CHECKING
 
-from lib.simulator.sim_state import SimState, SimStats
-from lib.simulator.sim_system import SimSystem
+from .sim_state import SimState, SimStats
+from .sim_system import SimSystem
 
 if TYPE_CHECKING:
-    from lib.simulator.sim_state import SimState
+    from .sim_state import SimState
 
 
 class UnitQuirks(SimSystem):

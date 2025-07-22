@@ -1,5 +1,5 @@
-from lib.calc_ctx import CalcCtx
-from lib.simulator.sim_state import SimState, SimStats
+from ..calc_ctx import CalcCtx
+from .sim_state import SimState, SimStats
 
 
 def calc_stats(s: SimState) -> SimStats:

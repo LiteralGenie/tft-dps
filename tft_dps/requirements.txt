@@ -1,4 +1,5 @@
 aiohttp
+build
 pillow
 pytest
 requests

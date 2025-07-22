@@ -1,6 +1,6 @@
-from lib.simulator.sim_event import SimEvent
-from lib.simulator.sim_state import SimAttack, SimCast, SimState
-from lib.simulator.sim_system import SimSystem
+from .sim_event import SimEvent
+from .sim_state import SimAttack, SimCast, SimState
+from .sim_system import SimSystem
 
 
 class CombatSystem(SimSystem):
