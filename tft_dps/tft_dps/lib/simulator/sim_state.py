@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
@@ -5,7 +6,7 @@ from .sim_event import SimEvent
 from .sim_system import SimSystem
 
 if TYPE_CHECKING:
-    from lib.calc_ctx import CalcCtx
+    from ..calc_ctx import CalcCtx
 
 
 @dataclass
@@ -19,6 +20,16 @@ class SimState:
     stats: "SimStats"
     buffs: dict[str, Any]
     mana_locks: int
+
+    def as_dict(self):
+        return dict(
+            t=self.t,
+            attacks=[x.as_dict() for x in self.attacks],
+            casts=[x.as_dict() for x in self.casts],
+        )
+
+    def as_json(self):
+        return json.dumps(self.as_dict())
 
 
 @dataclass
@@ -72,9 +83,23 @@ class SimAttack:
     physical_damage: float
     magical_damage: float
 
+    def as_dict(self):
+        return dict(
+            t=self.t,
+            physical_damage=self.physical_damage,
+            magical_damage=self.magical_damage,
+        )
+
 
 @dataclass(frozen=True)
 class SimCast:
     t: float
     physical_damage: float
     magical_damage: float
+
+    def as_dict(self):
+        return dict(
+            t=self.t,
+            physical_damage=self.physical_damage,
+            magical_damage=self.magical_damage,
+        )

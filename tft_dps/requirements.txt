@@ -1,9 +1,1 @@
-aiohttp
-build
-pillow
-pytest
-requests
-ujson
-xxhash
-
 pyodide-build

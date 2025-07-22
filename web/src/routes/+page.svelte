@@ -75,6 +75,7 @@
 
         // @ts-ignore
         const pyodide = await loadPyodide()
+        ;(window as any).pyodide = pyodide
 
         await pyodide.loadPackage('micropip')
         const micropip = pyodide.pyimport('micropip')
@@ -83,13 +84,17 @@
         const packageUrl = tft_dps.slice(1)
         await micropip.install(packageUrl)
 
-        console.log(
-            pyodide.runPython(`
-                import asyncio
-                from tft_dps import web
-                asyncio.create_task(web.main())
-            `),
-        )
+        const runner = await pyodide.runPythonAsync(`
+            from js import tft_cache
+            from tft_dps.api import SimulationRunner
+
+            runner = await SimulationRunner.ainit(tft_cache)
+            runner
+        `)
+        ;(window as any).runner = runner
+
+        const result = await runner.run('Characters/TFT15_Gnar')
+        ;(window as any).result = JSON.parse(result.as_json())
     }
 
     main()
