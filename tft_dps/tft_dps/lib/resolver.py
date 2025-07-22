@@ -6,8 +6,8 @@ from ..lol_resolver.tft.units import TFTUnitsProcessor
 from .cache import Cache, fetch_cached_json
 
 
-def fetch_cached_and_init_unit_processor(cache: Cache, version: str):
-    map22 = fetch_cached_json(
+async def fetch_cached_and_init_unit_processor(cache: Cache, version: str):
+    map22 = await fetch_cached_json(
         lambda: fetch_cdragon_map22(version),
         cache,
         "map22",
@@ -15,7 +15,7 @@ def fetch_cached_and_init_unit_processor(cache: Cache, version: str):
 
     unit_ids: list[str] = get_unit_ids(map22)
     raw_units = {
-        id: fetch_cached_json(
+        id: await fetch_cached_json(
             lambda: fetch_cdragon_unit(version, id),
             cache,
             f"unit_{id.split('/')[-1]}",
@@ -23,8 +23,10 @@ def fetch_cached_and_init_unit_processor(cache: Cache, version: str):
         for id in unit_ids
     }
 
-    strings = fetch_cached_json(
-        lambda: fetch_cdragon_strings(version, "en_us"), cache, "strings"
+    strings = (
+        await fetch_cached_json(
+            lambda: fetch_cdragon_strings(version, "en_us"), cache, "strings"
+        )
     )["entries"]
 
     proc = init_unit_processor(version, map22, raw_units, strings)
@@ -48,15 +50,17 @@ def init_unit_processor(version: str, map22, unit_list: dict, strings: dict):
 
 
 # tft > generator.py > generate_version_items()
-def fetch_cached_and_get_items(cache: Cache, version: str):
-    map22 = fetch_cached_json(
+async def fetch_cached_and_get_items(cache: Cache, version: str):
+    map22 = await fetch_cached_json(
         lambda: fetch_cdragon_map22(version),
         cache,
         "map22",
     )
 
-    strings = fetch_cached_json(
-        lambda: fetch_cdragon_strings(version, "en_us"), cache, "strings"
+    strings = (
+        await fetch_cached_json(
+            lambda: fetch_cdragon_strings(version, "en_us"), cache, "strings"
+        )
     )["entries"]
 
     unit_props = filter_unit_props(map22)
@@ -75,7 +79,7 @@ def fetch_cached_and_get_items(cache: Cache, version: str):
     return proc.get_items()
 
 
-def fetch_cdragon(version: str, path: str):
+async def fetch_cdragon(version: str, path: str):
     url = f"https://raw.communitydragon.org/{version}/game/{path}"
     resp = requests.get(url)
     resp.raise_for_status()
@@ -101,12 +105,12 @@ def fetch_cdragon_strings(version: str, language: str):
 
 
 # tft > generator.py > get_tftmap_file()
-def fetch_cdragon_map22(version: str):
-    return fetch_cdragon(version, "data/maps/shipping/map22/map22.bin.json")
+async def fetch_cdragon_map22(version: str):
+    return await fetch_cdragon(version, "data/maps/shipping/map22/map22.bin.json")
 
 
 # utils.py > gen_handler()
-def fetch_cdragon_patch_status(version: str):
+async def fetch_cdragon_patch_status(version: str):
     version_modified = "live" if version == "latest" else version
 
     url = f"https://raw.communitydragon.org/status.{version_modified}.txt"
@@ -117,8 +121,8 @@ def fetch_cdragon_patch_status(version: str):
 
 
 # tft > generator.py > download_unit()
-def fetch_cdragon_unit(version: str, unit_id: str):
+async def fetch_cdragon_unit(version: str, unit_id: str):
     try:
-        return fetch_cdragon(version, f"{unit_id.lower()}.cdtb.bin.json")
-    except requests.HTTPError:
+        return await fetch_cdragon(version, f"{unit_id.lower()}.cdtb.bin.json")
+    except Exception:
         return "{}"
