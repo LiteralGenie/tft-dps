@@ -5,3 +5,5 @@ pytest
 requests
 ujson
 xxhash
+
+pyodide-build
