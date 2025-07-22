@@ -46,6 +46,7 @@ def main():
         item_inventory=dict(),
         stats=CalcCtxStats.from_unit("Characters/TFT15_Garen", 3, unit_proc),
         unit_quirks=GarenQuirks(),
+        flags=dict(),
     )
     result = simulate(ctx)
 

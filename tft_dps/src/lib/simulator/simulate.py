@@ -47,6 +47,9 @@ def simulate(ctx: CalcCtx):
 
 
 def _init_systems(ctx: CalcCtx):
-    systems: list[SimSystem] = [CombatSystem()]
+    systems: list[SimSystem] = [
+        CombatSystem(),
+        ctx.unit_quirks,
+    ]
 
     return systems

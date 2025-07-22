@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from lib.simulator.sim_state import SimState
 
 
-class UnitQuirks(abc.ABC):
+class UnitQuirks(SimSystem):
     id: str
 
     notes: list[str] = []
@@ -31,8 +31,11 @@ class UnitQuirks(abc.ABC):
             self.id, s.ctx.stats.stars, raw_stats
         )
 
+    def run(self, s: SimState):
+        pass
 
-class AatroxQuirks(UnitQuirks, SimSystem):
+
+class AatroxQuirks(UnitQuirks):
     id = "Characters/TFT15_Aatrox"
 
     def get_spell_damage(self, s: "SimState") -> dict:
@@ -43,7 +46,7 @@ class AatroxQuirks(UnitQuirks, SimSystem):
         )
 
 
-class EzrealQuirks(UnitQuirks, SimSystem):
+class EzrealQuirks(UnitQuirks):
     id = "Characters/TFT15_Ezreal"
 
     def get_spell_damage(self, s: "SimState") -> dict:
@@ -54,7 +57,7 @@ class EzrealQuirks(UnitQuirks, SimSystem):
         )
 
 
-class GarenQuirks(UnitQuirks, SimSystem):
+class GarenQuirks(UnitQuirks):
     id = "Characters/TFT15_Garen"
 
     def get_spell_damage(self, s: "SimState") -> dict:
@@ -65,14 +68,13 @@ class GarenQuirks(UnitQuirks, SimSystem):
         )
 
 
-class GnarQuirks(UnitQuirks, SimSystem):
+class GnarQuirks(UnitQuirks):
     id = "Characters/TFT15_Gnar"
 
-    PASSIVE_STACKS = 4
-
-    notes = [f"Passive stacks fixed at 4"]
+    notes = ["Passive stacks fixed at {gnar_passive_stacks}"]
 
     BUFF_KEY = "gnar_spell"
+    FLAG_KEY = "gnar_passive_stacks"
 
     def get_spell_damage(self, s: "SimState") -> dict:
         return dict(physical=0, magical=0)
@@ -95,7 +97,9 @@ class GnarQuirks(UnitQuirks, SimSystem):
         spell_vars = self._calc_spell_vars(s)
 
         bonus = SimStats.zeros()
-        bonus.speed = self.PASSIVE_STACKS * spell_vars["as_per_stack"] * 100
+        bonus.speed = (
+            s.ctx.flags["gnar_passive_stacks"] * spell_vars["as_per_stack"] * 100
+        )
 
         if self.BUFF_KEY in s.buffs:
             bonus.ad += spell_vars["gnarad"] * 100
@@ -112,3 +116,27 @@ class GnarQuirks(UnitQuirks, SimSystem):
     def _end_buff(self, s: SimState):
         del s.buffs[self.BUFF_KEY]
         s.mana_locks -= 1
+
+
+class KalistaQuirks(UnitQuirks):
+    id = "Characters/TFT15_Kalista"
+
+    def get_spell_damage(self, s: "SimState") -> dict:
+        spell_vars = self._calc_spell_vars(s)
+        return dict(
+            physical=spell_vars["addamage"],
+            magical=spell_vars["apdamage"],
+        )
+
+
+class KayleQuirks(UnitQuirks):
+    id = "Characters/TFT15_Kayle"
+
+    notes = ["Passive activated every {kayle_wave_frequency} attacks"]
+
+    def get_spell_damage(self, s: "SimState") -> dict:
+        spell_vars = self._calc_spell_vars(s)
+        return dict(
+            physical=spell_vars["addamage"],
+            magical=spell_vars["apdamage"],
+        )

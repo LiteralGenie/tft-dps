@@ -13,6 +13,7 @@ class CalcCtx:
     item_info: dict[str, dict]
     unit_proc: TFTUnitsProcessor
     unit_quirks: UnitQuirks
+    flags: dict
 
 
 @dataclass
