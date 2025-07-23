@@ -1,3 +1,43 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+@theme {
+    --color-background: oklch(0% 0% 0deg);
+    --color-foreground: oklch(100% 0% 0deg);
+    --color-muted: oklch(75% 0% 0deg);
+}
+
+/* Full height */
+html,
+body {
+    height: 100%;
+}
+
+/* Default font */
+html {
+    font-family: 'JetBrains Mono', monospace;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+/* Default colors */
+html {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+}
+input,
+select {
+    color: var(--color-background);
+}
+
+/* Links */
+a {
+    text-decoration: underline;
+    color: var(--color-blue-200);
+}
+a:visited {
+    color: var(--color-indigo-200);
+}

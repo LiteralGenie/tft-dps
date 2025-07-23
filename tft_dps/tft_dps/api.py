@@ -29,7 +29,7 @@ class SimulationRunner:
     async def run(self, unit_id: str):
         ctx = CalcCtx(
             unit_id=unit_id,
-            T=20,
+            T=30,
             item_info=self.items,
             unit_proc=self.unit_proc,
             item_inventory=dict(),
