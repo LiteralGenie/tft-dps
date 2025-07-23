@@ -2,10 +2,10 @@ import asyncio
 import json
 from pathlib import Path
 
-from tft_dps.api import SimulationRunner
 from tft_dps.lib.cache import NativeFileCache
 from tft_dps.lib.constants import CHAMPION_UNITS
 from tft_dps.lib.simulator.plot import calc_total_damage
+from tft_dps.lib.simulator.sim_runner import SimRunner
 
 # log_http_requests()
 
@@ -14,7 +14,7 @@ VERSION = "pbe"
 
 async def main():
     cache = NativeFileCache("/tmp/tft_dps")
-    runner = await SimulationRunner.ainit(cache)
+    runner = await SimRunner.ainit(cache)
 
     #
 

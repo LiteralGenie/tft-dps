@@ -37,6 +37,7 @@
 		"vitest-browser-svelte": "^0.1.0"
 	},
 	"dependencies": {
-		"idb-kv": "^2.2.0"
+		"idb-kv": "^2.2.0",
+		"radash": "^12.1.1"
 	}
 }

@@ -36,8 +36,8 @@ export class IdbCache {
         })
     }
 
-    async init() {
-        return new Promise((resolve, reject) => {
+    async init(): Promise<this> {
+        await new Promise((resolve, reject) => {
             const request = indexedDB.open(this.IDB_ID, 1)
 
             request.onupgradeneeded = (event) => {
@@ -49,6 +49,8 @@ export class IdbCache {
             request.onsuccess = () => resolve(request.result)
             request.onerror = () => reject(request.error)
         })
+
+        return this
     }
 
     private async connect(): Promise<[IDBTransaction, IDBObjectStore]> {

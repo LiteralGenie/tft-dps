@@ -1,20 +1,16 @@
 from tft_dps.lib.cache import Cache
 from tft_dps.lib.calc_ctx import CalcCtx, CalcCtxStats
+from tft_dps.lib.constants import VERSION
 from tft_dps.lib.resolver import (
     fetch_cached_and_get_items,
     fetch_cached_and_init_unit_processor,
 )
 from tft_dps.lib.simulator.simulate import simulate
 from tft_dps.lib.simulator.unit_quirks import GarenQuirks
-from tft_dps.lib.utils.misc_utils import log_http_requests
 from tft_dps.lol_resolver.tft.units import TFTUnitsProcessor
 
-log_http_requests()
 
-VERSION = "pbe"
-
-
-class SimulationRunner:
+class SimRunner:
     def __init__(self, cache: Cache, unit_proc: TFTUnitsProcessor, items: dict) -> None:
         self.cache = cache
         self.unit_proc = unit_proc

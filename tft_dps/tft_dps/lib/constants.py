@@ -1,3 +1,5 @@
+VERSION = "pbe"
+
 ITEMS = [
     "TFT_Item_BFSword",
     "TFT_Item_NeedlesslyLargeRod",
@@ -113,7 +115,7 @@ CHAMPION_UNITS = [
     "Characters/TFT15_Gnar",
     "Characters/TFT15_Karma",
     "Characters/TFT15_Vi",
-    "Characters/TFT15_Galio",
+    # "Characters/TFT15_Galio",
     "Characters/TFT15_Sivir",
     "Characters/TFT15_TwistedFate",
     "Characters/TFT15_Shen",
