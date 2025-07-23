@@ -12,12 +12,21 @@ export interface GameInfoContext {
             }
         }
     >
+    items: Record<
+        string,
+        {
+            id: string
+            name: string
+            desc: string
+            type: string
+        }
+    >
 }
 
 const CONTEXT_KEY = 'game_info_context'
 
 export function setGameInfoContext(): GameInfoContext {
-    const ctx = $state<GameInfoContext>({ units: {} })
+    const ctx = $state<GameInfoContext>({ units: {}, items: {} })
     setContext(CONTEXT_KEY, ctx)
     return ctx
 }

@@ -1,4 +1,3 @@
-import json
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
@@ -27,9 +26,6 @@ class SimState:
             attacks=[x.as_dict() for x in self.attacks],
             casts=[x.as_dict() for x in self.casts],
         )
-
-    def as_json(self):
-        return json.dumps(self.as_dict())
 
 
 @dataclass

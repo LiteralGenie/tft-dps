@@ -1,24 +1,12 @@
 <script>
-    import { getGameInfoContext } from '$lib/gameInfoContext.svelte'
-    import { getSearchContext } from '$lib/searchContext.svelte'
-    import { onMount } from 'svelte'
+    import ItemSection from './itemSection.svelte'
     import UnitSection from './unitSection.svelte'
-
-    const infoCtx = getGameInfoContext()
-    const searchCtx = getSearchContext()
-
-    onMount(() => {
-        if (searchCtx.value.length === 0) {
-            searchCtx.value.push(searchCtx.getDefaultEntry(infoCtx))
-        }
-    })
 </script>
 
-{#if searchCtx.value.length > 0}
-    <div class="root flex">
-        <UnitSection entry={searchCtx.value[0]} />
-    </div>
-{/if}
+<div class="root flex flex-col">
+    <UnitSection />
+    <ItemSection />
+</div>
 
 <style>
     .root {

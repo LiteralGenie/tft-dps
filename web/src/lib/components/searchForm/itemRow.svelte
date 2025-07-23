@@ -3,22 +3,21 @@
     import { getSearchContext } from '$lib/searchContext.svelte'
     import { onMount } from 'svelte'
 
-    export let unitInfo: GameInfoContext['units'][string]
-    $: unitId = unitInfo.info.id
+    export let itemInfo: GameInfoContext['items'][string]
 
     const searchCtx = getSearchContext()
 
     let enableRef: HTMLInputElement
 
     onMount(() => {
-        enableRef.checked = searchCtx.units.has(unitId)
+        enableRef.checked = searchCtx.units.has(itemInfo.id)
     })
 
     function onEnableChange() {
         if (enableRef.checked) {
-            searchCtx.units.add(unitId)
+            searchCtx.units.add(itemInfo.id)
         } else {
-            searchCtx.units.delete(unitId)
+            searchCtx.units.delete(itemInfo.id)
         }
     }
 </script>
@@ -28,11 +27,10 @@
         <input on:change={onEnableChange} bind:this={enableRef} type="checkbox" />
     </span>
 
-    <span>{unitInfo.info.name}</span>
+    <span>{itemInfo.name}</span>
 
     <span class="flex flex-col">
-        <span>{unitInfo.info.cost}-cost</span>
-        <span> {unitInfo.info.traits.join(', ')} </span>
+        <span>{itemInfo.desc}</span>
     </span>
 </div>
 
