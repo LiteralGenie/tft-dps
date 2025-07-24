@@ -20,6 +20,7 @@ export interface GameInfoContext {
             name: string
             desc: string
             type: string
+            icon: string
         }
     >
 }

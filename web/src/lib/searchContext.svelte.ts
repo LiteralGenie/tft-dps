@@ -1,4 +1,5 @@
 import { getContext, setContext } from 'svelte'
+import { DEFAULT_SEARCH_CONTEXT } from './constants'
 
 export type SearchContext = {
     units: Set<string>
@@ -6,20 +7,17 @@ export type SearchContext = {
     maxStars: number
 
     items: Set<string>
-    traits: Set<string>
+    traits: {
+        silver: boolean
+        gold: boolean
+        prismatic: boolean
+    }
 }
 
 const CONTEXT_KEY = 'search_context'
 
 export function setSearchContext(): SearchContext {
-    const ctx = $state<SearchContext>({
-        units: new Set(),
-        minStars: 1,
-        maxStars: 3,
-        items: new Set(),
-        traits: new Set(),
-    })
-
+    const ctx = $state<SearchContext>(JSON.parse(JSON.stringify(DEFAULT_SEARCH_CONTEXT)))
     setContext(CONTEXT_KEY, ctx)
     return ctx
 }

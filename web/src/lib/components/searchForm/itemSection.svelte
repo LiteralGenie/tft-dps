@@ -6,13 +6,13 @@
     const gameInfo = getGameInfoContext()
 
     const itemInfo = alphabetical([...Object.values(gameInfo.items)], (u) => {
-        let typeValue = 0
+        let typeValue = ''
         switch (u.type) {
             case 'Component':
-                typeValue = 0
+                typeValue = 'z'
                 break
             case 'Completed':
-                typeValue = -1
+                typeValue = 'a'
                 break
         }
 
@@ -23,11 +23,7 @@
 <section class="flex flex-col">
     <h1 class="section-header">Items</h1>
 
-    <div class="grid max-h-[40em] items-center overflow-auto">
-        <span></span>
-        <span>Name</span>
-        <span>Info</span>
-
+    <div class="flex flex-wrap">
         {#each itemInfo as d}
             <ItemRow itemInfo={d} />
         {/each}
@@ -35,8 +31,4 @@
 </section>
 
 <style>
-    .grid {
-        grid-template-columns: repeat(3, max-content);
-        gap: 2rem;
-    }
 </style>
