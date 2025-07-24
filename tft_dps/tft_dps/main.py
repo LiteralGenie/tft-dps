@@ -33,6 +33,8 @@ async def main():
 
     Path("/tmp/items").write_text(json.dumps(runner.items, indent=2))
 
+    Path("/tmp/traits").write_text(json.dumps(runner.traits, indent=2))
+
     #
 
     result = await runner.run("Characters/TFT15_Garen")

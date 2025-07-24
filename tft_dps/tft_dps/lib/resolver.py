@@ -1,9 +1,59 @@
 import requests
 
-from ..lol_resolver.tft.generator import filter_unit_props, get_set_items, get_unit_ids
+from tft_dps.lol_resolver.tft.traits import TFTTraitsProcessor
+
+from ..lol_resolver.tft.generator import (
+    filter_unit_props,
+    get_set_items,
+    get_set_traits,
+    get_trait_units,
+    get_unit_ids,
+)
 from ..lol_resolver.tft.items import TFTItemsProcessor
 from ..lol_resolver.tft.units import TFTUnitsProcessor
 from .cache import Cache, fetch_cached_json
+
+
+# tft > generator.py > generate_version_items()
+async def fetch_cached_and_get_traits(cache: Cache, version: str):
+    map22 = await fetch_cached_json(
+        lambda: fetch_cdragon_map22(version),
+        cache,
+        "map22",
+    )
+
+    strings = (
+        await fetch_cached_json(
+            lambda: fetch_cdragon_strings(version, "en_us"), cache, "strings"
+        )
+    )["entries"]
+
+    unit_ids: list[str] = get_unit_ids(map22)
+    raw_units = {
+        id: await fetch_cached_json(
+            lambda: fetch_cdragon_unit(version, id),
+            cache,
+            f"unit_{id.split('/')[-1]}",
+        )
+        for id in unit_ids
+    }
+    trait_units = get_trait_units(map22, raw_units)
+
+    unit_props = filter_unit_props(map22)
+
+    trait_list = get_set_traits(map22)
+
+    proc = TFTTraitsProcessor(
+        version,
+        "en_us",
+        map22,
+        trait_list,
+        trait_units,
+        unit_props,
+        strings,
+    )
+
+    return proc.get_traits()
 
 
 async def fetch_cached_and_init_unit_processor(cache: Cache, version: str):

@@ -9,6 +9,7 @@ export interface GameInfoContext {
                 name: string
                 traits: string[]
                 cost: number
+                icon: string
             }
         }
     >

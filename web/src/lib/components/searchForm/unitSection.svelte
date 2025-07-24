@@ -14,11 +14,7 @@
 <section class="flex flex-col">
     <h1 class="section-header">Units</h1>
 
-    <div class="grid max-h-[40em] items-center overflow-auto">
-        <span></span>
-        <span>Name</span>
-        <span>Info</span>
-
+    <div class="flex flex-wrap items-center">
         {#each unitInfo as d}
             <UnitRow unitInfo={d} />
         {/each}
@@ -26,8 +22,4 @@
 </section>
 
 <style>
-    .grid {
-        grid-template-columns: repeat(3, max-content);
-        gap: 2rem;
-    }
 </style>
