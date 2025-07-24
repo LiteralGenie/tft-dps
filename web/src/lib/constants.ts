@@ -1,6 +1,4 @@
-import type { SearchContext } from './searchContext.svelte'
-
-export const DEFAULT_SEARCH_CONTEXT: SearchContext = {
+export const DEFAULT_SEARCH_CONTEXT = () => ({
     minStars: 1,
     maxStars: 3,
     units: new Set([
@@ -72,4 +70,4 @@ export const DEFAULT_SEARCH_CONTEXT: SearchContext = {
         gold: true,
         prismatic: true,
     },
-}
+})

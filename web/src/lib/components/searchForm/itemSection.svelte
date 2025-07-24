@@ -23,7 +23,7 @@
 <section class="flex flex-col">
     <h1 class="section-header">Items</h1>
 
-    <div class="flex flex-wrap">
+    <div class="flex flex-wrap items-center">
         {#each itemInfo as d}
             <ItemRow itemInfo={d} />
         {/each}

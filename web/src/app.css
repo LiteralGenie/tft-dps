@@ -1,8 +1,8 @@
 @import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
-
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
 
 @theme {
     --color-background: oklch(0% 0% 0deg);
@@ -40,4 +40,12 @@ a {
 }
 a:visited {
     color: var(--color-indigo-200);
+}
+
+/* Buttons should be clickable */
+button {
+    cursor: pointer;
+}
+input[type='checkbox'] {
+    cursor: pointer;
 }

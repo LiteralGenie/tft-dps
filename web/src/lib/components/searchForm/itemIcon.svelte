@@ -8,6 +8,6 @@
     }: { itemInfo: GameInfoContext['items'][string]; className?: string } = $props()
 </script>
 
-<div class="unit p-[2px]">
+<div>
     <img class={className} src={assetUrl(itemInfo.icon)} title={itemInfo.name} />
 </div>

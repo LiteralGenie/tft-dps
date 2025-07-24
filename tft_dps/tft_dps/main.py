@@ -1,10 +1,10 @@
 import asyncio
 import json
+import time
 from pathlib import Path
 
 from tft_dps.lib.cache import NativeFileCache
 from tft_dps.lib.constants import CHAMPION_UNITS
-from tft_dps.lib.simulator.plot import calc_total_damage
 from tft_dps.lib.simulator.sim_runner import SimRunner
 
 # log_http_requests()
@@ -36,12 +36,17 @@ async def main():
     Path("/tmp/traits").write_text(json.dumps(runner.traits, indent=2))
 
     #
+    n = 20
 
-    result = await runner.run("Characters/TFT15_Garen")
+    ti = time.time()
+    for idx in range(n):
+        result = await runner.run("Characters/TFT15_Gnar")
+    el = time.time() - ti
+    print(f"{(el / n)*1000:.0f}ms")
 
-    total = calc_total_damage(result)
-    for pt in total:
-        print(f"{pt['t']},{pt['physical']},{pt['magical']}")
+    # total = calc_total_damage(result)
+    # for pt in total:
+    #     print(f"{pt['t']},{pt['physical']},{pt['magical']}")
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 <script lang="ts" module>
+    import SearchFormDialog from '../searchForm/searchFormDialog.svelte'
     import DpsTableBody from './dpsTableBody.svelte'
     import DpsTableHeader from './dpsTableHeader.svelte'
 
@@ -9,10 +10,16 @@
         items: Record<string, number>
         traits: Record<string, number>
     }
+
+    let showDialog = $state(false)
 </script>
 
+<SearchFormDialog open={showDialog} on:close={() => (showDialog = false)} />
+
 <div class="root m-auto flex max-w-[70rem] flex-col">
-    <button class="mb-4 self-end rounded-md border px-4 py-2">Configure</button>
+    <button onclick={() => (showDialog = true)} class="mb-4 self-end rounded-md border px-4 py-2"
+        >Configure</button
+    >
 
     <div class="grid-container rounded-md border p-2">
         <DpsTableHeader />

@@ -4,7 +4,14 @@
     import UnitSection from './unitSection.svelte'
 </script>
 
-<div class="root flex flex-col">
+<div class="root flex flex-col gap-4">
+    <p>
+        An average DPS will be calculated for all unique combinations of units / items / traits
+        selected.
+    </p>
+
+    <hr />
+
     <TraitSection />
     <UnitSection />
     <ItemSection />

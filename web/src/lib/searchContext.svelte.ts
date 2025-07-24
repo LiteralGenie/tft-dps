@@ -17,7 +17,7 @@ export type SearchContext = {
 const CONTEXT_KEY = 'search_context'
 
 export function setSearchContext(): SearchContext {
-    const ctx = $state<SearchContext>(JSON.parse(JSON.stringify(DEFAULT_SEARCH_CONTEXT)))
+    const ctx = $state<SearchContext>(DEFAULT_SEARCH_CONTEXT())
     setContext(CONTEXT_KEY, ctx)
     return ctx
 }

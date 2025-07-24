@@ -29,6 +29,7 @@ export async function* bootstrap() {
     `)
     units = JSON.parse(units)
 
+    yield { type: 'load_runner' }
     const runner = await pyodide.runPythonAsync(`
         from js import tft_cache
         from tft_dps.lib.simulator.sim_runner import SimRunner

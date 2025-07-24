@@ -30,8 +30,8 @@
 
 <button
     onclick={onEnableChange}
-    class="transition-p duration-50 relative size-14 cursor-pointer p-1 opacity-35 hover:p-0 hover:opacity-100"
-    class:opacity-100={isSelected}
+    class="transition-p duration-50 relative size-14 cursor-pointer p-1 opacity-35 hover:p-0 hover:opacity-70"
+    class:opacity-100!={isSelected}
 >
     <UnitIcon {unitInfo} />
     <input hidden bind:this={enableRef} type="checkbox" />
