@@ -1,6 +1,6 @@
 <script lang="ts">
+    import { bootstrap } from '$lib/bootstrap'
     import SearchForm from '$lib/components/searchForm/searchForm.svelte'
-    import { bootstrap } from '$lib/ffi'
     import { setGameInfoContext } from '$lib/gameInfoContext.svelte'
     import { setSearchContext } from '$lib/searchContext.svelte'
     import { onMount } from 'svelte'

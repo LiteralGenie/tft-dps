@@ -1,3 +1,19 @@
-pip install -r requirements.txt
+```
 pip install -e .
-pyodide build
+
+form
+    clear
+    unit stars
+    item recs
+
+simulate
+    db
+    item quirks
+    traits
+
+data
+    cache
+        dl script
+        serve
+    version check
+```

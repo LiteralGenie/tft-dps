@@ -42,7 +42,7 @@ class WorkerManager:
 
     @classmethod
     def init(cls, num_apps: int, num_workers: int, runner: SimRunner):
-        handles = cls._spawn_app_workers(num_apps)
+        handles = cls._spawn_app_workers(num_apps, runner)
 
         job_workers, job_queue, result_queue = cls._spawn_job_workers(
             num_workers, runner
@@ -51,7 +51,7 @@ class WorkerManager:
         return cls(handles, job_workers, job_queue, result_queue)
 
     @classmethod
-    def _spawn_app_workers(cls, n: int):
+    def _spawn_app_workers(cls, n: int, runner: SimRunner):
         handles = []
         for idx in range(n):
             req = mp.Queue()
@@ -62,6 +62,9 @@ class WorkerManager:
                 kwargs=dict(
                     req_queue=req,
                     resp_queue=resp,
+                    unit_info=runner.units,
+                    item_info=runner.items,
+                    trait_info=runner.traits,
                 ),
             )
             proc.start()

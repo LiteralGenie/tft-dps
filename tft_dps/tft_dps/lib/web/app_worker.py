@@ -13,14 +13,25 @@ from tft_dps.lib.constants import PORT
 class AppWorkerContext:
     req_queue: mp.Queue
     resp_queue: mp.Queue
+    unit_info: dict
+    item_info: dict
+    trait_info: dict
 
 
 def run_app_worker(*args, **kwargs):
     asyncio.run(_serve_app(*args, **kwargs))
 
 
-async def _serve_app(req_queue: mp.Queue, resp_queue: mp.Queue):
-    __builtins__["APP_WORKER_CONTEXT"] = AppWorkerContext(req_queue, resp_queue)
+async def _serve_app(
+    req_queue: mp.Queue,
+    resp_queue: mp.Queue,
+    unit_info: dict,
+    item_info: dict,
+    trait_info: dict,
+):
+    __builtins__["APP_WORKER_CONTEXT"] = AppWorkerContext(
+        req_queue, resp_queue, unit_info, item_info, trait_info
+    )
 
     config = uvicorn.Config(
         "lib.web.app:app",

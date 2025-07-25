@@ -1,4 +1,6 @@
 import asyncio
+import json
+from pathlib import Path
 
 from tft_dps.lib.cache import NativeFileCache
 from tft_dps.lib.simulator.sim_runner import SimRunner
@@ -26,22 +28,9 @@ async def main():
 
     #
 
-    # units: dict = {}
-    # for id in CHAMPION_UNITS:
-    #     base_stats = runner.unit_proc.get_base_stats(id)
-    #     info = runner.unit_proc.get_unit(id, runner.unit_proc.get_base_stats(id))
-    #     spell_vars = runner.unit_proc.calc_spell_vars_for_level(id, 3, base_stats)
-    #     if info:
-    #         units[info["id"]] = dict(
-    #             base_stats=base_stats,
-    #             spell_vars=spell_vars,
-    #             info=info,
-    #         )
-    # Path("/tmp/units").write_text(json.dumps(units, indent=2))
-
-    # Path("/tmp/items").write_text(json.dumps(runner.items, indent=2))
-
-    # Path("/tmp/traits").write_text(json.dumps(runner.traits, indent=2))
+    Path("/tmp/units").write_text(json.dumps(runner.units, indent=2))
+    Path("/tmp/items").write_text(json.dumps(runner.items, indent=2))
+    Path("/tmp/traits").write_text(json.dumps(runner.traits, indent=2))
 
     #
 

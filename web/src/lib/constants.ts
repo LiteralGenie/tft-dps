@@ -1,3 +1,5 @@
+export const API_URL = 'http://localhost:4723'
+
 export const DEFAULT_SEARCH_CONTEXT = () => ({
     minStars: 1,
     maxStars: 3,

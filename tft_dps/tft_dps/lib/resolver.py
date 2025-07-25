@@ -117,13 +117,13 @@ async def fetch_cached_and_get_items(cache: Cache, version: str):
 
     unit_props = filter_unit_props(map22)
 
-    items = get_set_items(map22)
+    raw_items = get_set_items(map22)
 
     proc = TFTItemsProcessor(
         version,
         "en_us",
         map22,
-        items,
+        raw_items,
         unit_props,
         strings,
     )
