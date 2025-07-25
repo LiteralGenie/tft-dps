@@ -51,7 +51,7 @@ def _item_to_stats(item: dict) -> SimStats:
 
 
 def _sum_item_bonus(s: SimState) -> SimStats:
-    bonus = SimStats(0, 0, 0, 0, 0, 0, 0)
+    bonus = SimStats.zeros()
 
     for name, count in s.ctx.item_inventory.items():
         for _ in range(count):

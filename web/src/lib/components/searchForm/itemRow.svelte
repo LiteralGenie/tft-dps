@@ -32,11 +32,11 @@
     class="transition-p duration-50 relative size-14 cursor-pointer p-1 opacity-35 hover:p-0 hover:opacity-70"
     class:opacity-100!={isSelected}
 >
-    <ItemIcon {itemInfo} className="size-12" />
+    <ItemIcon {itemInfo} />
     <input hidden bind:this={enableRef} type="checkbox" />
     <div
         class:hidden={!isSelected}
-        class="icon p-0.75 absolute bottom-1 right-1 size-4 rounded-full bg-green-500"
+        class="icon absolute bottom-2 right-2 size-4 rounded-full bg-green-500 p-1"
     >
         <CheckmarkIcon class="stroke-4 stroke-white" />
     </div>
@@ -52,8 +52,9 @@
     button:hover .icon {
         height: 1.125rem;
         width: 1.125rem;
-        transition: all 50ms;
-        bottom: 0.25rem;
-        right: 0.25rem;
+        padding: 0.25rem;
+        /* transition: height 50ms; */
+        bottom: 0.375rem;
+        right: 0.375rem;
     }
 </style>

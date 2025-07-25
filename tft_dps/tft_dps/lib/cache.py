@@ -1,4 +1,3 @@
-import functools
 import json
 from pathlib import Path
 from typing import Callable
@@ -8,10 +7,10 @@ class Cache:
     async def has(self, key: str) -> bool:
         raise NotImplementedError()
 
-    async def get(self, key: str) -> str:
+    async def get(self, key: str) -> dict:
         raise NotImplementedError()
 
-    async def set(self, key: str, value: str) -> None:
+    async def set(self, key: str, value: dict) -> None:
         raise NotImplementedError()
 
 
@@ -26,26 +25,21 @@ class NativeFileCache(Cache):
     async def has(self, key: str) -> bool:
         return self._get_fp(key).exists()
 
-    async def get(self, key: str) -> str:
-        return self._get_fp(key).read_text()
+    async def get(self, key: str) -> dict:
+        return json.loads(self._get_fp(key).read_text())
 
-    async def set(self, key: str, value: str) -> None:
-        self._get_fp(key).write_text(value)
+    async def set(self, key: str, value: dict) -> None:
+        self._get_fp(key).write_text(json.dumps(value))
 
 
 async def fetch_cached(
     fetch_fn: Callable,
     cache: Cache,
     key: str,
-) -> str:
+) -> dict:
     if not await cache.has(key):
         print("Fetching", key)
         resp = await fetch_fn()
         await cache.set(key, resp)
 
     return await cache.get(key)
-
-
-@functools.wraps(fetch_cached)
-async def fetch_cached_json(*args, **kwargs) -> dict:
-    return json.loads(await fetch_cached(*args, **kwargs))
