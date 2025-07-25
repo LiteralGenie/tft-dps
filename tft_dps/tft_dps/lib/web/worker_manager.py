@@ -1,7 +1,9 @@
 import asyncio
 import multiprocessing as mp
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
+from tft_dps.lib.simulator.sim_runner import SimRunner
 from tft_dps.lib.web.app_worker import run_app_worker
 from tft_dps.lib.web.job_worker import run_job_worker
 
@@ -33,14 +35,18 @@ class WorkerManager:
         self.job_queue = job_queue
         self.result_queue = result_queue
 
-        self._monitor_reqs()
-        self._monitor_results()
+        self.tasks = [
+            self._monitor_reqs(),
+            self._monitor_results(),
+        ]
 
     @classmethod
-    def init(cls, num_apps: int, num_workers: int):
+    def init(cls, num_apps: int, num_workers: int, runner: SimRunner):
         handles = cls._spawn_app_workers(num_apps)
 
-        job_workers, job_queue, result_queue = cls._spawn_job_workers(num_workers)
+        job_workers, job_queue, result_queue = cls._spawn_job_workers(
+            num_workers, runner
+        )
 
         return cls(handles, job_workers, job_queue, result_queue)
 
@@ -65,7 +71,7 @@ class WorkerManager:
         return handles
 
     @classmethod
-    def _spawn_job_workers(cls, n: int):
+    def _spawn_job_workers(cls, n: int, runner: SimRunner):
         job_queue = mp.Queue()
         result_queue = mp.Queue()
 
@@ -75,6 +81,7 @@ class WorkerManager:
                 target=run_job_worker,
                 name=f"tft_dps_job_worker_{idx}",
                 kwargs=dict(
+                    runner=runner,
                     job_queue=job_queue,
                     result_queue=result_queue,
                 ),
@@ -85,7 +92,7 @@ class WorkerManager:
         return procs, job_queue, result_queue
 
     def _monitor_reqs(self):
-        asyncio.create_task(self.__monitor_reqs())
+        return asyncio.create_task(self.__monitor_reqs())
 
     async def __monitor_reqs(self):
         while True:
@@ -93,7 +100,7 @@ class WorkerManager:
 
             for idx_handle, handle in enumerate(self.handles):
                 if handle.req.qsize() > 0:
-                    req = handle.req.get_nowait()
+                    req = handle.req.get()
                     self.job_queue.put(
                         dict(
                             req=req,
@@ -106,10 +113,20 @@ class WorkerManager:
                 await asyncio.sleep(0.25)
 
     def _monitor_results(self):
-        asyncio.create_task(self.__monitor_results())
+        return asyncio.create_task(self.__monitor_results())
 
     async def __monitor_results(self):
+        loop = asyncio.get_running_loop()
+        exec = ThreadPoolExecutor(1)
+
         while True:
-            job = self.result_queue.get()
-            idx_handle: int = job["idx_handle"]
-            self.handles[idx_handle].resp.put(job["resp"])
+            result = await loop.run_in_executor(exec, self.result_queue.get)
+            idx_handle: int = result["idx_handle"]
+            self.handles[idx_handle].resp.put(result["resp"])
+
+    def destroy(self):
+        for handle in self.handles:
+            handle.proc.kill()
+        
+        for worker in self.job_workers:
+            worker.kill()
