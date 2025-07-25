@@ -11,9 +11,11 @@ version = "0.0.1"
 dependencies = [
     "aiohttp",
     "build",
+    "fastapi",
     "pillow",
     "pytest",
     "requests",
     "ujson",
+    "uvicorn",
     "xxhash",
 ]

@@ -1,4 +1,5 @@
 VERSION = "pbe"
+PORT = 4723
 
 ITEMS = [
     "TFT_Item_BFSword",
