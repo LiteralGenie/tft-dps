@@ -27,14 +27,14 @@ class CombatSystem(SimSystem):
 
                 # Auto
                 self._auto(s)
-                s.stats.mana += s.ctx.stats.mana_per_auto
+                s.stats.mana += s.ctx.base_stats.mana_per_auto
 
                 if s.stats.mana >= s.stats.mana_max:
                     # Start casting
                     s.stats.mana -= s.stats.mana_max
                     self.state = dict(
                         type="PRE_CAST",
-                        until=s.t + s.ctx.stats.cast_time,
+                        until=s.t + s.ctx.base_stats.cast_time,
                     )
                 else:
                     # Start next auto

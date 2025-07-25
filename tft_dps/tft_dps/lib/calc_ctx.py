@@ -8,9 +8,11 @@ from .simulator.unit_quirks import UnitQuirks
 class CalcCtx:
     T: int
     unit_id: str
-    stats: "CalcCtxStats"
+    base_stats: "CalcCtxStats"
     item_inventory: dict[str, int]
     item_info: dict[str, dict]
+    trait_inventory: dict[str, int]
+    trait_info: dict
     unit_proc: TFTUnitsProcessor
     unit_quirks: UnitQuirks
     flags: dict

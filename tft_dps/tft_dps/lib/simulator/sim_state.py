@@ -33,10 +33,10 @@ class SimStats:
     ad: float
     ap: float
     speed: float
-    mana: int
-    mana_max: int
-    health: int
-    health_max: int
+    mana: float
+    mana_max: float
+    health: float
+    health_max: float
 
     def __add__(self, other: "SimStats") -> "SimStats":
         return SimStats(

@@ -16,12 +16,7 @@ async def ping():
 
 
 @app.post("/simulate")
-async def simulate(data: dict):
-    APP_WORKER_CONTEXT.req_queue.put(
-        SimulateRequest(
-            type="simulate",
-            **data,
-        )
-    )
+async def simulate(data: SimulateRequest):
+    APP_WORKER_CONTEXT.req_queue.put(data)
     result = APP_WORKER_CONTEXT.resp_queue.get()
     return result

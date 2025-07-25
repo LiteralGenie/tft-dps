@@ -31,15 +31,24 @@ class SimRunner:
         traits = await fetch_cached_and_get_traits(cache, VERSION)
         return cls(cache, unit_proc, items, traits)
 
-    async def run(self, unit_id: str):
+    async def run(
+        self,
+        unit_id: str,
+        stars: int,
+        items: dict[str, int],
+        traits: dict[str, int],
+    ):
         ctx = CalcCtx(
-            unit_id=unit_id,
             T=30,
-            item_info=self.items,
-            unit_proc=self.unit_proc,
-            item_inventory=dict(),
-            stats=CalcCtxStats.from_unit(unit_id, 3, self.unit_proc),
+            unit_id=unit_id,
             unit_quirks=GarenQuirks(),
+            unit_proc=self.unit_proc,
+            base_stats=CalcCtxStats.from_unit(unit_id, stars, self.unit_proc),
+            item_inventory=items,
+            trait_inventory=traits,
+            #
+            item_info=self.items,
+            trait_info=self.traits,
             flags=dict(),
         )
 

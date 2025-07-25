@@ -8,8 +8,9 @@ from tft_dps.lib.simulator.sim_runner import SimRunner
 class SimulateRequest(TypedDict):
     type: Literal["simulate"]
     id: str
-
-
+    stars: int
+    items: dict[str, int]
+    traits: dict[str, int]
 
 
 def run_job_worker(*args, **kwargs):
@@ -28,7 +29,14 @@ async def _run_job_worker(
 
         job = job_queue.get()
         req: SimulateRequest = job["req"]
-        resp = (await runner.run(req["id"])).as_dict()
+        resp = (
+            await runner.run(
+                unit_id=req["id"],
+                stars=req["stars"],
+                items=req["items"],
+                traits=req["traits"],
+            )
+        ).as_dict()
         result_queue.put(
             dict(
                 **job,

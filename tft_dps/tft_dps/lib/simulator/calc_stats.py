@@ -9,19 +9,21 @@ def calc_stats(s: SimState) -> SimStats:
     bonus += _sum_item_bonus(s)
     bonus += s.ctx.unit_quirks.get_unit_bonus(s)
 
+    health = _calc_hp(s, bonus)
+
     return SimStats(
         ad=_calc_ad(s, bonus),
         ap=_calc_ap(s, bonus),
         speed=_calc_as(s, bonus),
         mana=curr.mana,
         mana_max=curr.mana_max,
-        health=curr.health,
-        health_max=curr.health_max,
+        health=health,
+        health_max=health,
     )
 
 
 def init_stats(ctx: CalcCtx) -> SimStats:
-    b = ctx.stats
+    b = ctx.base_stats
 
     stats = SimStats(
         ad=b.ad,
@@ -62,17 +64,27 @@ def _sum_item_bonus(s: SimState) -> SimStats:
 
 
 def _calc_ad(s: SimState, bonus: SimStats):
-    base = s.ctx.stats
+    base = s.ctx.base_stats
 
     ad = base.ad
-    ad *= base.stars**1.5
+    ad *= 1.5 ** (base.stars - 1)
     ad *= 1 + bonus.ad / 100
 
     return ad
 
 
+def _calc_hp(s: SimState, bonus: SimStats):
+    base = s.ctx.base_stats
+
+    hp = base.health
+    hp *= 1.8 ** (base.stars - 1)
+    hp *= 1 + bonus.health / 100
+
+    return hp
+
+
 def _calc_ap(s: SimState, bonus: SimStats):
-    base = s.ctx.stats
+    base = s.ctx.base_stats
 
     ap = base.ap
     ap += bonus.ap
@@ -81,7 +93,7 @@ def _calc_ap(s: SimState, bonus: SimStats):
 
 
 def _calc_as(s: SimState, bonus: SimStats):
-    b = s.ctx.stats
+    b = s.ctx.base_stats
 
     speed = b.speed
     speed *= 1 + bonus.speed / 100

@@ -127,6 +127,6 @@ class WorkerManager:
     def destroy(self):
         for handle in self.handles:
             handle.proc.kill()
-        
+
         for worker in self.job_workers:
             worker.kill()
