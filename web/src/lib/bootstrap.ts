@@ -1,5 +1,5 @@
-import { API_URL } from './constants'
 import { IdbCache } from './idbCache'
+import { fetchApiJson } from './miscUtils'
 
 export async function* bootstrap() {
     yield { type: 'load_cache' }
@@ -7,9 +7,9 @@ export async function* bootstrap() {
     ;(window as any).tft_cache = cache
 
     yield { type: 'load_game_info' }
-    const units = await (await fetch(API_URL + '/info/units')).json()
-    const items = await (await fetch(API_URL + '/info/items')).json()
-    const traits = await (await fetch(API_URL + '/info/traits')).json()
+    const units = await fetchApiJson('/info/units')
+    const items = await fetchApiJson('/info/items')
+    const traits = await fetchApiJson('/info/traits')
 
     return {
         cache,

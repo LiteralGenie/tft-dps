@@ -6,6 +6,7 @@ export interface GameInfoContext {
         {
             info: {
                 id: string
+                index: number
                 name: string
                 traits: string[]
                 cost: number
