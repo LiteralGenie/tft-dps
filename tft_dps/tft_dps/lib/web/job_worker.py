@@ -5,12 +5,35 @@ from typing import Literal, TypedDict
 from tft_dps.lib.simulator.sim_runner import SimRunner
 
 
+class SimulateAllRequest(TypedDict):
+    type: Literal["simulate_all_request"]
+    requests: list["SimulateRequest"]
+
+
 class SimulateRequest(TypedDict):
-    type: Literal["simulate"]
-    id: str
+    type: Literal["simulate_request"]
+    id_unit: str
     stars: int
     items: dict[str, int]
     traits: dict[str, int]
+
+
+class SimulateJob(TypedDict):
+    type: Literal["simulate_job"]
+    batch: "BatchInfo"
+    req: SimulateRequest
+
+
+class SimulateJobResult(TypedDict):
+    type: Literal["simulate_job_result"]
+    batch: "BatchInfo"
+    resp: dict
+
+
+class BatchInfo(TypedDict):
+    id: str
+    idx: int
+    total: int
 
 
 def run_job_worker(*args, **kwargs):
@@ -27,19 +50,20 @@ async def _run_job_worker(
             await asyncio.sleep(0.25)
             continue
 
-        job = job_queue.get()
-        req: SimulateRequest = job["req"]
+        job: SimulateJob = job_queue.get()
+        req = job["req"]
         resp = (
             await runner.run(
-                unit_id=req["id"],
+                unit_id=req["id_unit"],
                 stars=req["stars"],
                 items=req["items"],
                 traits=req["traits"],
             )
         ).as_dict()
         result_queue.put(
-            dict(
-                **job,
+            SimulateJobResult(
+                type="simulate_job_result",
+                batch=job["batch"],
                 resp=resp,
             )
         )

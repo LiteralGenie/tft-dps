@@ -34,7 +34,7 @@ const UNIT_COLUMN: ActiveSearchColumn<{ unit: string; stars: Set<number> }> = {
     id: 'unit',
     label: 'Champion',
     getLabel: (d, info) => info.units[d.idUnit].info.name,
-    getSortValue: (d, info) => info.units[d.idUnit].info.index,
+    getSortValue: (d, info) => info.units[d.idUnit].index,
     filter: {
         prepare: (text) => {
             const filters: Array<{ unit: string; stars: Set<number> }> = []

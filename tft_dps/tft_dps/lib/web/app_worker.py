@@ -16,6 +16,10 @@ class AppWorkerContext:
     unit_info: dict
     item_info: dict
     trait_info: dict
+    #
+    max_trait_bits_by_unit: dict[int, list[int]]
+    unit_info_by_index: dict
+    item_info_by_index: dict
 
 
 def run_app_worker(*args, **kwargs):
@@ -29,8 +33,24 @@ async def _serve_app(
     item_info: dict,
     trait_info: dict,
 ):
+    max_trait_bits_by_unit = dict()
+    for unit in unit_info.values():
+        max_trait_bits_by_unit[unit["index"]] = [
+            len(trait_info[t]["tiers"]) for t in unit["info"]["traits"]
+        ]
+
+    unit_info_by_index = {u["index"]: u for u in unit_info.values()}
+    item_info_by_index = {u["index"]: u for u in item_info.values()}
+
     __builtins__["APP_WORKER_CONTEXT"] = AppWorkerContext(
-        req_queue, resp_queue, unit_info, item_info, trait_info
+        req_queue,
+        resp_queue,
+        unit_info,
+        item_info,
+        trait_info,
+        max_trait_bits_by_unit,
+        unit_info_by_index,
+        item_info_by_index,
     )
 
     config = uvicorn.Config(

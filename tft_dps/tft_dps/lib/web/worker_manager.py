@@ -2,10 +2,18 @@ import asyncio
 import multiprocessing as mp
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
+from typing import TypedDict
+from uuid import uuid4
 
 from tft_dps.lib.simulator.sim_runner import SimRunner
 from tft_dps.lib.web.app_worker import run_app_worker
-from tft_dps.lib.web.job_worker import run_job_worker
+from tft_dps.lib.web.job_worker import (
+    BatchInfo,
+    SimulateAllRequest,
+    SimulateJob,
+    SimulateJobResult,
+    run_job_worker,
+)
 
 
 @dataclass
@@ -13,6 +21,13 @@ class AppWorkerHandle:
     proc: mp.Process
     req: mp.Queue
     resp: mp.Queue
+
+
+class SimulateAllBatch(TypedDict):
+    req: SimulateAllRequest
+    idx_handle: int
+    data: list
+    rem: int
 
 
 class WorkerManager:
@@ -39,6 +54,8 @@ class WorkerManager:
             self._monitor_reqs(),
             self._monitor_results(),
         ]
+
+        self.pending_batches = dict()
 
     @classmethod
     def init(cls, num_apps: int, num_workers: int, runner: SimRunner):
@@ -103,14 +120,32 @@ class WorkerManager:
 
             for idx_handle, handle in enumerate(self.handles):
                 if handle.req.qsize() > 0:
-                    req = handle.req.get()
-                    self.job_queue.put(
-                        dict(
-                            req=req,
-                            idx_handle=idx_handle,
-                        )
-                    )
-                    did_put = True
+                    req: SimulateAllRequest = handle.req.get()
+
+                    match req["type"]:
+                        case "simulate_all_request":
+                            batch_id = uuid4().hex
+                            self.pending_batches[batch_id] = SimulateAllBatch(
+                                req=req,
+                                idx_handle=idx_handle,
+                                data=[None for _ in req["requests"]],
+                                rem=len(req["requests"]),
+                            )
+
+                            for idx, r in enumerate(req["requests"]):
+                                self.job_queue.put(
+                                    SimulateJob(
+                                        type="simulate_job",
+                                        batch=BatchInfo(
+                                            id=batch_id,
+                                            idx=idx,
+                                            total=len(req["requests"]),
+                                        ),
+                                        req=r,
+                                    )
+                                )
+                        case _:
+                            raise Exception(req)
 
             if not did_put:
                 await asyncio.sleep(0.25)
@@ -123,9 +158,21 @@ class WorkerManager:
         exec = ThreadPoolExecutor(1)
 
         while True:
-            result = await loop.run_in_executor(exec, self.result_queue.get)
-            idx_handle: int = result["idx_handle"]
-            self.handles[idx_handle].resp.put(result["resp"])
+            result: SimulateJobResult = await loop.run_in_executor(
+                exec, self.result_queue.get
+            )
+
+            match result["type"]:
+                case "simulate_job_result":
+                    b = result["batch"]
+                    pb: SimulateAllBatch = self.pending_batches[b["id"]]
+                    pb["data"][b["idx"]] = result["resp"]
+                    pb["rem"] -= 1
+
+                    if pb["rem"] == 0:
+                        self.handles[pb["idx_handle"]].resp.put(pb["data"])
+                case _:
+                    raise Exception(result)
 
     def destroy(self):
         for handle in self.handles:

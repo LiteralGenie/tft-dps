@@ -41,6 +41,7 @@
 
             infoCtx.units = tft.units
             infoCtx.items = tft.items
+            infoCtx.traits = tft.traits
 
             loadStatus = null
         } catch (e) {

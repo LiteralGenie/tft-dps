@@ -30,7 +30,7 @@ class SimRunner:
     async def ainit(cls, cache: Cache):
         unit_proc = await fetch_cached_and_init_unit_processor(cache, VERSION)
         items = await cls._get_items(cache)
-        traits = await fetch_cached_and_get_traits(cache, VERSION)
+        traits = await cls._get_traits(cache)
         units = cls._get_units(unit_proc)
         return cls(cache, unit_proc, units, items, traits)
 
@@ -62,11 +62,13 @@ class SimRunner:
     def _get_units(cls, unit_proc: TFTUnitsProcessor):
         units: dict = {}
         for id in CHAMPION_UNITS:
+            idxUnit = len(units)
             base_stats = unit_proc.get_base_stats(id)
             info = unit_proc.get_unit(id, unit_proc.get_base_stats(id))
             spell_vars = unit_proc.calc_spell_vars_for_level(id, 3, base_stats)
             if info:
                 units[info["id"]] = dict(
+                    index=idxUnit,
                     base_stats=base_stats,
                     spell_vars=spell_vars,
                     info=info,
@@ -76,5 +78,26 @@ class SimRunner:
     @classmethod
     async def _get_items(cls, cache: Cache):
         items = await fetch_cached_and_get_items(cache, VERSION)
-        items = {k: v for k, v in items.items() if k in ITEMS}
+
+        for k, v in items.items():
+            try:
+                idxItem = ITEMS.index(k)
+            except ValueError:
+                continue
+
+            v: dict = v.copy()
+            v.update(index=idxItem)
+            items[k] = v
+
         return items
+
+    @classmethod
+    async def _get_traits(cls, cache: Cache):
+        traits = await fetch_cached_and_get_traits(cache, VERSION)
+
+        for k, v in traits.items():
+            tiers = [int(k2) for k2 in v["effects_bonus"].keys()]
+            tiers.sort()
+            v["tiers"] = tiers
+
+        return traits

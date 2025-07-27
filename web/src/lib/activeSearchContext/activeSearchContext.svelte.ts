@@ -1,7 +1,7 @@
 import { alphabetical, range } from 'radash'
 import { getContext, setContext } from 'svelte'
-import { assert } from '../miscUtils'
 import type { SearchContext } from '../searchContext.svelte'
+import { assert } from '../utils/miscUtils'
 import {
     ACTIVE_SEARCH_COLUMNS,
     type ActiveSearchColumn,
@@ -37,6 +37,9 @@ export function setActiveSearchContext(): ActiveSearchContext {
         set,
     })
     setContext(CONTEXT_KEY, ctx)
+
+    resetColumnFilters()
+
     return ctx
 
     function set(params: SearchContext) {
@@ -53,17 +56,21 @@ export function setActiveSearchContext(): ActiveSearchContext {
             }
         }
 
-        for (const col of ctx.columns) {
-            if (col.filter) {
-                ctx.columnFilters[col.id] = ''
-            }
-        }
+        resetColumnFilters()
     }
 
     function fetchData() {
         // const comboIter =
         // for (const combo of iterCombos()) {
         // }
+    }
+
+    function resetColumnFilters() {
+        for (const col of ctx.columns) {
+            if (col.filter) {
+                ctx.columnFilters[col.id] = ''
+            }
+        }
     }
 }
 
