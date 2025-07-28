@@ -5,9 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from tft_dps.lib.constants import MAX_IDS_PER_SIMULATE, PACKED_ID_BIT_ESTIMATE
 from tft_dps.lib.utils.network_utils import (
-    decodePackedId,
-    decodePackedIdArray,
     decompress_gzip,
+    unpack_sim_id,
+    unpack_sim_id_array,
 )
 from tft_dps.lib.web.app_worker import AppWorkerContext
 from tft_dps.lib.web.job_worker import SimulateRequest
@@ -42,9 +42,10 @@ async def simulate(req: Request):
         body,
         max_bytes=(MAX_IDS_PER_SIMULATE * PACKED_ID_BIT_ESTIMATE) // 8,
     )
-    packed_ids = decodePackedIdArray(data)
+    packed_ids = unpack_sim_id_array(data)
     raw_requests = [
-        decodePackedId(id, APP_WORKER_CONTEXT.trait_bits_by_unit) for id in packed_ids
+        unpack_sim_id(id, APP_WORKER_CONTEXT.trait_bits_by_unit_index)
+        for id in packed_ids
     ]
 
     requests = []

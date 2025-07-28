@@ -1,11 +1,11 @@
 import type { PackedId } from '$lib/activeSearchContext/activeSearchConstants'
 import { API_URL } from '$lib/constants'
 import type { GameInfoValue } from '$lib/gameInfoContext.svelte'
-import { range, sum } from 'radash'
-import { assert } from './miscUtils'
+import { range } from 'radash'
+import { assert, enumerate } from './miscUtils'
 
-const ID_COUNT_BYTES = 2
-const ID_SIZE_BYTES = 1
+const ID_BYTES = 5
+const ID_BITS = 8 * ID_BYTES
 
 export function assetUrl(path: string) {
     return `https://raw.communitydragon.org/pbe/game/${path}`
@@ -23,16 +23,19 @@ export async function fetchApiJson(path: string) {
  * item 1   - ~44   -   6 bits
  * item 2   - ~44   -   6 bits
  * item 3   - ~44   -   6 bits
-
- remaining are the active traits
- number of bits for each depends on number of tiers for trait
-    eg 3 tiers means 2 bits, 9 tiers means 4 bits
-   tier 3 / 9 = 0011
-   tier 6 / 7 = 110
+ * traits   - ???   -   13 bits
+ *                    = 40 bits / 5 bytes
+ *
+ * of the 13 bits reserved for traits
+ * the number of bits for each trait depends on
+ * the number of breakpoints for that trait
+ *
+ * first trait is stored closest to end
+ * ie trait3_trait2_trait1
  */
 
 export function packSimId(
-    infoCtx: GameInfoValue,
+    info: GameInfoValue,
     unitId: string,
     stars: number,
     itemIds: string[],
@@ -44,96 +47,92 @@ export function packSimId(
             return 0
         }
 
-        const itemIndex = infoCtx.items[id].index
+        const itemIndex = info.items[id].index
         return itemIndex
     })
-    const unitIndex = infoCtx.units[unitId].index
-    const traitTiers = infoCtx.units[unitId].info.traits.map((id) => {
+    const unitIndex = info.units[unitId].index
+    const traitTiers = info.units[unitId].info.traits.map((id) => {
         const tier = traitTierMap[id] ?? 0
-        const maxTier = infoCtx.traits[id].breakpoints.length
-        const bits = infoCtx.traitBits[id]
+        const maxTier = info.traits[id].breakpoints.length
+        const bits = info.traitBits[id]
         return { tier, maxTier, bits }
     })
 
     // Unit (7 bits)
-    let packedId = unitIndex
-    let bitCount = 7
+    let packedId = BigInt(unitIndex)
 
     // Stars (2 bits)
-    packedId = (packedId << 2) | stars
-    bitCount += 2
+    packedId = (packedId << 2n) | BigInt(stars)
 
     // Items (6 bits each)
     for (let idx = 0; idx < 3; idx++) {
-        packedId = (packedId << 6) | itemIndexes[idx]
-        bitCount += 6
+        packedId = (packedId << 6n) + BigInt(itemIndexes[idx])
     }
 
-    // Tiers (1-4 bits each)
+    // Traits (13 bits total)
+    let traitOffset = 0
+    packedId = packedId << 13n
     for (const d of traitTiers) {
-        packedId = (packedId << d.bits) | d.tier
-        bitCount += d.bits
+        packedId += BigInt(d.tier << traitOffset)
+        traitOffset += d.bits
     }
 
-    const remBits = (2 ** 8) ** ID_SIZE_BYTES - bitCount
-    packedId = packedId << remBits
-
-    const idBytes = numToUint8BE(packedId, bitCount)
-
-    return { packedId, bitCount, idBytes }
+    return packedId
 }
 
-export function unpackUnitIndex(id: PackedId, bitCount: number) {
-    let x = id >> (bitCount - 7)
-    return x
+export function unpackUnitIndex(id: PackedId) {
+    return Number(id >> BigInt(13 + 6 * 3 + 2)) & 0b1111111
 }
 
-export function unpackUnitStars(id: PackedId, bitCount: number) {
-    let x = id >> (bitCount - 7 - 2)
-    x = x & 0b11
-    return x
+export function unpackUnitStars(id: PackedId) {
+    let x = id
+    x = x >> BigInt(13 + 6 * 3)
+    x = x & BigInt(0b11)
+    return Number(x)
 }
 
-export function unpackItemIndices(id: PackedId, bitCount: number) {
-    const x = id >> (bitCount - 7 - 2 - 6 - 6 - 6)
-    const xs = [x & 0b111111, x & 0b111111_000000, x & 0b111111_000000_000000]
-    return xs
+export function unpackItemIndices(id: PackedId) {
+    return [unpack(0), unpack(1), unpack(2)]
+
+    function unpack(idx: number) {
+        let x = id
+        x = x >> 13n
+        x = x >> BigInt((3 - idx - 1) * 6)
+        x = x & BigInt(0b111111)
+        return Number(x)
+    }
 }
 
-export function unpackTraits(id: PackedId, bitCount: number, info: GameInfoValue) {
-    const unitIndex = unpackUnitIndex(id, bitCount)
+export function unpackTraits(id: PackedId, info: GameInfoValue) {
+    const unitIndex = unpackUnitIndex(id)
     const unitId = info.unitsByIndex[unitIndex]
     const unit = info.units[unitId]
 
-    const traits = unit.info.traits.map((id) => ({ id, bits: info.traitBits[id], tier: 0 }))
-    const totalBits = sum(traits.map((t) => t.bits))
+    const traits = unit.info.traits.map((id) => ({ id, tier: 0 }))
 
-    let x = id >> (bitCount - 7 - 2 - 6 - 6 - 6 - totalBits)
+    let rem = Number(id & BigInt(0b0000000_00_000000_000000_000000_1111111111111))
 
-    const n = traits.length
-    for (let idx = 0; idx < n; idx++) {
-        let bitsRight = sum(traits.slice(idx + 1, n).map((t) => t.bits))
-        let bits = traits[idx].bits
+    for (const [idx, trait] of enumerate(traits)) {
+        const numBits = info.traitBits[trait.id]
 
-        let mask = 2 ** (bits + 1) - 1
-        mask = mask << bitsRight
+        // 2 bits -> 0b11, 3 bits -> 0b111
+        const mask = 2 ** (numBits + 1) - 1
 
-        traits[idx].tier = x && mask
+        traits[idx].tier = rem & mask
+        rem >> numBits
     }
 
-    const xs = [x & 0b111111, x & 0b111111_000000, x & 0b111111_000000_000000]
-    return xs
+    return traits
 }
 
 /** Big-endian */
-export function numToUint8BE(n: number, numBits: number): Uint8Array {
-    const numBytes = Math.ceil(numBits / 8)
+export function biToUint8Be(n: bigint, numBytes: number): Uint8Array {
     const arr = new Uint8Array(numBytes)
 
     let rem = n
     for (let idx = numBytes - 1; idx >= 0; idx -= 1) {
-        arr[idx] = rem & 0xff
-        rem = rem >> 8
+        arr[idx] = Number(rem & BigInt(0xff))
+        rem = rem >> 8n
     }
 
     return arr
@@ -150,14 +149,11 @@ export function ui8ToNumBe(bytes: Uint8Array): number {
 /**
  * (id count) - (id 1 size) - (id 1) - (id 2 size) - ...
  */
-export function packAllUnitIds(packedIds: Array<ReturnType<typeof packSimId>>): Uint8Array {
+export function packAllUnitIds(packedIds: Array<PackedId>): Uint8Array {
+    const ID_COUNT_BYTES = 2
     assert(packedIds.length < 2 ** (8 * ID_COUNT_BYTES))
 
-    const bytesForIds = sum(packedIds.map((x) => Math.ceil(x.bitCount / 8)))
-    const bytesForIdLength = ID_SIZE_BYTES * packedIds.length
-    const bytesForIdCount = ID_COUNT_BYTES
-
-    const totalBytes = bytesForIds + bytesForIdLength + bytesForIdCount
+    const totalBytes = ID_COUNT_BYTES + packedIds.length * ID_BYTES
     const result = new Uint8Array(totalBytes)
 
     let byteOffset = 0
@@ -165,16 +161,13 @@ export function packAllUnitIds(packedIds: Array<ReturnType<typeof packSimId>>): 
     setSliceBE(result, packedIds.length, byteOffset, ID_COUNT_BYTES)
     byteOffset += ID_COUNT_BYTES
 
-    for (const { idBytes, bitCount } of packedIds) {
-        const byteCount = idBytes.length
+    for (const id of packedIds) {
+        const idBytes = biToUint8Be(id, ID_BYTES)
 
-        setSliceBE(result, byteCount, byteOffset, ID_SIZE_BYTES)
-        byteOffset += ID_SIZE_BYTES
-
-        for (let idx = 0; idx < byteCount; idx++) {
+        for (let idx = 0; idx < idBytes.length; idx++) {
             result[byteOffset + idx] = idBytes[idx]
         }
-        byteOffset += byteCount
+        byteOffset += idBytes.length
     }
 
     return result

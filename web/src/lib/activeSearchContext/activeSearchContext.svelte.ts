@@ -32,7 +32,7 @@ export interface ActiveSearchContextValue {
     id: string
     params: SearchContextValue
     data: {
-        values: Record<PackedId, ActiveSearchData> // id -> avg dps
+        values: Map<PackedId, ActiveSearchData> // id -> avg dps
         sortedValues: Record<string, Array<{ id: PackedId; sortValue: number }>>
         sortedFilteredIds: Array<PackedId>
     }
@@ -59,7 +59,7 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
         ctx.value = {
             id: String(Date.now()),
             params,
-            data: { values: {}, sortedValues: {}, sortedFilteredIds: [] },
+            data: { values: new Map(), sortedValues: {}, sortedFilteredIds: [] },
             done: false,
         }
 
@@ -93,10 +93,9 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
             const data: number[] = await resp.json()
 
             for (let idx = 0; idx < batch.length; idx++) {
-                const { packedId, bitCount } = packed[idx]
+                const packedId = packed[idx]
                 insertData(ctxVal, {
                     id: packedId,
-                    bitCount,
                     dps: data[idx],
                 })
             }
@@ -116,7 +115,7 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
     }
 
     function insertData(ctxVal: ActiveSearchContextValue, data: ActiveSearchData) {
-        ctxVal.data.values[data.id] = data
+        ctxVal.data.values.set(data.id, data)
 
         for (const col of ctx.columns) {
             if (!col.getSortValue) {
@@ -145,7 +144,7 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
             for (const [idx, sv] of enumerate(sortedValues)) {
                 if (toRemove.has(idx)) continue
 
-                const d = ctxVal.data.values[sv.id]
+                const d = ctxVal.data.values.get(sv.id)!
 
                 const matchesAnyClause = clauses.some((cl) =>
                     colFilter.isMatch(d, infoCtx.value, cl),

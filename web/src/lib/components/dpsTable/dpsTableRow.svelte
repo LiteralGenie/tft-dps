@@ -8,14 +8,14 @@
     const { value: info } = getGameInfoContext()
 
     const unit = $derived.by(() => {
-        const unitIndex = unpackUnitIndex(d.id, d.bitCount)
+        const unitIndex = unpackUnitIndex(d.id)
         const unitId = info.unitsByIndex[unitIndex]
         const unit = info.units[unitId]
         return unit
     })
 
     const items = $derived.by(() => {
-        const itemIndices = unpackItemIndices(d.id, d.bitCount)
+        const itemIndices = unpackItemIndices(d.id)
         const items = itemIndices
             .filter((index) => index > 0)
             .map((index) => info.itemsByIndex[index])
@@ -23,10 +23,10 @@
         return items
     })
 
-    const traits = $derived(unpackTraits(d.id, d.bitCount, info))
+    const traits = $derived(unpackTraits(d.id, info))
 </script>
 
-<span class="td index">{idx + 1}_{d.id}_{d.bitCount}</span>
+<span class="td index">{idx + 1}_{d.id}</span>
 <span class="td">portrait + stars {unit.info.id}</span>
 <span class="td">{d.dps.toFixed(0)}</span>
 <span class="td">{items.join(', ')}</span>

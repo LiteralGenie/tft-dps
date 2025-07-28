@@ -18,7 +18,7 @@ class AppWorkerContext:
     item_info: dict
     trait_info: dict
     #
-    trait_bits_by_unit: dict[int, list[int]]
+    trait_bits_by_unit_index: dict[int, list[int]]
     unit_info_by_index: dict
     item_info_by_index: dict
 
@@ -39,9 +39,9 @@ async def _serve_app(
         count = len(t["breakpoints"]) + 1
         trait_bits[t["id"]] = math.ceil(math.log2(count))
 
-    trait_bits_by_unit = dict()
+    trait_bits_by_unit_index = dict()
     for unit in unit_info.values():
-        trait_bits_by_unit[unit["index"]] = [
+        trait_bits_by_unit_index[unit["index"]] = [
             trait_bits[t] for t in unit["info"]["traits"]
         ]
 
@@ -54,7 +54,7 @@ async def _serve_app(
         unit_info,
         item_info,
         trait_info,
-        trait_bits_by_unit,
+        trait_bits_by_unit_index,
         unit_info_by_index,
         item_info_by_index,
     )

@@ -2,11 +2,10 @@ import type { GameInfoValue } from '$lib/gameInfoContext.svelte'
 import { unpackUnitIndex, unpackUnitStars } from '$lib/utils/networkUtils'
 
 // Encodes unit id, items, etc into single number
-export type PackedId = number
+export type PackedId = bigint
 
 export interface ActiveSearchData {
     id: PackedId
-    bitCount: number
     dps: number
 }
 
@@ -32,7 +31,7 @@ const UNIT_COLUMN: ActiveSearchColumn<{ unit: string; stars: Set<number> }> = {
     id: 'unit',
     label: 'Champion',
     getLabel: (d, info) => {
-        const index = unpackUnitIndex(d.id, d.bitCount)
+        const index = unpackUnitIndex(d.id)
         const id = info.unitsByIndex[index]
         const unit = info.units[id]
         return unit.info.name
@@ -63,11 +62,11 @@ const UNIT_COLUMN: ActiveSearchColumn<{ unit: string; stars: Set<number> }> = {
             return filters
         },
         isMatch: (d, info, filter) => {
-            const index = unpackUnitIndex(d.id, d.bitCount)
+            const index = unpackUnitIndex(d.id)
             const id = info.unitsByIndex[index]
             const unit = info.units[id]
 
-            const stars = unpackUnitStars(d.id, d.bitCount)
+            const stars = unpackUnitStars(d.id)
 
             const isNameMatch = unit.info.name.toLowerCase().includes(filter.unit)
             const isStarMatch = filter.stars.has(stars)

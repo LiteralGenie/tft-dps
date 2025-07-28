@@ -9,9 +9,9 @@ def bytesToIntBe(bs: bytearray):
     return int.from_bytes(bs, "big")
 
 
-def decodePackedIdArray(data: bytearray) -> list[bitarray]:
+def unpack_sim_id_array(data: bytearray) -> list[bitarray]:
     ID_COUNT_BYTES = 2
-    ID_SIZE_BYTES = 1
+    ID_BYTES = 5
 
     byteOffset = 0
 
@@ -28,39 +28,33 @@ def decodePackedIdArray(data: bytearray) -> list[bitarray]:
 
     ids = []
     for idx in range(0, numIds):
-        idLength = bytesToIntBe(take(ID_SIZE_BYTES))
-        idBytes = take(idLength)
-        id = bitarray(idBytes)
+        id = bitarray(take(ID_BYTES))
         ids.append(id)
 
     return ids
 
 
-def decodePackedId(id: bitarray, trait_bits_by_unit: dict[int, list[int]]) -> dict:
+def unpack_sim_id(id: bitarray, trait_bits_by_unit: dict[int, list[int]]) -> dict:
     try:
-        bit_offset = 0
+        unit_index = ba2int(id[0:7])
+        stars = ba2int(id[7:9])
+        item_indices = [ba2int(id[9:15]), ba2int(id[15:21]), ba2int(id[21:27])]
 
-        def take(n: int):
-            nonlocal bit_offset
-            d = id[bit_offset : bit_offset + n]
-            bit_offset += n
-            return d
-
-        unit = ba2int(take(7))
-        stars = ba2int(take(2))
-        items = [ba2int(take(6)), ba2int(take(6)), ba2int(take(6))]
-
-        num_trait_bits = trait_bits_by_unit[unit]
-        # rem_bits = len(id) - bit_offset
-        # assert rem_bits == sum(num_trait_bits), (rem_bits, sum(num_trait_bits), id)
-        traits = [ba2int(take(n)) for n in num_trait_bits]
+        rem = id[27:40]
+        bits_per_trait = trait_bits_by_unit[unit_index]
+        traits = []
+        for n in bits_per_trait:
+            assert len(rem) >= n
+            traits.append(ba2int(rem[-n:]))
+            rem = rem[:-n]
 
         return dict(
-            unit=unit,
+            unit=unit_index,
             stars=stars,
-            items=items,
+            items=item_indices,
             traits=traits,
         )
+
     except:
         print(id)
         raise

@@ -10,7 +10,7 @@
             return []
         }
 
-        return ctxValue.data.sortedFilteredIds.map((id) => ctxValue.data.values[id])
+        return ctxValue.data.sortedFilteredIds.map((id) => ctxValue.data.values.get(id)!)
     })
 </script>
 
