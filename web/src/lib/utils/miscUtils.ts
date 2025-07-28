@@ -1,3 +1,5 @@
+import { last, sum } from 'radash'
+
 export function assert(cond: boolean, msg?: string) {
     if (!cond) {
         throw new Error(msg)
@@ -19,7 +21,7 @@ export function getSortedInsertionIndex(xs: number[], x: number) {
     return low
 }
 
-export async function compressGzip(data: Uint8Array): Promise<Array<Uint8Array>> {
+export async function compressGzip(data: Uint8Array): Promise<Uint8Array> {
     const asStream = new ReadableStream({
         start(controller) {
             controller.enqueue(data)
@@ -43,7 +45,15 @@ export async function compressGzip(data: Uint8Array): Promise<Array<Uint8Array>>
         }
     }
 
-    return asCompressed
+    const totalLength = sum(asCompressed.map((xs) => xs.length))
+    const asConcat = new Uint8Array(totalLength)
+
+    let i = 0
+    for (const xs of asCompressed) {
+        asConcat.set(xs, i)
+        i += xs.length
+    }
+    return asConcat
 }
 
 // export async function decompressGzip(
@@ -77,3 +87,37 @@ export async function compressGzip(data: Uint8Array): Promise<Array<Uint8Array>>
 //     parts.push(decoder.decode())
 //     return parts.join('')
 // }
+
+export function* iterCombinations<T = any>(
+    ...arrs: Array<Array<any>>
+): Generator<unknown, void, T> {
+    assert(arrs.length > 0)
+
+    const lst = last(arrs)!
+    if (arrs.length === 1) {
+        for (const x of lst) {
+            yield [x]
+        }
+    } else {
+        const item = iterCombinations(arrs.slice(0, -1))
+        for (const x of lst) {
+            yield [...item, x]
+        }
+    }
+}
+
+export function* iterBatches<T>(xs: Iterable<T>, n: number): Iterable<T[]> {
+    let buf: T[] = []
+
+    for (const x of xs) {
+        buf.push(x)
+        if (buf.length === n) {
+            yield buf
+            buf = []
+        }
+    }
+
+    if (buf.length > 0) {
+        yield buf
+    }
+}

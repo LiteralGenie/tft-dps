@@ -7,7 +7,7 @@
 
     const { itemInfo }: { itemInfo: GameInfoContext['items'][string] } = $props()
 
-    const searchCtx = getSearchContext()
+    const { value: searchCtx } = getSearchContext()
     const isSelected = $derived(searchCtx.items.has(itemInfo.id))
 
     let enableRef: HTMLInputElement

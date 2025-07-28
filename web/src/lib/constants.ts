@@ -68,8 +68,9 @@ export const DEFAULT_SEARCH_CONTEXT = () => ({
     ]),
     items: new Set([]),
     traits: {
+        bronze: true,
         silver: true,
         gold: true,
-        prismatic: true,
+        prismatic: false,
     },
 })

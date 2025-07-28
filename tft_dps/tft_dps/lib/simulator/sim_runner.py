@@ -79,10 +79,11 @@ class SimRunner:
     async def _get_items(cls, cache: Cache):
         items = await fetch_cached_and_get_items(cache, VERSION)
 
-        for k, v in items.items():
+        for k, v in list(items.items()):
             try:
-                idxItem = ITEMS.index(k)
+                idxItem = ITEMS.index(k) + 1
             except ValueError:
+                del items[k]
                 continue
 
             v: dict = v.copy()
@@ -95,9 +96,29 @@ class SimRunner:
     async def _get_traits(cls, cache: Cache):
         traits = await fetch_cached_and_get_traits(cache, VERSION)
 
-        for k, v in traits.items():
-            tiers = [int(k2) for k2 in v["effects_bonus"].keys()]
-            tiers.sort()
-            v["tiers"] = tiers
+        styleToRarity = {
+            4: "unique",
+            None: "bronze",
+            3: "silver",
+            5: "gold",
+            6: "prismatic",
+        }
+
+        for t in traits.values():
+            lastBp = None
+            tiers = []
+
+            assert len(t["breakpoints"]) == len(t["styles"])
+            for bp, style in zip(t["breakpoints"], t["styles"]):
+                tier = dict(breakpoint=bp, rarity=styleToRarity[style])
+
+                if bp != lastBp:
+                    tiers.append(tier)
+                else:
+                    tiers[-1] = tier
+
+                lastBp = bp
+
+            t["tiers"] = tiers
 
         return traits

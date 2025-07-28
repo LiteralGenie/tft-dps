@@ -44,8 +44,7 @@ async def simulate(req: Request):
     )
     packed_ids = decodePackedIdArray(data)
     raw_requests = [
-        decodePackedId(id, APP_WORKER_CONTEXT.max_trait_bits_by_unit)
-        for id in packed_ids
+        decodePackedId(id, APP_WORKER_CONTEXT.trait_bits_by_unit) for id in packed_ids
     ]
 
     requests = []
@@ -54,12 +53,13 @@ async def simulate(req: Request):
         items = dict(
             Counter(
                 [
-                    APP_WORKER_CONTEXT.item_info_by_index[item]["id"]
-                    for item in r["items"]
+                    APP_WORKER_CONTEXT.item_info_by_index[itemId]["id"]
+                    for itemId in r["items"]
+                    if itemId > 0
                 ]
             ).items()
         )
-        traits = APP_WORKER_CONTEXT.unit_info[id_unit]["traits"]
+        traits = APP_WORKER_CONTEXT.unit_info[id_unit]["info"]["traits"]
         requests.append(
             SimulateRequest(
                 type="simulate_request",

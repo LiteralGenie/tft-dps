@@ -2,12 +2,18 @@ import { getContext, setContext } from 'svelte'
 import { DEFAULT_SEARCH_CONTEXT } from './constants'
 
 export type SearchContext = {
+    value: SearchContextValue
+    reset: () => void
+}
+
+export type SearchContextValue = {
     units: Set<string>
     minStars: number
     maxStars: number
 
     items: Set<string>
     traits: {
+        bronze: boolean
         silver: boolean
         gold: boolean
         prismatic: boolean
@@ -17,9 +23,16 @@ export type SearchContext = {
 const CONTEXT_KEY = 'search_context'
 
 export function setSearchContext(): SearchContext {
-    const ctx = $state<SearchContext>(DEFAULT_SEARCH_CONTEXT())
+    const ctx = $state<SearchContext>({
+        value: DEFAULT_SEARCH_CONTEXT(),
+        reset,
+    })
     setContext(CONTEXT_KEY, ctx)
     return ctx
+
+    function reset() {
+        ctx.value = DEFAULT_SEARCH_CONTEXT()
+    }
 }
 
 export function getSearchContext(): SearchContext {

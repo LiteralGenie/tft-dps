@@ -8,7 +8,7 @@
     const { unitInfo }: { unitInfo: GameInfoContext['units'][string] } = $props()
     const unitId = $derived(unitInfo.info.id)
 
-    const searchCtx = getSearchContext()
+    const { value: searchCtx } = getSearchContext()
     const isSelected = $derived(searchCtx.units.has(unitInfo.info.id))
 
     let enableRef: HTMLInputElement

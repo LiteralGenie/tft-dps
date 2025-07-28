@@ -3,7 +3,7 @@
 
     const { key, label }: { key: 'silver' | 'gold' | 'prismatic'; label: string } = $props()
 
-    const searchCtx = getSearchContext()
+    const { value: searchCtx } = getSearchContext()
 
     let ref: HTMLInputElement
 

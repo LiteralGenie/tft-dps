@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { setActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
     import { bootstrap } from '$lib/bootstrap'
     import DpsTable from '$lib/components/dpsTable/dpsTable.svelte'
     import { setGameInfoContext } from '$lib/gameInfoContext.svelte'
@@ -11,6 +12,7 @@
     ;(window as any).infoCtx = infoCtx
 
     setSearchContext()
+    setActiveSearchContext(infoCtx)
 
     onMount(async () => {
         try {

@@ -1,7 +1,10 @@
+import { API_URL } from '$lib/constants'
+import type { GameInfoContext } from '$lib/gameInfoContext.svelte'
+import { packAllUnitIds, packUnitId } from '$lib/utils/networkUtils'
 import { alphabetical, range } from 'radash'
 import { getContext, setContext } from 'svelte'
-import type { SearchContext } from '../searchContext.svelte'
-import { assert } from '../utils/miscUtils'
+import type { SearchContextValue } from '../searchContext.svelte'
+import { assert, compressGzip, iterBatches, iterCombinations } from '../utils/miscUtils'
 import {
     ACTIVE_SEARCH_COLUMNS,
     type ActiveSearchColumn,
@@ -12,7 +15,7 @@ import {
 export interface ActiveSearchContext {
     value: null | {
         id: string
-        params: SearchContext
+        params: SearchContextValue
         data: {
             values: Record<PackedId, number> // id -> avg dps
             sortedValues: Record<string, Array<{ id: PackedId; sortValue: number }>>
@@ -23,12 +26,12 @@ export interface ActiveSearchContext {
     columns: Array<ActiveSearchColumn>
     sortColumn: null | string
     columnFilters: Record<string, string>
-    set: (params: SearchContext) => void
+    set: (params: SearchContextValue) => void
 }
 
 const CONTEXT_KEY = 'active_search'
 
-export function setActiveSearchContext(): ActiveSearchContext {
+export function setActiveSearchContext(info: GameInfoContext): ActiveSearchContext {
     const ctx = $state<ActiveSearchContext>({
         value: null,
         columns: ACTIVE_SEARCH_COLUMNS,
@@ -42,7 +45,7 @@ export function setActiveSearchContext(): ActiveSearchContext {
 
     return ctx
 
-    function set(params: SearchContext) {
+    function set(params: SearchContextValue) {
         ctx.value = {
             id: String(Date.now()),
             params,
@@ -57,12 +60,31 @@ export function setActiveSearchContext(): ActiveSearchContext {
         }
 
         resetColumnFilters()
+        fetchData(ctx.value)
     }
 
-    function fetchData() {
-        // const comboIter =
-        // for (const combo of iterCombos()) {
-        // }
+    async function fetchData(value: ActiveSearchContext['value'] & { id: string }) {
+        const comboIter = new ComboIter(value.params, 1000, info)
+        const batchSize = 10 // 1000
+
+        for (const batch of iterBatches(comboIter, batchSize)) {
+            const packed = batch.map((x) => packUnitId(info, x.unitId, x.stars, x.items, x.traits))
+            const allPacked = packAllUnitIds(packed)
+            const asGzip = await compressGzip(allPacked)
+            const resp = await fetch(API_URL + '/simulate', {
+                method: 'POST',
+                body: asGzip,
+                headers: {
+                    'content-type': 'application/octet-stream',
+                },
+            })
+            const data = await resp.json()
+
+            const isCancelled = ctx?.value?.id !== value.id
+            if (isCancelled) return
+
+            console.log(data)
+        }
     }
 
     function resetColumnFilters() {
@@ -80,8 +102,9 @@ export function getActiveSearchContext(): ActiveSearchContext {
 
 class ComboIter {
     constructor(
-        public params: SearchContext,
-        batchSize: number,
+        public params: SearchContextValue,
+        public batchSize: number,
+        public infoCtx: GameInfoContext,
     ) {
         assert(params.units.size > 0)
         assert(params.minStars < params.maxStars)
@@ -92,13 +115,16 @@ class ComboIter {
         const stars = range(this.params.minStars, this.params.maxStars)
         const items = alphabetical(['__BLANK__', ...this.params.items], (x) => x)
 
-        // const traitGroups = []
-        // const traitCombos = combos(traitGroups)
+        for (const unitId of units) {
+            const traitBps = this.infoCtx.units[unitId].info.traits.map((traitId) => {
+                const trait = this.infoCtx.traits[traitId]
+                const bps = trait.tiers
+                    .filter((tier) => tier.rarity === 'unique' || this.params.traits[tier.rarity])
+                    .map((tier) => tier.breakpoint)
+                return [0, ...bps].map((bp) => [traitId, bp] as [string, number])
+            })
 
-        for (const unit of units) {
             for (const star of stars) {
-                // @todo: traits
-
                 for (let idxItem1 = 0; idxItem1 < items.length; idxItem1++) {
                     const item1 = items[idxItem1]
 
@@ -108,14 +134,18 @@ class ComboIter {
                         for (let idxItem3 = idxItem2; idxItem3 < items.length; idxItem3++) {
                             const item3 = items[idxItem3]
 
-                            if (item1 !== '__BLANK__') items.push(item1)
-                            if (item2 !== '__BLANK__') items.push(item2)
-                            if (item3 !== '__BLANK__') items.push(item3)
+                            const its: string[] = []
+                            if (item1 !== '__BLANK__') its.push(item1)
+                            if (item2 !== '__BLANK__') its.push(item2)
+                            if (item3 !== '__BLANK__') its.push(item3)
 
-                            yield {
-                                unit,
-                                star,
-                                items,
+                            for (const bps of iterCombinations(traitBps)) {
+                                yield {
+                                    unitId,
+                                    stars: star,
+                                    items: its,
+                                    traits: Object.fromEntries(bps as any),
+                                }
                             }
                         }
                     }

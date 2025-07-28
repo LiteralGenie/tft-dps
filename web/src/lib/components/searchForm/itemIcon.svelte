@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { GameInfoContext } from '$lib/gameInfoContext.svelte'
-    import { assetUrl } from '$lib/utils/miscUtils'
+    import { assetUrl } from '$lib/utils/networkUtils'
 
     let {
         itemInfo,

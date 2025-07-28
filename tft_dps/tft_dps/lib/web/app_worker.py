@@ -1,4 +1,5 @@
 import asyncio
+import math
 import multiprocessing as mp
 import socket
 from dataclasses import dataclass
@@ -17,7 +18,7 @@ class AppWorkerContext:
     item_info: dict
     trait_info: dict
     #
-    max_trait_bits_by_unit: dict[int, list[int]]
+    trait_bits_by_unit: dict[int, list[int]]
     unit_info_by_index: dict
     item_info_by_index: dict
 
@@ -33,10 +34,15 @@ async def _serve_app(
     item_info: dict,
     trait_info: dict,
 ):
-    max_trait_bits_by_unit = dict()
+    trait_bits = dict()
+    for t in trait_info.values():
+        count = len(t["breakpoints"]) + 1
+        trait_bits[t["id"]] = math.ceil(math.log2(count))
+
+    trait_bits_by_unit = dict()
     for unit in unit_info.values():
-        max_trait_bits_by_unit[unit["index"]] = [
-            len(trait_info[t]["tiers"]) for t in unit["info"]["traits"]
+        trait_bits_by_unit[unit["index"]] = [
+            trait_bits[t] for t in unit["info"]["traits"]
         ]
 
     unit_info_by_index = {u["index"]: u for u in unit_info.values()}
@@ -48,7 +54,7 @@ async def _serve_app(
         unit_info,
         item_info,
         trait_info,
-        max_trait_bits_by_unit,
+        trait_bits_by_unit,
         unit_info_by_index,
         item_info_by_index,
     )

@@ -32,8 +32,13 @@ export interface GameInfoContext {
             name: string
             desc: string
             icon: string
-            tiers: number[]
+            breakpoints: number[]
+            styles: number[]
             effects_bonus: Record<string, any>
+            tiers: Array<{
+                breakpoint: number
+                rarity: 'unique' | 'bronze' | 'silver' | 'gold' | 'prismatic'
+            }>
         }
     >
 }

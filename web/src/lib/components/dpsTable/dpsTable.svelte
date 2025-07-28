@@ -1,8 +1,4 @@
 <script lang="ts" module>
-    import SearchFormDialog from '../searchForm/searchFormDialog.svelte'
-    import DpsTableBody from './dpsTableBody.svelte'
-    import DpsTableHeader from './dpsTableHeader.svelte'
-
     export interface DpsTableRow {
         dps: number
         unitId: string
@@ -10,11 +6,28 @@
         items: Record<string, number>
         traits: Record<string, number>
     }
-
-    let showDialog = $state(false)
 </script>
 
-<SearchFormDialog open={showDialog} on:close={() => (showDialog = false)} />
+<script lang="ts">
+    import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
+    import { getSearchContext } from '$lib/searchContext.svelte'
+    import SearchFormDialog from '../searchForm/searchFormDialog.svelte'
+    import DpsTableBody from './dpsTableBody.svelte'
+    import DpsTableHeader from './dpsTableHeader.svelte'
+
+    let showDialog = $state(false)
+
+    const search = getSearchContext()
+    const activeSearch = getActiveSearchContext()
+
+    function onClose() {
+        showDialog = false
+        activeSearch.set(search.value)
+        console.log(search.value)
+    }
+</script>
+
+<SearchFormDialog open={showDialog} on:close={onClose} />
 
 <div class="root m-auto flex max-w-[70rem] flex-col">
     <button onclick={() => (showDialog = true)} class="mb-4 self-end rounded-md border px-4 py-2"
