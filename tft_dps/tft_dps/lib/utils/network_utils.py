@@ -55,15 +55,6 @@ def decodePackedId(id: bitarray, trait_bits_by_unit: dict[int, list[int]]) -> di
         # assert rem_bits == sum(num_trait_bits), (rem_bits, sum(num_trait_bits), id)
         traits = [ba2int(take(n)) for n in num_trait_bits]
 
-        print(
-            dict(
-                unit=unit,
-                stars=stars,
-                items=items,
-                traits=traits,
-            )
-        )
-
         return dict(
             unit=unit,
             stars=stars,

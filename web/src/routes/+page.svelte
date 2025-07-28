@@ -22,7 +22,6 @@
                 const x = await statusGen.next()
                 if (x.done) {
                     tft = x.value
-                    infoCtx.units = tft.units
                     break
                 } else {
                     switch (x.value.type) {
@@ -40,10 +39,8 @@
             }
 
             ;(window as any).tft = tft
-
-            infoCtx.units = tft.units
-            infoCtx.items = tft.items
-            infoCtx.traits = tft.traits
+            infoCtx.set(tft.units, tft.items, tft.traits)
+            console.log('set')
 
             loadStatus = null
         } catch (e) {

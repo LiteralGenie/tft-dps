@@ -1,18 +1,21 @@
 <script lang="ts">
-    import type { DpsTableRow } from './dpsTable.svelte'
+    import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
+    import DpsTableRow from './dpsTableRow.svelte'
 
-    let data: DpsTableRow[] = [
-        { dps: 120, unitId: 'unitId', stars: 1, items: {}, traits: {} },
-        { dps: 120, unitId: 'unitId', stars: 1, items: {}, traits: {} },
-    ]
+    const ctx = getActiveSearchContext()
+
+    const rows = $derived.by(() => {
+        const ctxValue = ctx.value
+        if (!ctxValue) {
+            return []
+        }
+
+        return ctxValue.data.sortedFilteredIds.map((id) => ctxValue.data.values[id])
+    })
 </script>
 
 <div class="contents">
-    {#each data as d, idx}
-        <span class="td index">{idx + 1}</span>
-        <span class="td">portrait + stars</span>
-        <span class="td">dps</span>
-        <span class="td">items</span>
-        <span class="td">traits</span>
+    {#each rows as d, idx}
+        <DpsTableRow {d} {idx} />
     {/each}
 </div>

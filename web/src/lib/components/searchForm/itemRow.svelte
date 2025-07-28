@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { type GameInfoContext } from '$lib/gameInfoContext.svelte'
+    import { type GameInfoValue } from '$lib/gameInfoContext.svelte'
     import CheckmarkIcon from '$lib/icons/checkmarkIcon.svelte'
     import { getSearchContext } from '$lib/searchContext.svelte'
     import { onMount } from 'svelte'
     import ItemIcon from './itemIcon.svelte'
 
-    const { itemInfo }: { itemInfo: GameInfoContext['items'][string] } = $props()
+    const { itemInfo }: { itemInfo: GameInfoValue['items'][string] } = $props()
 
     const { value: searchCtx } = getSearchContext()
     const isSelected = $derived(searchCtx.items.has(itemInfo.id))

@@ -3,9 +3,9 @@
     import { alphabetical } from 'radash'
     import ItemRow from './itemRow.svelte'
 
-    const gameInfo = getGameInfoContext()
+    const { value: info } = getGameInfoContext()
 
-    const itemInfo = alphabetical([...Object.values(gameInfo.items)], (u) => {
+    const itemInfo = alphabetical([...Object.values(info.items)], (u) => {
         let typeValue = ''
         switch (u.type) {
             case 'Component':

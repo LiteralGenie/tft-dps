@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { type GameInfoContext } from '$lib/gameInfoContext.svelte'
+    import { type GameInfoValue } from '$lib/gameInfoContext.svelte'
     import CheckmarkIcon from '$lib/icons/checkmarkIcon.svelte'
     import { getSearchContext } from '$lib/searchContext.svelte'
     import { onMount } from 'svelte'
     import UnitIcon from './unitIcon.svelte'
 
-    const { unitInfo }: { unitInfo: GameInfoContext['units'][string] } = $props()
+    const { unitInfo }: { unitInfo: GameInfoValue['units'][string] } = $props()
     const unitId = $derived(unitInfo.info.id)
 
     const { value: searchCtx } = getSearchContext()

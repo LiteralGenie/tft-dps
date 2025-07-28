@@ -6,12 +6,12 @@ export function assert(cond: boolean, msg?: string) {
     }
 }
 
-export function getSortedInsertionIndex(xs: number[], x: number) {
+export function getSortedInsertionIndex<T = number>(xs: T[], x: number, get: (y: T) => number) {
     let low = 0
     let high = xs.length
     while (low < high) {
         const mid = (low + high) >> 1
-        if (xs[mid] < x) {
+        if (get(xs[mid]) < x) {
             low = mid + 1
         } else {
             high = mid
@@ -120,4 +120,8 @@ export function* iterBatches<T>(xs: Iterable<T>, n: number): Iterable<T[]> {
     if (buf.length > 0) {
         yield buf
     }
+}
+
+export function enumerate<T>(xs: T[]): Array<[number, T]> {
+    return xs.map((x, idx) => [idx, x])
 }

@@ -1,5 +1,6 @@
+import type { PackedId } from '$lib/activeSearchContext/activeSearchConstants'
 import { API_URL } from '$lib/constants'
-import type { GameInfoContext } from '$lib/gameInfoContext.svelte'
+import type { GameInfoValue } from '$lib/gameInfoContext.svelte'
 import { range, sum } from 'radash'
 import { assert } from './miscUtils'
 
@@ -30,8 +31,8 @@ export async function fetchApiJson(path: string) {
    tier 6 / 7 = 110
  */
 
-export function packUnitId(
-    infoCtx: GameInfoContext,
+export function packSimId(
+    infoCtx: GameInfoValue,
     unitId: string,
     stars: number,
     itemIds: string[],
@@ -50,20 +51,7 @@ export function packUnitId(
     const traitTiers = infoCtx.units[unitId].info.traits.map((id) => {
         const tier = traitTierMap[id] ?? 0
         const maxTier = infoCtx.traits[id].breakpoints.length
-
-        let bits
-        if (maxTier < 2) {
-            bits = 1
-        } else if (maxTier < 4) {
-            bits = 2
-        } else if (maxTier < 8) {
-            bits = 3
-        } else if (maxTier < 16) {
-            bits = 4
-        } else {
-            throw new Error()
-        }
-
+        const bits = infoCtx.traitBits[id]
         return { tier, maxTier, bits }
     })
 
@@ -92,11 +80,52 @@ export function packUnitId(
 
     const idBytes = numToUint8BE(packedId, bitCount)
 
-    console.log(idBytes, { unitIndex, stars, itemIndexes, traitTiers })
-    return { idBytes, bitCount }
+    return { packedId, bitCount, idBytes }
 }
 
-/** Little-endian */
+export function unpackUnitIndex(id: PackedId, bitCount: number) {
+    let x = id >> (bitCount - 7)
+    return x
+}
+
+export function unpackUnitStars(id: PackedId, bitCount: number) {
+    let x = id >> (bitCount - 7 - 2)
+    x = x & 0b11
+    return x
+}
+
+export function unpackItemIndices(id: PackedId, bitCount: number) {
+    const x = id >> (bitCount - 7 - 2 - 6 - 6 - 6)
+    const xs = [x & 0b111111, x & 0b111111_000000, x & 0b111111_000000_000000]
+    return xs
+}
+
+export function unpackTraits(id: PackedId, bitCount: number, info: GameInfoValue) {
+    const unitIndex = unpackUnitIndex(id, bitCount)
+    const unitId = info.unitsByIndex[unitIndex]
+    const unit = info.units[unitId]
+
+    const traits = unit.info.traits.map((id) => ({ id, bits: info.traitBits[id], tier: 0 }))
+    const totalBits = sum(traits.map((t) => t.bits))
+
+    let x = id >> (bitCount - 7 - 2 - 6 - 6 - 6 - totalBits)
+
+    const n = traits.length
+    for (let idx = 0; idx < n; idx++) {
+        let bitsRight = sum(traits.slice(idx + 1, n).map((t) => t.bits))
+        let bits = traits[idx].bits
+
+        let mask = 2 ** (bits + 1) - 1
+        mask = mask << bitsRight
+
+        traits[idx].tier = x && mask
+    }
+
+    const xs = [x & 0b111111, x & 0b111111_000000, x & 0b111111_000000_000000]
+    return xs
+}
+
+/** Big-endian */
 export function numToUint8BE(n: number, numBits: number): Uint8Array {
     const numBytes = Math.ceil(numBits / 8)
     const arr = new Uint8Array(numBytes)
@@ -110,10 +139,18 @@ export function numToUint8BE(n: number, numBits: number): Uint8Array {
     return arr
 }
 
+export function ui8ToNumBe(bytes: Uint8Array): number {
+    let num = 0
+    for (let idx = 0; idx < bytes.length; idx++) {
+        num |= bytes[idx] << (8 * idx)
+    }
+    return num
+}
+
 /**
  * (id count) - (id 1 size) - (id 1) - (id 2 size) - ...
  */
-export function packAllUnitIds(packedIds: Array<ReturnType<typeof packUnitId>>): Uint8Array {
+export function packAllUnitIds(packedIds: Array<ReturnType<typeof packSimId>>): Uint8Array {
     assert(packedIds.length < 2 ** (8 * ID_COUNT_BYTES))
 
     const bytesForIds = sum(packedIds.map((x) => Math.ceil(x.bitCount / 8)))

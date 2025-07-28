@@ -1,11 +1,11 @@
 <script lang="ts">
-    import type { GameInfoContext } from '$lib/gameInfoContext.svelte'
+    import type { GameInfoValue } from '$lib/gameInfoContext.svelte'
     import { assetUrl } from '$lib/utils/networkUtils'
 
     let {
         itemInfo,
         className = '',
-    }: { itemInfo: GameInfoContext['items'][string]; className?: string } = $props()
+    }: { itemInfo: GameInfoValue['items'][string]; className?: string } = $props()
 </script>
 
 <div>

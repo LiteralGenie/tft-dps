@@ -1,10 +1,17 @@
 import { API_URL } from '$lib/constants'
-import type { GameInfoContext } from '$lib/gameInfoContext.svelte'
-import { packAllUnitIds, packUnitId } from '$lib/utils/networkUtils'
+import type { GameInfoContext, GameInfoValue } from '$lib/gameInfoContext.svelte'
+import { packAllUnitIds, packSimId } from '$lib/utils/networkUtils'
 import { alphabetical, range } from 'radash'
 import { getContext, setContext } from 'svelte'
 import type { SearchContextValue } from '../searchContext.svelte'
-import { assert, compressGzip, iterBatches, iterCombinations } from '../utils/miscUtils'
+import {
+    assert,
+    compressGzip,
+    enumerate,
+    getSortedInsertionIndex,
+    iterBatches,
+    iterCombinations,
+} from '../utils/miscUtils'
 import {
     ACTIVE_SEARCH_COLUMNS,
     type ActiveSearchColumn,
@@ -13,29 +20,32 @@ import {
 } from './activeSearchConstants'
 
 export interface ActiveSearchContext {
-    value: null | {
-        id: string
-        params: SearchContextValue
-        data: {
-            values: Record<PackedId, number> // id -> avg dps
-            sortedValues: Record<string, Array<{ id: PackedId; sortValue: number }>>
-            sortedFilteredValues: Array<ActiveSearchData>
-        }
-        done: boolean
-    }
+    value: null | ActiveSearchContextValue
     columns: Array<ActiveSearchColumn>
     sortColumn: null | string
+    defaultSortColumn: string
     columnFilters: Record<string, string>
     set: (params: SearchContextValue) => void
 }
 
+export interface ActiveSearchContextValue {
+    id: string
+    params: SearchContextValue
+    data: {
+        values: Record<PackedId, ActiveSearchData> // id -> avg dps
+        sortedValues: Record<string, Array<{ id: PackedId; sortValue: number }>>
+        sortedFilteredIds: Array<PackedId>
+    }
+    done: boolean
+}
 const CONTEXT_KEY = 'active_search'
 
-export function setActiveSearchContext(info: GameInfoContext): ActiveSearchContext {
+export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchContext {
     const ctx = $state<ActiveSearchContext>({
         value: null,
         columns: ACTIVE_SEARCH_COLUMNS,
         sortColumn: null,
+        defaultSortColumn: 'dps',
         columnFilters: {},
         set,
     })
@@ -49,7 +59,7 @@ export function setActiveSearchContext(info: GameInfoContext): ActiveSearchConte
         ctx.value = {
             id: String(Date.now()),
             params,
-            data: { values: {}, sortedValues: {}, sortedFilteredValues: [] },
+            data: { values: {}, sortedValues: {}, sortedFilteredIds: [] },
             done: false,
         }
 
@@ -63,12 +73,14 @@ export function setActiveSearchContext(info: GameInfoContext): ActiveSearchConte
         fetchData(ctx.value)
     }
 
-    async function fetchData(value: ActiveSearchContext['value'] & { id: string }) {
-        const comboIter = new ComboIter(value.params, 1000, info)
-        const batchSize = 10 // 1000
+    async function fetchData(ctxVal: ActiveSearchContextValue) {
+        const comboIter = new ComboIter(ctxVal.params, 1000, infoCtx.value)
+        const batchSize = 1000
 
         for (const batch of iterBatches(comboIter, batchSize)) {
-            const packed = batch.map((x) => packUnitId(info, x.unitId, x.stars, x.items, x.traits))
+            const packed = batch.map((x) =>
+                packSimId(infoCtx.value, x.unitId, x.stars, x.items, x.traits),
+            )
             const allPacked = packAllUnitIds(packed)
             const asGzip = await compressGzip(allPacked)
             const resp = await fetch(API_URL + '/simulate', {
@@ -78,12 +90,20 @@ export function setActiveSearchContext(info: GameInfoContext): ActiveSearchConte
                     'content-type': 'application/octet-stream',
                 },
             })
-            const data = await resp.json()
+            const data: number[] = await resp.json()
 
-            const isCancelled = ctx?.value?.id !== value.id
+            for (let idx = 0; idx < batch.length; idx++) {
+                const { packedId, bitCount } = packed[idx]
+                insertData(ctxVal, {
+                    id: packedId,
+                    bitCount,
+                    dps: data[idx],
+                })
+            }
+            applyFilters(ctxVal)
+
+            const isCancelled = ctx?.value?.id !== ctxVal.id
             if (isCancelled) return
-
-            console.log(data)
         }
     }
 
@@ -93,6 +113,52 @@ export function setActiveSearchContext(info: GameInfoContext): ActiveSearchConte
                 ctx.columnFilters[col.id] = ''
             }
         }
+    }
+
+    function insertData(ctxVal: ActiveSearchContextValue, data: ActiveSearchData) {
+        ctxVal.data.values[data.id] = data
+
+        for (const col of ctx.columns) {
+            if (!col.getSortValue) {
+                continue
+            }
+
+            const v = col.getSortValue(data, infoCtx.value)
+            const vs = ctxVal.data.sortedValues[col.id]
+            const idx = getSortedInsertionIndex(vs, v, (x) => x.sortValue)
+            vs.splice(idx, 0, { id: data.id, sortValue: v })
+            ctxVal.data.sortedValues[col.id] = ctxVal.data.sortedValues[col.id]
+        }
+    }
+
+    function applyFilters(ctxVal: ActiveSearchContextValue) {
+        const sortedValues = ctxVal.data.sortedValues[ctx.sortColumn ?? ctx.defaultSortColumn]
+
+        const toRemove = new Set()
+        for (const [colId, text] of Object.entries(ctx.columnFilters)) {
+            if (!text.length) continue
+
+            const colFilter = ctx.columns.find((c) => c.id === colId)!.filter!
+            const clauses = colFilter.prepare(text)
+            if (!clauses.length) continue
+
+            for (const [idx, sv] of enumerate(sortedValues)) {
+                if (toRemove.has(idx)) continue
+
+                const d = ctxVal.data.values[sv.id]
+
+                const matchesAnyClause = clauses.some((cl) =>
+                    colFilter.isMatch(d, infoCtx.value, cl),
+                )
+                if (!matchesAnyClause) {
+                    toRemove.add(idx)
+                }
+            }
+        }
+
+        ctxVal.data.sortedFilteredIds = sortedValues
+            .filter((_, idx) => !toRemove.has(idx))
+            .map((sv) => sv.id)
     }
 }
 
@@ -104,7 +170,7 @@ class ComboIter {
     constructor(
         public params: SearchContextValue,
         public batchSize: number,
-        public infoCtx: GameInfoContext,
+        public info: GameInfoValue,
     ) {
         assert(params.units.size > 0)
         assert(params.minStars < params.maxStars)
@@ -112,12 +178,12 @@ class ComboIter {
 
     *[Symbol.iterator]() {
         const units = alphabetical([...this.params.units], (x) => x)
-        const stars = range(this.params.minStars, this.params.maxStars)
+        const stars = [...range(this.params.minStars, this.params.maxStars)]
         const items = alphabetical(['__BLANK__', ...this.params.items], (x) => x)
 
         for (const unitId of units) {
-            const traitBps = this.infoCtx.units[unitId].info.traits.map((traitId) => {
-                const trait = this.infoCtx.traits[traitId]
+            const traitBps = this.info.units[unitId].info.traits.map((traitId) => {
+                const trait = this.info.traits[traitId]
                 const bps = trait.tiers
                     .filter((tier) => tier.rarity === 'unique' || this.params.traits[tier.rarity])
                     .map((tier) => tier.breakpoint)

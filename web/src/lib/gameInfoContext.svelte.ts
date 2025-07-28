@@ -1,6 +1,15 @@
 import { getContext, setContext } from 'svelte'
 
 export interface GameInfoContext {
+    value: GameInfoValue
+    set: (
+        units: GameInfoValue['units'],
+        items: GameInfoValue['items'],
+        traits: GameInfoValue['traits'],
+    ) => void
+}
+
+export interface GameInfoValue {
     units: Record<
         string,
         {
@@ -14,6 +23,8 @@ export interface GameInfoContext {
             }
         }
     >
+    unitsByIndex: Record<number, string>
+
     items: Record<
         string,
         {
@@ -25,6 +36,8 @@ export interface GameInfoContext {
             index: number
         }
     >
+    itemsByIndex: Record<number, string>
+
     traits: Record<
         string,
         {
@@ -41,14 +54,71 @@ export interface GameInfoContext {
             }>
         }
     >
+    traitBits: Record<string, number>
 }
 
 const CONTEXT_KEY = 'game_info_context'
 
 export function setGameInfoContext(): GameInfoContext {
-    const ctx = $state<GameInfoContext>({ units: {}, items: {}, traits: {} })
+    const value = {
+        units: {},
+        unitsByIndex: {},
+        items: {},
+        itemsByIndex: {},
+        traits: {},
+        traitBits: {},
+    }
+    const ctx = $state<GameInfoContext>({
+        value,
+        set,
+    })
     setContext(CONTEXT_KEY, ctx)
     return ctx
+
+    function set(
+        units: GameInfoValue['units'],
+        items: GameInfoValue['items'],
+        traits: GameInfoValue['traits'],
+    ) {
+        const unitsByIndex: GameInfoValue['unitsByIndex'] = {}
+        for (const unit of Object.values(units)) {
+            unitsByIndex[unit.index] = unit.info.id
+        }
+
+        const itemsByIndex: GameInfoValue['itemsByIndex'] = {}
+        for (const item of Object.values(items)) {
+            itemsByIndex[item.index] = item.id
+        }
+
+        const traitBits: GameInfoValue['traitBits'] = {}
+        for (const trait of Object.values(traits)) {
+            const maxTier = trait.breakpoints.length
+
+            let bits
+            if (maxTier < 2) {
+                bits = 1
+            } else if (maxTier < 4) {
+                bits = 2
+            } else if (maxTier < 8) {
+                bits = 3
+            } else if (maxTier < 16) {
+                bits = 4
+            } else {
+                throw new Error()
+            }
+
+            traitBits[trait.id] = bits
+
+            ctx.value = {
+                units,
+                unitsByIndex,
+                items,
+                itemsByIndex,
+                traits,
+                traitBits,
+            }
+        }
+    }
 }
 
 export function getGameInfoContext(): GameInfoContext {

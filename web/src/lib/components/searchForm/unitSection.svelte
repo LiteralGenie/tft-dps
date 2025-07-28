@@ -3,10 +3,10 @@
     import { alphabetical } from 'radash'
     import UnitRow from './unitRow.svelte'
 
-    const gameInfo = getGameInfoContext()
+    const { value: info } = getGameInfoContext()
 
     const unitInfo = alphabetical(
-        [...Object.values(gameInfo.units)],
+        [...Object.values(info.units)],
         (u) => u.info.cost.toString() + u.info.name,
     )
 </script>

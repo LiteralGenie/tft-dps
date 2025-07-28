@@ -1,13 +1,3 @@
-<script lang="ts" module>
-    export interface DpsTableRow {
-        dps: number
-        unitId: string
-        stars: number
-        items: Record<string, number>
-        traits: Record<string, number>
-    }
-</script>
-
 <script lang="ts">
     import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
     import { getSearchContext } from '$lib/searchContext.svelte'
@@ -23,7 +13,6 @@
     function onClose() {
         showDialog = false
         activeSearch.set(search.value)
-        console.log(search.value)
     }
 </script>
 

@@ -1,25 +1,23 @@
-import type { GameInfoContext } from '$lib/gameInfoContext.svelte'
+import type { GameInfoValue } from '$lib/gameInfoContext.svelte'
+import { unpackUnitIndex, unpackUnitStars } from '$lib/utils/networkUtils'
 
 // Encodes unit id, items, etc into single number
 export type PackedId = number
 
 export interface ActiveSearchData {
     id: PackedId
+    bitCount: number
     dps: number
-    idUnit: string
-    stars: number
-    traits: Record<string, number>
-    items: Record<string, number>
 }
 
 export interface ActiveSearchColumn<TFilter = any> {
     id: string
     label: string
-    getLabel: (d: ActiveSearchData, info: GameInfoContext) => string
-    getSortValue?: (d: ActiveSearchData, info: GameInfoContext) => number
+    getLabel: (d: ActiveSearchData, info: GameInfoValue) => string
+    getSortValue?: (d: ActiveSearchData, info: GameInfoValue) => number
     filter?: {
         prepare: (text: string) => TFilter[]
-        isMatch: (d: ActiveSearchData, info: GameInfoContext, filter: TFilter) => boolean
+        isMatch: (d: ActiveSearchData, info: GameInfoValue, filter: TFilter) => boolean
     }
 }
 
@@ -33,8 +31,12 @@ const DPS_COLUMN: ActiveSearchColumn = {
 const UNIT_COLUMN: ActiveSearchColumn<{ unit: string; stars: Set<number> }> = {
     id: 'unit',
     label: 'Champion',
-    getLabel: (d, info) => info.units[d.idUnit].info.name,
-    getSortValue: (d, info) => info.units[d.idUnit].index,
+    getLabel: (d, info) => {
+        const index = unpackUnitIndex(d.id, d.bitCount)
+        const id = info.unitsByIndex[index]
+        const unit = info.units[id]
+        return unit.info.name
+    },
     filter: {
         prepare: (text) => {
             const filters: Array<{ unit: string; stars: Set<number> }> = []
@@ -61,8 +63,14 @@ const UNIT_COLUMN: ActiveSearchColumn<{ unit: string; stars: Set<number> }> = {
             return filters
         },
         isMatch: (d, info, filter) => {
-            const isNameMatch = info.units[d.idUnit].info.name.toLowerCase().includes(filter.unit)
-            const isStarMatch = filter.stars.has(d.stars)
+            const index = unpackUnitIndex(d.id, d.bitCount)
+            const id = info.unitsByIndex[index]
+            const unit = info.units[id]
+
+            const stars = unpackUnitStars(d.id, d.bitCount)
+
+            const isNameMatch = unit.info.name.toLowerCase().includes(filter.unit)
+            const isStarMatch = filter.stars.has(stars)
             return isNameMatch && isStarMatch
         },
     },

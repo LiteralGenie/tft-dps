@@ -73,7 +73,21 @@ async def simulate(req: Request):
     APP_WORKER_CONTEXT.req_queue.put(
         SimulateAllRequest(type="simulate_all_request", requests=requests)
     )
-    result = APP_WORKER_CONTEXT.resp_queue.get()
+
+    sims: list[dict] = APP_WORKER_CONTEXT.resp_queue.get()
+
+    result = []
+    for sim in sims:
+        avg_dps = 0
+        avg_dps += sum(
+            [x["physical_damage"] + x["magical_damage"] for x in sim["attacks"]]
+        )
+        avg_dps += sum(
+            [x["physical_damage"] + x["magical_damage"] for x in sim["casts"]]
+        )
+        avg_dps /= len(sim["attacks"] + sim["casts"])
+        result.append(avg_dps)
+
     return result
 
 

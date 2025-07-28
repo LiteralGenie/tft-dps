@@ -1,11 +1,11 @@
 <script lang="ts">
-    import type { GameInfoContext } from '$lib/gameInfoContext.svelte'
+    import type { GameInfoValue } from '$lib/gameInfoContext.svelte'
     import { assetUrl } from '$lib/utils/networkUtils'
 
     let {
         unitInfo,
         className = '',
-    }: { unitInfo: GameInfoContext['units'][string]; className?: string } = $props()
+    }: { unitInfo: GameInfoValue['units'][string]; className?: string } = $props()
 
     const c = $derived(unitInfo.info.cost)
     const rarity = $derived(
