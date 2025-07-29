@@ -8,7 +8,6 @@ form
     combo count estimate?
 
 table
-    sort
     T
     pagination
     progress

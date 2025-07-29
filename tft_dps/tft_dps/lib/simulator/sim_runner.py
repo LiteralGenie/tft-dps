@@ -1,3 +1,5 @@
+import math
+
 from tft_dps.lib.cache import Cache
 from tft_dps.lib.calc_ctx import CalcCtx, CalcCtxStats
 from tft_dps.lib.constants import CHAMPION_UNITS, ITEMS, VERSION
@@ -120,5 +122,16 @@ class SimRunner:
                 lastBp = bp
 
             t["tiers"] = tiers
+
+            t["breakpoints"].sort()
+
+            num_bps = len(t["breakpoints"])
+            if t["breakpoints"][0] > 1:
+                num_bps += 1
+                t["has_bp_1"] = False
+            else:
+                t["has_bp_1"] = True
+
+            t["num_bits"] = math.ceil(math.log2(num_bps))
 
         return traits

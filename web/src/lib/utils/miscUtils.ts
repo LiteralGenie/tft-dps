@@ -107,9 +107,12 @@ export function* iterCombinations<T = any>(
             yield [x]
         }
     } else {
-        const item = iterCombinations(arrs.slice(0, -1))
-        for (const x of lst) {
-            yield [...item, x]
+        const head = iterCombinations(...arrs.slice(0, -1))
+        for (const h of head) {
+            for (const l of lst) {
+                // @ts-ignore
+                yield [...h, l]
+            }
         }
     }
 }
@@ -148,5 +151,28 @@ export function costToRarity(c: number) {
             return 'common'
         default:
             throw new Error()
+    }
+}
+
+export function nCr(n: number, r: number) {
+    assert(n > 0)
+    assert(r > 0)
+
+    if (n < r) {
+        return 0
+    }
+
+    return fac(n) / (fac(n - r) * fac(r))
+}
+
+export function fac(n: number): number {
+    return n <= 1 ? 1 : n * fac(n - 1)
+}
+
+export function product(xs: number[]): number {
+    if (xs.length === 1) {
+        return xs[0]
+    } else {
+        return xs[0] * product(xs.slice(1))
     }
 }

@@ -1,5 +1,4 @@
 import asyncio
-import math
 import multiprocessing as mp
 import socket
 from dataclasses import dataclass
@@ -34,15 +33,10 @@ async def _serve_app(
     item_info: dict,
     trait_info: dict,
 ):
-    trait_bits = dict()
-    for t in trait_info.values():
-        count = len(t["breakpoints"]) + 1
-        trait_bits[t["id"]] = math.ceil(math.log2(count))
-
     trait_bits_by_unit_index = dict()
     for unit in unit_info.values():
         trait_bits_by_unit_index[unit["index"]] = [
-            trait_bits[t] for t in unit["info"]["traits"]
+            trait_info[t]["num_bits"] for t in unit["info"]["traits"]
         ]
 
     unit_info_by_index = {u["index"]: u for u in unit_info.values()}

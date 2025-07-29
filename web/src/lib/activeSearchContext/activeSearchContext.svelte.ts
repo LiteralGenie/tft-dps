@@ -1,7 +1,7 @@
 import { API_URL } from '$lib/constants'
 import type { GameInfoContext, GameInfoValue } from '$lib/gameInfoContext.svelte'
 import { packAllUnitIds, packSimId } from '$lib/utils/networkUtils'
-import { alphabetical, range } from 'radash'
+import { alphabetical, range, sum } from 'radash'
 import { getContext, setContext } from 'svelte'
 import type { SearchContextValue } from '../searchContext.svelte'
 import {
@@ -11,6 +11,8 @@ import {
     getSortedInsertionIndex,
     iterBatches,
     iterCombinations,
+    nCr,
+    product,
 } from '../utils/miscUtils'
 import {
     ACTIVE_SEARCH_COLUMNS,
@@ -182,12 +184,16 @@ export function getActiveSearchContext(): ActiveSearchContext {
 }
 
 class ComboIter {
+    total: number
+
     constructor(
         public params: SearchContextValue,
         public info: GameInfoValue,
     ) {
         assert(params.units.size > 0)
-        assert(params.minStars < params.maxStars)
+        assert(params.minStars <= params.maxStars)
+
+        this.total = this.count()
     }
 
     *[Symbol.iterator]() {
@@ -198,10 +204,17 @@ class ComboIter {
         for (const unitId of units) {
             const traitBps = this.info.units[unitId].info.traits.map((traitId) => {
                 const trait = this.info.traits[traitId]
-                const bps = trait.tiers
-                    .filter((tier) => tier.rarity === 'unique' || this.params.traits[tier.rarity])
-                    .map((tier) => tier.breakpoint)
-                return [0, ...bps].map((bp) => [traitId, bp] as [string, number])
+                const bps = new Set(
+                    trait.tiers
+                        .filter(
+                            (tier) => tier.rarity === 'unique' || this.params.traits[tier.rarity],
+                        )
+                        .map((tier) => tier.breakpoint),
+                )
+                if (!trait.has_bp_1 && this.params.traits['inactive']) {
+                    bps.add(1)
+                }
+                return [...bps].map((bp) => [traitId, bp] as [string, number])
             })
 
             for (const star of stars) {
@@ -219,7 +232,7 @@ class ComboIter {
                             if (item2 !== '__BLANK__') its.push(item2)
                             if (item3 !== '__BLANK__') its.push(item3)
 
-                            for (const bps of iterCombinations(traitBps)) {
+                            for (const bps of iterCombinations(...traitBps)) {
                                 yield {
                                     unitId,
                                     stars: star,
@@ -232,5 +245,41 @@ class ComboIter {
                 }
             }
         }
+    }
+
+    private count(): number {
+        const stars = [...range(this.params.minStars, this.params.maxStars)]
+
+        const numItems = this.params.items.size
+        const numItemCombos = 1 + numItems + nCr(numItems + 1, 2) + nCr(numItems + 2, 3)
+
+        const numUnitTraitCombos = sum(
+            [...this.params.units].flatMap((unitId) => {
+                const unit = this.info.units[unitId]
+
+                const tiersPerTrait = unit.info.traits
+                    .map((traitId) => this.info.traits[traitId])
+                    .map((trait) =>
+                        trait.tiers.filter(
+                            (tier) => tier.rarity === 'unique' || this.params.traits[tier.rarity],
+                        ),
+                    )
+                    .map((validTiers) => {
+                        const bps = new Set(validTiers.map((tier) => tier.breakpoint))
+                        bps.add(1)
+                        return bps.size
+                    })
+
+                return product(tiersPerTrait)
+            }),
+        )
+
+        console.log(
+            stars.length * numItemCombos * numUnitTraitCombos,
+            stars.length,
+            numItemCombos,
+            numUnitTraitCombos,
+        )
+        return stars.length * numItemCombos * numUnitTraitCombos
     }
 }

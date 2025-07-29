@@ -39,7 +39,7 @@ export function packSimId(
     unitId: string,
     stars: number,
     itemIds: string[],
-    traitTierMap: Record<string, number>,
+    traitValueMap: Record<string, number>,
 ) {
     const itemIndexes = [...range(0, 2)].map((idx) => {
         const id = itemIds[idx]
@@ -52,10 +52,23 @@ export function packSimId(
     })
     const unitIndex = info.units[unitId].index
     const traitTiers = info.units[unitId].info.traits.map((id) => {
-        const tier = traitTierMap[id] ?? 0
-        const maxTier = info.traits[id].breakpoints.length
-        const bits = info.traitBits[id]
-        return { tier, maxTier, bits }
+        const trait = info.traits[id]
+        const v = traitValueMap[id] ?? 1
+
+        let tier = info.traits[id].breakpoints.findIndex((x) => x === v)
+        if (trait.has_bp_1) {
+            assert(tier > -1)
+        } else {
+            if (v === 1) {
+                assert(tier === -1)
+                tier = 0
+            } else {
+                assert(tier > -1)
+                tier += 1
+            }
+        }
+
+        return { tier, bits: trait.num_bits }
     })
 
     // Unit (7 bits)
@@ -73,6 +86,7 @@ export function packSimId(
     let traitOffset = 0
     packedId = packedId << 13n
     for (const d of traitTiers) {
+        assert((packedId & (BigInt(2 ** d.bits - 1) << BigInt(traitOffset))) === 0n)
         packedId += BigInt(d.tier << traitOffset)
         traitOffset += d.bits
     }
@@ -108,18 +122,18 @@ export function unpackTraits(id: PackedId, info: GameInfoValue) {
     const unitId = info.unitsByIndex[unitIndex]
     const unit = info.units[unitId]
 
-    const traits = unit.info.traits.map((id) => ({ id, tier: 0 }))
+    const traits = unit.info.traits.map((id) => ({ id, tier: -99 }))
 
     let rem = Number(id & BigInt(0b0000000_00_000000_000000_000000_1111111111111))
 
     for (const [idx, trait] of enumerate(traits)) {
-        const numBits = info.traitBits[trait.id]
+        const numBits = info.traits[trait.id].num_bits
 
         // 2 bits -> 0b11, 3 bits -> 0b111
-        const mask = 2 ** (numBits + 1) - 1
+        const mask = 2 ** numBits - 1
 
         traits[idx].tier = rem & mask
-        rem >> numBits
+        rem = rem >> numBits
     }
 
     return traits

@@ -52,9 +52,10 @@ export interface GameInfoValue {
                 breakpoint: number
                 rarity: 'unique' | 'bronze' | 'silver' | 'gold' | 'prismatic'
             }>
+            num_bits: number
+            has_bp_1: boolean
         }
     >
-    traitBits: Record<string, number>
 }
 
 const CONTEXT_KEY = 'game_info_context'
@@ -66,7 +67,6 @@ export function setGameInfoContext(): GameInfoContext {
         items: {},
         itemsByIndex: {},
         traits: {},
-        traitBits: {},
     }
     const ctx = $state<GameInfoContext>({
         value,
@@ -90,24 +90,22 @@ export function setGameInfoContext(): GameInfoContext {
             itemsByIndex[item.index] = item.id
         }
 
-        const traitBits: GameInfoValue['traitBits'] = {}
         for (const trait of Object.values(traits)) {
-            const maxTier = trait.breakpoints.length
+            let numBps = trait.breakpoints.length
+            if (trait.breakpoints[0] <= 1) numBps += 1
 
             let bits
-            if (maxTier < 2) {
+            if (numBps <= 2) {
                 bits = 1
-            } else if (maxTier < 4) {
+            } else if (numBps <= 4) {
                 bits = 2
-            } else if (maxTier < 8) {
+            } else if (numBps <= 8) {
                 bits = 3
-            } else if (maxTier < 16) {
+            } else if (numBps <= 16) {
                 bits = 4
             } else {
                 throw new Error()
             }
-
-            traitBits[trait.id] = bits
 
             ctx.value = {
                 units,
@@ -115,7 +113,6 @@ export function setGameInfoContext(): GameInfoContext {
                 items,
                 itemsByIndex,
                 traits,
-                traitBits,
             }
         }
     }

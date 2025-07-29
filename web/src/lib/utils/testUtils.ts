@@ -63,10 +63,9 @@ export function mockGameInfo(): GameInfoValue {
                         rarity: 'unique',
                     },
                 ],
+                has_bp_1: true,
+                num_bits: 3,
             },
-        },
-        traitBits: {
-            id_c: 3,
         },
     }
 }

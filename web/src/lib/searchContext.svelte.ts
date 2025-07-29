@@ -13,6 +13,7 @@ export type SearchContextValue = {
 
     items: Set<string>
     traits: {
+        inactive: boolean
         bronze: boolean
         silver: boolean
         gold: boolean

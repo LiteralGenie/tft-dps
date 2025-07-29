@@ -68,6 +68,7 @@ export const DEFAULT_SEARCH_CONTEXT = () => ({
     ]),
     items: new Set([]),
     traits: {
+        inactive: true,
         bronze: true,
         silver: true,
         gold: true,

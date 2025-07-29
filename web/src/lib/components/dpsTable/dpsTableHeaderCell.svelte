@@ -22,12 +22,12 @@
             <input
                 bind:this={inputEl}
                 type="text"
-                class="text-foreground! pr-6.5 w-full bg-transparent p-1 text-xs"
+                class="text-foreground! pr-6.5 w-full bg-transparent p-1 pl-1.5 text-xs"
                 placeholder={col.filter?.placeholder}
                 oninput={onInput}
             />
 
-            <div class="p-1.25 absolute bottom-0 right-0.5 top-0 opacity-30">
+            <div class="p-1.25 absolute bottom-0 right-0 top-0 pr-[0.25em] opacity-30">
                 <FunnelIcon class="size-full" />
             </div>
         </div>
