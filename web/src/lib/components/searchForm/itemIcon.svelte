@@ -9,5 +9,5 @@
 </script>
 
 <div>
-    <img class={className} src={assetUrl(itemInfo.icon)} title={itemInfo.name} />
+    <img class={className} src={assetUrl(itemInfo.icon)} title={itemInfo.name} draggable="false" />
 </div>

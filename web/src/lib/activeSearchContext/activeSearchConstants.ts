@@ -1,5 +1,5 @@
 import type { GameInfoValue } from '$lib/gameInfoContext.svelte'
-import { unpackUnitIndex, unpackUnitStars } from '$lib/utils/networkUtils'
+import { unpackItemIndices, unpackUnitIndex, unpackUnitStars } from '$lib/utils/networkUtils'
 
 // Encodes unit id, items, etc into single number
 export type PackedId = bigint
@@ -12,25 +12,43 @@ export interface ActiveSearchData {
 export interface ActiveSearchColumn<TFilter = any> {
     id: string
     label: string
-    getLabel: (d: ActiveSearchData, info: GameInfoValue) => string
-    getSortValue?: (d: ActiveSearchData, info: GameInfoValue) => number
+    getLabel: (opts: GetLabelOptions) => string
+    sort?: {
+        getValue: (d: ActiveSearchData, info: GameInfoValue) => number
+        order: 'asc' | 'desc'
+    }
     filter?: {
-        prepare: (text: string) => TFilter[]
+        prepare: (text: string, info: GameInfoValue) => TFilter[]
         isMatch: (d: ActiveSearchData, info: GameInfoValue, filter: TFilter) => boolean
+        placeholder?: string
     }
 }
 
-const DPS_COLUMN: ActiveSearchColumn = {
-    id: 'dps',
-    label: 'DPS',
-    getLabel: (d) => String(d.dps),
-    getSortValue: (d) => d.dps,
+interface GetLabelOptions {
+    d: ActiveSearchData
+    info: GameInfoValue
 }
 
-const UNIT_COLUMN: ActiveSearchColumn<{ unit: string; stars: Set<number> }> = {
+export const INDEX_COLUMN: ActiveSearchColumn = {
+    id: 'index',
+    label: '',
+    getLabel: ({ d }) => 'todo',
+}
+
+export const DPS_COLUMN: ActiveSearchColumn = {
+    id: 'dps',
+    label: 'DPS',
+    getLabel: ({ d }) => String(d.dps),
+    sort: {
+        getValue: (d) => d.dps,
+        order: 'desc',
+    },
+}
+
+export const UNIT_COLUMN: ActiveSearchColumn<{ unit: string; stars: Set<number> }> = {
     id: 'unit',
     label: 'Champion',
-    getLabel: (d, info) => {
+    getLabel: ({ d, info }) => {
         const index = unpackUnitIndex(d.id)
         const id = info.unitsByIndex[index]
         const unit = info.units[id]
@@ -72,7 +90,39 @@ const UNIT_COLUMN: ActiveSearchColumn<{ unit: string; stars: Set<number> }> = {
             const isStarMatch = filter.stars.has(stars)
             return isNameMatch && isStarMatch
         },
+        placeholder: '3* irelia, 2* malz',
     },
 }
 
-export const ACTIVE_SEARCH_COLUMNS = [DPS_COLUMN, UNIT_COLUMN]
+export const ITEM_COLUMN: ActiveSearchColumn<number> = {
+    id: 'item',
+    label: 'Items',
+    getLabel: ({ d }) => 'todo',
+    filter: {
+        prepare: (text, info) => {
+            const clauses = text.split(',').map((cl) => cl.toLowerCase())
+            const matchingItemIndices = Object.values(info.items)
+                .filter((item) => clauses.some((cl) => item.name.toLowerCase().includes(cl)))
+                .map((item) => item.index)
+            return matchingItemIndices
+        },
+        isMatch: (d, info, filter) => {
+            return unpackItemIndices(d.id).some((idx) => idx === filter)
+        },
+        placeholder: 'gunblade, bloodthirster',
+    },
+}
+
+export const TRAIT_COLUMN: ActiveSearchColumn = {
+    id: 'trait',
+    label: 'Traits',
+    getLabel: ({ d }) => 'todo',
+}
+
+export const ACTIVE_SEARCH_COLUMNS = [
+    INDEX_COLUMN,
+    DPS_COLUMN,
+    UNIT_COLUMN,
+    ITEM_COLUMN,
+    TRAIT_COLUMN,
+]

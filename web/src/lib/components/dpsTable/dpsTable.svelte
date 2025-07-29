@@ -18,12 +18,12 @@
 
 <SearchFormDialog open={showDialog} on:close={onClose} />
 
-<div class="root m-auto flex w-max max-w-[70rem] flex-col">
+<div class="root m-auto flex max-w-max flex-col">
     <button onclick={() => (showDialog = true)} class="mb-4 self-end rounded-md border px-4 py-2">
         Configure
     </button>
 
-    <div class="grid-container rounded-md border p-2">
+    <div class="grid-container rounded-md border px-2">
         <DpsTableHeader />
         <DpsTableBody />
     </div>
@@ -33,19 +33,18 @@
     /* Grid */
     .grid-container {
         display: grid;
-        grid-template-columns: max-content max-content max-content max-content max-content;
+        grid-template-columns: 5em 5em 15em 10em 11em;
     }
 
     /* Padded rows */
-    .root :global(.td),
     .root :global(.th) {
-        padding: 0.5rem 2rem;
+        padding: 1em 1em;
+    }
+    .root :global(.td) {
+        padding: 0.5em 1em;
     }
 
-    /* Header emphasis */
-    .root :global(.th) {
-        font-weight: bold;
-    }
+    /* Smaller body */
     .root :global(.td) {
         font-size: smaller;
     }
@@ -57,18 +56,19 @@
 
     /* Index col */
     .root :global(.index) {
-        padding-right: 1rem;
+        padding-right: 1em;
         color: color-mix(in oklab, var(--color-foreground), transparent 30%);
         /* justify-content: start !important; */
     }
 
     /** Alignment */
-    .root :global(.th),
+    .root :global(.th) {
+        display: flex;
+        align-items: start;
+        justify-content: end;
+    }
     .root :global(.td) {
         display: flex;
         align-items: center;
-    }
-    .root :global(.th) {
-        justify-content: center;
     }
 </style>

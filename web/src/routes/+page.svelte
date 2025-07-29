@@ -40,7 +40,6 @@
 
             ;(window as any).tft = tft
             infoCtx.set(tft.units, tft.items, tft.traits)
-            console.log('set')
 
             loadStatus = null
         } catch (e) {

@@ -26,6 +26,7 @@ export interface ActiveSearchContext {
     defaultSortColumn: string
     columnFilters: Record<string, string>
     set: (params: SearchContextValue) => void
+    setFilter: (colId: string, filter: string) => void
 }
 
 export interface ActiveSearchContextValue {
@@ -48,6 +49,7 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
         defaultSortColumn: 'dps',
         columnFilters: {},
         set,
+        setFilter,
     })
     setContext(CONTEXT_KEY, ctx)
 
@@ -64,7 +66,7 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
         }
 
         for (const col of ctx.columns) {
-            if (col.getSortValue) {
+            if (col.sort) {
                 ctx.value.data.sortedValues[col.id] = []
             }
         }
@@ -74,8 +76,8 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
     }
 
     async function fetchData(ctxVal: ActiveSearchContextValue) {
-        const comboIter = new ComboIter(ctxVal.params, 1000, infoCtx.value)
-        const batchSize = 1000
+        const comboIter = new ComboIter(ctxVal.params, infoCtx.value)
+        const batchSize = 100
 
         for (const batch of iterBatches(comboIter, batchSize)) {
             const packed = batch.map((x) =>
@@ -102,7 +104,10 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
             applyFilters(ctxVal)
 
             const isCancelled = ctx?.value?.id !== ctxVal.id
-            if (isCancelled) return
+            if (isCancelled) {
+                console.log('fetch cancelled')
+                return
+            }
         }
     }
 
@@ -112,19 +117,23 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
                 ctx.columnFilters[col.id] = ''
             }
         }
+
+        if (ctx.value) {
+            applyFilters(ctx.value)
+        }
     }
 
     function insertData(ctxVal: ActiveSearchContextValue, data: ActiveSearchData) {
         ctxVal.data.values.set(data.id, data)
 
         for (const col of ctx.columns) {
-            if (!col.getSortValue) {
+            if (!col.sort) {
                 continue
             }
 
-            const v = col.getSortValue(data, infoCtx.value)
+            const v = col.sort.getValue(data, infoCtx.value)
             const vs = ctxVal.data.sortedValues[col.id]
-            const idx = getSortedInsertionIndex(vs, v, (x) => x.sortValue)
+            const idx = getSortedInsertionIndex(vs, v, col.sort.order, (x) => x.sortValue)
             vs.splice(idx, 0, { id: data.id, sortValue: v })
             ctxVal.data.sortedValues[col.id] = ctxVal.data.sortedValues[col.id]
         }
@@ -138,7 +147,7 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
             if (!text.length) continue
 
             const colFilter = ctx.columns.find((c) => c.id === colId)!.filter!
-            const clauses = colFilter.prepare(text)
+            const clauses = colFilter.prepare(text, infoCtx.value)
             if (!clauses.length) continue
 
             for (const [idx, sv] of enumerate(sortedValues)) {
@@ -159,6 +168,13 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
             .filter((_, idx) => !toRemove.has(idx))
             .map((sv) => sv.id)
     }
+
+    function setFilter(colId: string, filter: string) {
+        assert(colId in ctx.columnFilters)
+
+        ctx.columnFilters[colId] = filter
+        if (ctx.value) applyFilters(ctx.value)
+    }
 }
 
 export function getActiveSearchContext(): ActiveSearchContext {
@@ -168,7 +184,6 @@ export function getActiveSearchContext(): ActiveSearchContext {
 class ComboIter {
     constructor(
         public params: SearchContextValue,
-        public batchSize: number,
         public info: GameInfoValue,
     ) {
         assert(params.units.size > 0)

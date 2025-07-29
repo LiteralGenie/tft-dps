@@ -6,12 +6,20 @@ export function assert(cond: boolean, msg?: string) {
     }
 }
 
-export function getSortedInsertionIndex<T = number>(xs: T[], x: number, get: (y: T) => number) {
+export function getSortedInsertionIndex<T = number>(
+    xs: T[],
+    x: number,
+    order: 'asc' | 'desc',
+    get: (y: T) => number,
+) {
     let low = 0
     let high = xs.length
+
     while (low < high) {
-        const mid = (low + high) >> 1
-        if (get(xs[mid]) < x) {
+        const mid: number = (low + high) >> 1
+        const isBigger = get(xs[mid]) < x
+
+        if ((order === 'asc' && isBigger) || (order === 'desc' && !isBigger)) {
             low = mid + 1
         } else {
             high = mid

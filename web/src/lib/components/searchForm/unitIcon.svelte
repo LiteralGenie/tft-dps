@@ -10,7 +10,12 @@
 </script>
 
 <div class="unit unit-bg {rarity} p-[2px]">
-    <img class={className} src={assetUrl(unit.info.icon)} title={unit.info.name} />
+    <img
+        class={className}
+        src={assetUrl(unit.info.icon)}
+        title={unit.info.name}
+        draggable="false"
+    />
 </div>
 
 <style>

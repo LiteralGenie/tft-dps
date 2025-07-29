@@ -14,7 +14,7 @@
     })
 </script>
 
-<div class="contents">
+<div class="font-xs contents">
     {#each rows as d, idx}
         <DpsTableRow {d} {idx} />
     {/each}
