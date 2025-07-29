@@ -11,18 +11,22 @@
     let inputEl: HTMLInputElement
 
     function onInputChange() {
-        let update = parseInt(inputEl.value)
+        const update = parseInt(inputEl.value)
+        const defaultUpdate = String(ctx.pageIdx + 1)
+
         if (isNaN(update)) {
-            inputEl.value = String(ctx.pageIdx + 1)
+            inputEl.value = defaultUpdate
+            return
+        }
+        if (update < 1 || update > max) {
+            inputEl.value = defaultUpdate
             return
         }
 
-        console.log('onchange', update)
         ctx.pageIdx = update - 1
     }
 
     $effect(() => {
-        console.log('onstate', ctx.pageIdx + 1)
         inputEl.value = String(ctx.pageIdx + 1)
     })
 </script>

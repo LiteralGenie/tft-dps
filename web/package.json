@@ -37,6 +37,7 @@
     },
     "dependencies": {
         "idb-kv": "^2.2.0",
-        "radash": "^12.1.1"
+        "radash": "^12.1.1",
+        "tlhunter-sorted-set": "^0.1.0"
     }
 }

@@ -1,5 +1,8 @@
 import { last, sum } from 'radash'
 
+// @ts-ignore
+import SortedSet from 'tlhunter-sorted-set/lib/set'
+
 export function assert(cond: boolean, msg?: string) {
     if (!cond) {
         throw new Error(msg)
@@ -133,8 +136,8 @@ export function* iterBatches<T>(xs: Iterable<T>, n: number): Iterable<T[]> {
     }
 }
 
-export function enumerate<T>(xs: T[]): Array<[number, T]> {
-    return xs.map((x, idx) => [idx, x])
+export function enumerate<T>(xs: Iterable<T>): Array<[number, T]> {
+    return [...xs].map((x, idx) => [idx, x])
 }
 
 export function costToRarity(c: number) {
@@ -174,5 +177,25 @@ export function product(xs: number[]): number {
         return xs[0]
     } else {
         return xs[0] * product(xs.slice(1))
+    }
+}
+
+export interface OrderedValueMapOptions {
+    order?: 'asc' | 'desc' // default asc
+}
+
+export class OrderedValueMap<K extends bigint = bigint, V extends number = number> {
+    data: SortedSet
+
+    constructor(public opts?: OrderedValueMapOptions) {
+        this.data = new SortedSet()
+    }
+
+    set(k: K, v: V) {
+        this.data.add(k, v)
+    }
+
+    keys(): K[] {
+        return this.data.keys()
     }
 }

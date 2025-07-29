@@ -7,11 +7,10 @@ import type { SearchContextValue } from '../searchContext.svelte'
 import {
     assert,
     compressGzip,
-    enumerate,
-    getSortedInsertionIndex,
     iterBatches,
     iterCombinations,
     nCr,
+    OrderedValueMap,
     product,
 } from '../utils/miscUtils'
 import {
@@ -38,7 +37,7 @@ export interface ActiveSearchContextValue {
     params: SearchContextValue
     data: {
         values: Map<PackedId, ActiveSearchData> // id -> avg dps
-        sortedValues: Record<string, Array<{ id: PackedId; sortValue: number }>>
+        sortedValues: Record<string, OrderedValueMap>
         sortedFilteredIds: Array<PackedId>
     }
     progress: {
@@ -83,7 +82,7 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
 
         for (const col of ctx.columns) {
             if (col.sort) {
-                ctx.value.data.sortedValues[col.id] = []
+                ctx.value.data.sortedValues[col.id] = new OrderedValueMap({ order: col.sort.order })
             }
         }
 
@@ -125,7 +124,7 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
 
             ctxVal.progress.count += batch.length
 
-            const isCancelled = ctx?.value?.id !== ctxVal.id
+            const isCancelled = ctx.value?.id !== ctxVal.id
             if (isCancelled) {
                 console.log('fetch cancelled')
                 return
@@ -157,14 +156,13 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
 
             const v = col.sort.getValue(data, infoCtx.value)
             const vs = ctxVal.data.sortedValues[col.id]
-            const idx = getSortedInsertionIndex(vs, v, col.sort.order, (x) => x.sortValue)
-            vs.splice(idx, 0, { id: data.id, sortValue: v })
-            ctxVal.data.sortedValues[col.id] = ctxVal.data.sortedValues[col.id]
+            vs.set(data.id, v)
         }
     }
 
     function applyFilters(ctxVal: ActiveSearchContextValue) {
         const sortedValues = ctxVal.data.sortedValues[ctx.sortColumn ?? ctx.defaultSortColumn]
+        const ids = sortedValues.keys()
 
         const toRemove = new Set()
         for (const [colId, text] of Object.entries(ctx.columnFilters)) {
@@ -174,23 +172,27 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
             const clauses = colFilter.prepare(text, infoCtx.value)
             if (!clauses.length) continue
 
-            for (const [idx, sv] of enumerate(sortedValues)) {
-                if (toRemove.has(idx)) continue
+            for (const id of ids) {
+                if (toRemove.has(id)) continue
 
-                const d = ctxVal.data.values.get(sv.id)!
+                const d = ctxVal.data.values.get(id)!
 
                 const matchesAnyClause = clauses.some((cl) =>
                     colFilter.isMatch(d, infoCtx.value, cl),
                 )
                 if (!matchesAnyClause) {
-                    toRemove.add(idx)
+                    toRemove.add(id)
                 }
             }
         }
 
-        ctxVal.data.sortedFilteredIds = sortedValues
-            .filter((_, idx) => !toRemove.has(idx))
-            .map((sv) => sv.id)
+        const sortedFilteredIds = []
+        for (const id of ids) {
+            if (toRemove.has(id)) continue
+            sortedFilteredIds.push(id)
+        }
+
+        ctxVal.data.sortedFilteredIds = sortedFilteredIds
     }
 
     function setFilter(colId: string, filter: string) {
