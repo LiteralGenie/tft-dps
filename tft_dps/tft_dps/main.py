@@ -36,7 +36,7 @@ async def main():
 
     print("Spawning workers ...")
 
-    mgr = WorkerManager.init(num_apps=1, num_workers=1, runner=runner)
+    mgr = WorkerManager.init(num_apps=4, num_workers=8, runner=runner)
     try:
         await asyncio.gather(*mgr.tasks)
     finally:

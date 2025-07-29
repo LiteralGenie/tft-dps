@@ -39,7 +39,10 @@ export interface ActiveSearchContextValue {
         sortedValues: Record<string, Array<{ id: PackedId; sortValue: number }>>
         sortedFilteredIds: Array<PackedId>
     }
-    done: boolean
+    progress: {
+        count: number
+        total: number
+    }
 }
 const CONTEXT_KEY = 'active_search'
 
@@ -64,7 +67,10 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
             id: String(Date.now()),
             params,
             data: { values: new Map(), sortedValues: {}, sortedFilteredIds: [] },
-            done: false,
+            progress: {
+                count: 0,
+                total: 0,
+            },
         }
 
         for (const col of ctx.columns) {
@@ -80,6 +86,8 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
     async function fetchData(ctxVal: ActiveSearchContextValue) {
         const comboIter = new ComboIter(ctxVal.params, infoCtx.value)
         const batchSize = 100
+
+        ctxVal.progress.total = comboIter.total
 
         for (const batch of iterBatches(comboIter, batchSize)) {
             const packed = batch.map((x) =>
@@ -104,6 +112,8 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
                 })
             }
             applyFilters(ctxVal)
+
+            ctxVal.progress.count += batch.length
 
             const isCancelled = ctx?.value?.id !== ctxVal.id
             if (isCancelled) {
