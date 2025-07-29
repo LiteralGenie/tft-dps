@@ -22,7 +22,7 @@
             <input
                 bind:this={inputEl}
                 type="text"
-                class="text-foreground! pr-6.5 w-full bg-transparent p-1 pl-1.5 text-xs"
+                class="text-foreground! w-full border-gray-200 bg-transparent py-1 pl-1.5 pr-6 text-xs"
                 placeholder={col.filter?.placeholder}
                 oninput={onInput}
             />

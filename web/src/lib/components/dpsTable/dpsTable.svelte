@@ -1,5 +1,6 @@
 <script lang="ts">
     import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
+    import CogIcon from '$lib/icons/cogIcon.svelte'
     import { getSearchContext } from '$lib/searchContext.svelte'
     import SearchFormDialog from '../searchForm/searchFormDialog.svelte'
     import DpsTableBody from './dpsTableBody.svelte'
@@ -13,15 +14,24 @@
 
     function onClose() {
         showDialog = false
+
+        if (!search.hasChanges()) {
+            return
+        }
+
         activeSearch.set(search.value)
+        search.lastValue = $state.snapshot(search.value)
     }
 </script>
 
 <SearchFormDialog open={showDialog} on:close={onClose} />
 
 <div class="root m-auto flex max-w-max flex-col">
-    <button onclick={() => (showDialog = true)} class="mb-4 self-end rounded-md border px-4 py-2">
-        Configure
+    <button onclick={() => (showDialog = true)} class="mb-4 self-end rounded-md px-4 py-2 text-sm">
+        <span class="flex items-center gap-1 font-bold">
+            <CogIcon class="stroke-2! size-4" />
+            <span>Filters</span>
+        </span>
     </button>
 
     <div class="grid-container rounded-md border">
@@ -73,5 +83,13 @@
     .root :global(.td) {
         display: flex;
         align-items: center;
+    }
+
+    /** Button should be attention-grabbing */
+    button {
+        background-color: oklch(0.55 0.4 0 / 0.9);
+    }
+    button:hover {
+        background-color: oklch(0.55 0.4 0 / 1);
     }
 </style>

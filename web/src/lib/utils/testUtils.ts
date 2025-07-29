@@ -43,11 +43,11 @@ export function mockGameInfo(): GameInfoValue {
                 styles: [99, 99, 99, 99, 99],
                 tiers: [
                     {
-                        breakpoint: 1,
+                        breakpoint: 2,
                         rarity: 'bronze',
                     },
                     {
-                        breakpoint: 2,
+                        breakpoint: 3,
                         rarity: 'silver',
                     },
                     {
@@ -63,7 +63,7 @@ export function mockGameInfo(): GameInfoValue {
                         rarity: 'unique',
                     },
                 ],
-                has_bp_1: true,
+                has_bp_1: false,
                 num_bits: 3,
             },
         },

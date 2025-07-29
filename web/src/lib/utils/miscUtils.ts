@@ -184,18 +184,30 @@ export interface OrderedValueMapOptions {
     order?: 'asc' | 'desc' // default asc
 }
 
-export class OrderedValueMap<K extends bigint = bigint, V extends number = number> {
+export class OrderedValueMap {
     data: SortedSet
+    order: OrderedValueMapOptions['order']
+    private mult: 1 | -1
 
     constructor(public opts?: OrderedValueMapOptions) {
         this.data = new SortedSet()
+        this.order = opts?.order ?? 'asc'
+        this.mult = this.order === 'asc' ? 1 : -1
     }
 
-    set(k: K, v: V) {
-        this.data.add(k, v)
+    set(k: bigint, v: number): void {
+        this.data.add(k, this.mult * v)
     }
 
-    keys(): K[] {
+    get(k: bigint): number {
+        return this.data.get(k) * this.mult
+    }
+
+    keys(): bigint[] {
         return this.data.keys()
     }
+}
+
+export function areSetsEqual(a: Set<any>, b: Set<any>) {
+    return a.difference(b).size > 0 || b.difference(a).size > 0
 }

@@ -214,7 +214,6 @@ class ComboIter {
         public params: SearchContextValue,
         public info: GameInfoValue,
     ) {
-        assert(params.units.size > 0)
         assert(params.minStars <= params.maxStars)
 
         this.total = this.count()
