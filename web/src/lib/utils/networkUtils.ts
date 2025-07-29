@@ -31,7 +31,7 @@ export async function fetchApiJson(path: string) {
  * the number of breakpoints for that trait
  *
  * first trait is stored closest to end
- * ie trait3_trait2_trait1
+ * ie ..._items_zeros_trait3_trait2_trait1
  */
 
 export function packSimId(

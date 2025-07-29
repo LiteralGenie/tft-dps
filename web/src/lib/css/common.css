@@ -1,0 +1,62 @@
+.unit-bg.common {
+    background: linear-gradient(
+        90deg,
+        oklch(59.987% 0.00007 271.152),
+        oklch(99.987% 0.00007 271.152),
+        oklch(59.987% 0.00007 271.152)
+    );
+}
+.unit-bg.uncommon {
+    background: linear-gradient(
+        90deg,
+        oklch(68.998% 0.19237 146.106),
+        oklch(28.998% 0.19237 146.106),
+        oklch(68.998% 0.19237 146.106)
+    );
+}
+.unit-bg.rare {
+    background: linear-gradient(
+        90deg,
+        oklch(63.16% 0.13921 239.251),
+        oklch(23.16% 0.13921 239.251),
+        oklch(63.16% 0.13921 239.251)
+    );
+}
+.unit-bg.epic {
+    background: linear-gradient(
+        90deg,
+        oklab(59.388% 0.22203 -0.15626),
+        oklab(19.388% 0.22203 -0.15626),
+        oklab(59.388% 0.22203 -0.15626)
+    );
+}
+.unit-bg.legendary {
+    background: linear-gradient(
+        90deg,
+        oklab(86.31% 0.02689 0.10655),
+        oklab(46.31% 0.02689 0.10655),
+        oklab(86.31% 0.02689 0.10655)
+    );
+}
+
+.hex {
+    /**
+     * Draws hex in counter-clockwise fashion, starting from bottom-most corner
+     *    
+     *   / \
+     *  /   \
+     * |     |
+     * |     |
+     *  \   /
+     *   \ /
+     *    
+     * A regular hexagon has equal interior angles which works out to 120deg each
+     * and assuming a side length of 1, that implies that the corners have
+     * x-coordinates at { 0, sqrt(3)/2, sqrt(3)  }
+     * and y-coords at { 0, 0.5, 1.5, 2 }
+     */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+
+    /* Preserve 1:1 aspect ratio */
+    flex-shrink: 0;
+}

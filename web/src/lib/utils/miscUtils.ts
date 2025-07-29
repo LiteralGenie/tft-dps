@@ -125,3 +125,20 @@ export function* iterBatches<T>(xs: Iterable<T>, n: number): Iterable<T[]> {
 export function enumerate<T>(xs: T[]): Array<[number, T]> {
     return xs.map((x, idx) => [idx, x])
 }
+
+export function costToRarity(c: number) {
+    switch (c) {
+        case 5:
+            return 'legendary'
+        case 4:
+            return 'epic'
+        case 3:
+            return 'rare'
+        case 2:
+            return 'uncommon'
+        case 1:
+            return 'common'
+        default:
+            throw new Error()
+    }
+}
