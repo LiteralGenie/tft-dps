@@ -11,7 +11,12 @@
             return []
         }
 
-        return ctxValue.data.sortedFilteredIds.map((id) => ctxValue.data.values.get(id)!)
+        const start = ctx.pageIdx * ctx.pageSize
+        const end = (ctx.pageIdx + 1) * ctx.pageSize
+
+        return ctxValue.data.sortedFilteredIds
+            .map((id) => ctxValue.data.values.get(id)!)
+            .slice(start, end)
     })
 </script>
 

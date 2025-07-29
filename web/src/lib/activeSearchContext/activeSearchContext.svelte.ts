@@ -27,6 +27,8 @@ export interface ActiveSearchContext {
     sortColumn: null | string
     defaultSortColumn: string
     columnFilters: Record<string, string>
+    pageIdx: number
+    pageSize: number
     set: (params: SearchContextValue) => void
     setFilter: (colId: string, filter: string) => void
 }
@@ -42,6 +44,8 @@ export interface ActiveSearchContextValue {
     progress: {
         count: number
         total: number
+        start: number
+        end: number | null
     }
 }
 const CONTEXT_KEY = 'active_search'
@@ -53,6 +57,8 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
         sortColumn: null,
         defaultSortColumn: 'dps',
         columnFilters: {},
+        pageIdx: 0,
+        pageSize: 20,
         set,
         setFilter,
     })
@@ -70,6 +76,8 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
             progress: {
                 count: 0,
                 total: 0,
+                start: Date.now(),
+                end: null,
             },
         }
 
@@ -78,6 +86,8 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
                 ctx.value.data.sortedValues[col.id] = []
             }
         }
+
+        ctx.pageIdx = 0
 
         resetColumnFilters()
         fetchData(ctx.value)
@@ -121,6 +131,8 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
                 return
             }
         }
+
+        ctxVal.progress.end = Date.now()
     }
 
     function resetColumnFilters() {

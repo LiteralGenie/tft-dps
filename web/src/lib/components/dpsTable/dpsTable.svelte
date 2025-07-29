@@ -4,6 +4,7 @@
     import SearchFormDialog from '../searchForm/searchFormDialog.svelte'
     import DpsTableBody from './dpsTableBody.svelte'
     import DpsTableHeader from './dpsTableHeader.svelte'
+    import DpsTablePaginator from './dpsTablePaginator.svelte'
 
     let showDialog = $state(false)
 
@@ -23,10 +24,12 @@
         Configure
     </button>
 
-    <div class="grid-container rounded-md border px-2">
+    <div class="grid-container rounded-md border">
         <DpsTableHeader />
         <DpsTableBody />
     </div>
+
+    <DpsTablePaginator className="mt-5" />
 </div>
 
 <style lang="css">
@@ -41,7 +44,7 @@
         padding: 1em 1em;
     }
     .root :global(.td) {
-        padding: 0.5em 1em;
+        padding: 1em 1em;
     }
 
     /* Smaller body */
@@ -56,7 +59,7 @@
 
     /* Index col */
     .root :global(.index) {
-        padding-right: 1em;
+        padding: 0em 1em 0em 2em;
         color: color-mix(in oklab, var(--color-foreground), transparent 30%);
         /* justify-content: start !important; */
     }
