@@ -2,7 +2,6 @@
     import CheckmarkIcon from '$lib/components/icons/checkmarkIcon.svelte'
     import { type GameInfoValue } from '$lib/gameInfoContext.svelte'
     import { getSearchContext } from '$lib/searchContext/searchContext.svelte'
-    import { onMount } from 'svelte'
     import UnitIcon from './unitIcon.svelte'
 
     const { unitInfo }: { unitInfo: GameInfoValue['units'][string] } = $props()
@@ -13,10 +12,6 @@
 
     let enableRef: HTMLInputElement
 
-    onMount(() => {
-        enableRef.checked = searchCtx.units.has(unitId)
-    })
-
     function onEnableChange() {
         enableRef.click()
         if (enableRef.checked) {
@@ -24,8 +19,12 @@
         } else {
             searchCtx.units.delete(unitId)
         }
-        searchCtx.units = new Set(searchCtx.units)
+        // searchCtx.units = new Set(searchCtx.units)
     }
+
+    $effect(() => {
+        enableRef.checked = searchCtx.units.has(unitId)
+    })
 </script>
 
 <button
@@ -34,7 +33,7 @@
     class:opacity-100!={isSelected}
 >
     <UnitIcon unit={unitInfo} />
-    <input hidden bind:this={enableRef} type="checkbox" />
+    <input hidden bind:this={enableRef} type="checkbox" checked={searchCtx.units.has(unitId)} />
     <div
         class:hidden={!isSelected}
         class="icon p-0.75 absolute bottom-2 right-2 size-4 rounded-full bg-green-500"

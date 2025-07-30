@@ -2,7 +2,10 @@
     import { getGameInfoContext } from '$lib/gameInfoContext.svelte'
     import { getSearchContext } from '$lib/searchContext/searchContext.svelte'
     import { alphabetical } from 'radash'
+    import { type Component } from 'svelte'
     import Checkbox from '../checkbox.svelte'
+    import FourSquareIcon from '../icons/fourSquareIcon.svelte'
+    import TrashIcon from '../icons/trashIcon.svelte'
     import ItemRow from './itemRow.svelte'
 
     const { value: info } = getGameInfoContext()
@@ -21,13 +24,46 @@
 
         return String(typeValue) + '_' + u.name
     })
+
+    function selectAll() {
+        for (const itemId of Object.keys(info.items)) {
+            searchCtx.items.add(itemId)
+        }
+        searchCtx.items = searchCtx.items
+    }
+
+    function deselectAll() {
+        searchCtx.items.clear()
+        searchCtx.items = searchCtx.items
+    }
 </script>
 
 <section class="flex flex-col">
-    <h1 class="section-header">Items</h1>
+    <div class="flex items-stretch justify-between">
+        <div class="flex flex-col">
+            <h1 class="section-header">Items</h1>
 
-    <div class="pb-2 pt-1">
-        <Checkbox label={'Only recommended items'} bind:checked={searchCtx.onlyItemRecs} />
+            <div class="pb-2 pt-1">
+                <Checkbox
+                    label="Limit to recommended items"
+                    bind:checked={searchCtx.onlyItemRecs}
+                />
+            </div>
+        </div>
+
+        <div class="my-auto flex justify-center gap-2 pr-6">
+            {#snippet IconButton(Tag: Component, onclick: () => void)}
+                <button
+                    {onclick}
+                    class="hover:bg-foreground/10 flex h-full flex-col rounded-md p-2 text-sm"
+                >
+                    <Tag class="size-5 grow" />
+                </button>
+            {/snippet}
+
+            {@render IconButton(FourSquareIcon, selectAll)}
+            {@render IconButton(TrashIcon, deselectAll)}
+        </div>
     </div>
 
     <div class="flex flex-wrap items-center">

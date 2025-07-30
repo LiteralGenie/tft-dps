@@ -2,6 +2,7 @@
     import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
     import CogIcon from '$lib/components/icons/cogIcon.svelte'
     import { getSearchContext } from '$lib/searchContext/searchContext.svelte'
+    import { SvelteSet } from 'svelte/reactivity'
     import SearchFormDialog from '../searchForm/searchFormDialog.svelte'
     import DpsTableBody from './dpsTableBody.svelte'
     import DpsTableHeader from './dpsTableHeader.svelte'
@@ -20,8 +21,14 @@
         }
 
         activeSearch.set(search.value)
-        search.lastValue = $state.snapshot(search.value)
         console.log($state.snapshot(search.value))
+
+        const ss = $state.snapshot(search.value)
+        search.lastValue = {
+            ...ss,
+            units: new SvelteSet(ss.units),
+            items: new SvelteSet(ss.items),
+        }
     }
 </script>
 

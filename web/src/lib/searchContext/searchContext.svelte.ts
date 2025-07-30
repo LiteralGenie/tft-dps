@@ -1,24 +1,25 @@
 import { isEqual } from 'radash'
 import { getContext, setContext } from 'svelte'
+import type { SvelteSet } from 'svelte/reactivity'
 import { areSetsEqual } from '../utils/miscUtils'
 import { DEFAULT_SEARCH_CONTEXT } from './searchContextConstants'
 
 export type SearchContext = {
     value: SearchContextValue
-    lastValue: SearchContextValue
+    lastValue: null | SearchContextValue
     reset: () => void
     hasChanges: () => boolean
 }
 
 export type SearchContextValue = {
-    units: Set<string>
+    units: SvelteSet<string>
     stars: {
         1: boolean
         2: boolean
         3: boolean
     }
 
-    items: Set<string>
+    items: SvelteSet<string>
     onlyItemRecs: boolean
 
     traits: {
@@ -35,7 +36,7 @@ const CONTEXT_KEY = 'search_context'
 export function setSearchContext(): SearchContext {
     const ctx = $state<SearchContext>({
         value: DEFAULT_SEARCH_CONTEXT(),
-        lastValue: DEFAULT_SEARCH_CONTEXT(),
+        lastValue: null,
         reset,
         hasChanges,
     })
@@ -47,6 +48,8 @@ export function setSearchContext(): SearchContext {
     }
 
     function hasChanges(): boolean {
+        if (ctx.lastValue === null) return true
+
         const a = ctx.lastValue
         const b = ctx.value
 
