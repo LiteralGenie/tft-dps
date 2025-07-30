@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { ActiveSearchColumn } from '$lib/activeSearchContext/activeSearchConstants'
     import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
-    import FunnelIcon from '$lib/icons/funnelIcon.svelte'
+    import FunnelIcon from '$lib/components/icons/funnelIcon.svelte'
 
     const { col, className }: { col: ActiveSearchColumn; className?: string } = $props()
 

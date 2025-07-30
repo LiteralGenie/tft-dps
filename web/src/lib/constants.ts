@@ -1,8 +1,11 @@
 export const API_URL = 'http://localhost:4723'
 
 export const DEFAULT_SEARCH_CONTEXT = () => ({
-    minStars: 1,
-    maxStars: 3,
+    stars: {
+        1: true,
+        2: true,
+        3: true,
+    },
     units: new Set([
         // 'Characters/TFT15_Aatrox',
         // 'Characters/TFT15_Ahri',

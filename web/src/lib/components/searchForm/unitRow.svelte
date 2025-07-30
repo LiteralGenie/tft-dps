@@ -1,6 +1,6 @@
 <script lang="ts">
+    import CheckmarkIcon from '$lib/components/icons/checkmarkIcon.svelte'
     import { type GameInfoValue } from '$lib/gameInfoContext.svelte'
-    import CheckmarkIcon from '$lib/icons/checkmarkIcon.svelte'
     import { getSearchContext } from '$lib/searchContext.svelte'
     import { onMount } from 'svelte'
     import UnitIcon from './unitIcon.svelte'

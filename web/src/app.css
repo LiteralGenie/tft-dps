@@ -50,3 +50,13 @@ button {
 input[type='checkbox'] {
     cursor: pointer;
 }
+
+/* Fix checkbox colors */
+input[type='checkbox'] {
+    background-color: var(--color-gray-500);
+    stroke: var(--color-background);
+    border-radius: var(--radius-sm);
+}
+input[type='checkbox']:not(:checked) {
+    background-color: var(--color-gray-800);
+}

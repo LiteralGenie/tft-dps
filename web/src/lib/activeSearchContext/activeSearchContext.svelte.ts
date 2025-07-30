@@ -1,7 +1,7 @@
 import { API_URL } from '$lib/constants'
 import type { GameInfoContext, GameInfoValue } from '$lib/gameInfoContext.svelte'
 import { packAllUnitIds, packSimId } from '$lib/utils/networkUtils'
-import { alphabetical, range, sum } from 'radash'
+import { alphabetical, sum } from 'radash'
 import { getContext, setContext } from 'svelte'
 import type { SearchContextValue } from '../searchContext.svelte'
 import {
@@ -214,15 +214,17 @@ class ComboIter {
         public params: SearchContextValue,
         public info: GameInfoValue,
     ) {
-        assert(params.minStars <= params.maxStars)
-
         this.total = this.count()
     }
 
     *[Symbol.iterator]() {
         const units = alphabetical([...this.params.units], (x) => x)
-        const stars = [...range(this.params.minStars, this.params.maxStars)]
         const items = alphabetical(['__BLANK__', ...this.params.items], (x) => x)
+
+        const stars = []
+        if (this.params.stars[1]) stars.push(1)
+        if (this.params.stars[2]) stars.push(2)
+        if (this.params.stars[3]) stars.push(3)
 
         for (const unitId of units) {
             const traitBps = this.info.units[unitId].info.traits.map((traitId) => {
@@ -271,7 +273,10 @@ class ComboIter {
     }
 
     private count(): number {
-        const stars = [...range(this.params.minStars, this.params.maxStars)]
+        const stars = []
+        if (this.params.stars[1]) stars.push(1)
+        if (this.params.stars[2]) stars.push(2)
+        if (this.params.stars[3]) stars.push(3)
 
         const numItems = this.params.items.size
         const numItemCombos = 1 + numItems + nCr(numItems + 1, 2) + nCr(numItems + 2, 3)

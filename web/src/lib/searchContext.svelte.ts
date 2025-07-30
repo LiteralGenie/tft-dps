@@ -12,8 +12,11 @@ export type SearchContext = {
 
 export type SearchContextValue = {
     units: Set<string>
-    minStars: number
-    maxStars: number
+    stars: {
+        1: boolean
+        2: boolean
+        3: boolean
+    }
 
     items: Set<string>
     traits: {
@@ -52,7 +55,7 @@ export function setSearchContext(): SearchContext {
         }
 
         function checkStars() {
-            return a.minStars !== b.minStars || a.maxStars !== b.maxStars
+            return !isEqual($state.snapshot(a.stars), $state.snapshot(b.stars))
         }
 
         function checkItems() {

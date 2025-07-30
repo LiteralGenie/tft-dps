@@ -1,6 +1,6 @@
 <script lang="ts">
     import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
-    import LoaderIcon from '$lib/icons/loaderIcon.svelte'
+    import LoaderIcon from '$lib/components/icons/loaderIcon.svelte'
     import DpsTableRow from './dpsTableRow.svelte'
 
     const ctx = getActiveSearchContext()

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
-    import CogIcon from '$lib/icons/cogIcon.svelte'
+    import CogIcon from '$lib/components/icons/cogIcon.svelte'
     import { getSearchContext } from '$lib/searchContext.svelte'
     import SearchFormDialog from '../searchForm/searchFormDialog.svelte'
     import DpsTableBody from './dpsTableBody.svelte'

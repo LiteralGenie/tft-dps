@@ -1,6 +1,6 @@
 <script lang="ts">
+    import StarIcon from '$lib/components/icons/starIcon.svelte'
     import type { GameInfoValue } from '$lib/gameInfoContext.svelte'
-    import StarIcon from '$lib/icons/starIcon.svelte'
     import { costToRarity } from '$lib/utils/miscUtils'
     import { assetUrl } from '$lib/utils/networkUtils'
     import { range } from 'radash'
