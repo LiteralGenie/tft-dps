@@ -11,16 +11,20 @@
     let inputEl: HTMLInputElement
 
     function onInputChange() {
-        const update = parseInt(inputEl.value)
-        const defaultUpdate = String(ctx.pageIdx + 1)
+        let update = parseInt(inputEl.value)
 
         if (isNaN(update)) {
-            inputEl.value = defaultUpdate
+            inputEl.value = String(ctx.pageIdx + 1)
             return
         }
-        if (update < 1 || update > max) {
-            inputEl.value = defaultUpdate
-            return
+
+        if (update < 1) {
+            inputEl.value = '1'
+            update = 1
+        }
+        if (update > max) {
+            inputEl.value = String(max)
+            update = max
         }
 
         ctx.pageIdx = update - 1

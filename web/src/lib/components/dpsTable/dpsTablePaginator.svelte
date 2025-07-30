@@ -35,22 +35,43 @@
         const numItems = ctx.value?.data.sortedFilteredIds.length ?? 0
         return Math.ceil(numItems / ctx.pageSize)
     })
+
+    const numUnfilteredPages = $derived.by(() => {
+        const numItems = ctx.value?.data.values.size ?? 0
+        return Math.ceil(numItems / ctx.pageSize)
+    })
 </script>
 
 <div>
-    <div class="flex w-full justify-center gap-2 rounded text-sm text-gray-200 {className}">
-        <DpsTablePageButton label="first" onclick={() => null} />
-        <DpsTablePageButton label="prev" onclick={() => null} />
+    <div class="flex w-full justify-center gap-2 rounded text-sm {className}">
+        <DpsTablePageButton
+            label="first"
+            onclick={() => (ctx.pageIdx = 0)}
+            disabled={ctx.pageIdx === 0}
+        />
+        <DpsTablePageButton
+            label="prev"
+            onclick={() => (ctx.pageIdx -= 1)}
+            disabled={ctx.pageIdx === 0}
+        />
 
         <DpsTablePageJump />
 
-        <DpsTablePageButton label="next" onclick={() => null} />
-        <DpsTablePageButton label="last" onclick={() => null} />
+        <DpsTablePageButton
+            label="next"
+            onclick={() => (ctx.pageIdx += 1)}
+            disabled={ctx.pageIdx >= numPages - 1}
+        />
+        <DpsTablePageButton
+            label="last"
+            onclick={() => (ctx.pageIdx = numPages - 1)}
+            disabled={ctx.pageIdx >= numPages - 1}
+        />
     </div>
 
     {#if elapsed > 0}
         <p class="flex w-full justify-center pt-4 text-xs opacity-60">
-            Fetched {ctx?.value?.data.sortedFilteredIds.length ?? '??'} results / {numPages} pages in
+            Fetched {ctx?.value?.data.values.size ?? '??'} results / {numUnfilteredPages} pages in
             {elapsed}ms
         </p>
     {/if}

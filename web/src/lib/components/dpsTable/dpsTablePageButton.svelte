@@ -1,7 +1,12 @@
 <script lang="ts">
-    const { label, onclick }: { label: string; onclick: () => void } = $props()
+    const { label, onclick, disabled }: { label: string; onclick: () => void; disabled: boolean } =
+        $props()
 </script>
 
-<button {onclick} class="underline-offset-6 w-20 px-2 py-2 text-gray-400 underline decoration-0">
+<button
+    {onclick}
+    class="underline-offset-6 text-foreground/50 hover:text-foreground not-disabled:underline w-20 px-2 py-2 decoration-0 disabled:pointer-events-none"
+    {disabled}
+>
     {label}
 </button>

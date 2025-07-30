@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { ActiveSearchData } from '$lib/activeSearchContext/activeSearchConstants'
+    import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
     import { getGameInfoContext } from '$lib/gameInfoContext.svelte'
     import {
         unpackItemIndices,
@@ -15,6 +16,8 @@
     const { d, idx }: { d: ActiveSearchData; idx: number } = $props()
 
     const { value: info } = getGameInfoContext()
+
+    const ctx = getActiveSearchContext()
 
     const unit = $derived.by(() => {
         const unitIndex = unpackUnitIndex(d.id)
@@ -35,9 +38,11 @@
     })
 
     const traits = $derived(sort(unpackTraits(d.id, info), (trait) => trait.tier))
+
+    const offset = $derived(ctx.pageIdx * ctx.pageSize)
 </script>
 
-<span class="td index">#{idx + 1}</span>
+<span class="td index">#{offset + idx + 1}</span>
 <span class="td">{d.dps.toFixed(0)}</span>
 <span class="td flex gap-2">
     <DpsTableUnitIcon {unit} {stars} />
