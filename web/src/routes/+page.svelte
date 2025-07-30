@@ -9,9 +9,8 @@
     let loadStatus = $state<string | null>('')
 
     const infoCtx = setGameInfoContext()
-    ;(window as any).infoCtx = infoCtx
 
-    setSearchContext()
+    setSearchContext(infoCtx)
     setActiveSearchContext(infoCtx)
 
     onMount(async () => {

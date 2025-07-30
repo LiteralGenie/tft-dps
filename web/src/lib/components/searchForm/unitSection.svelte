@@ -9,7 +9,7 @@
     import UnitRow from './unitRow.svelte'
 
     const { value: info } = getGameInfoContext()
-    const { value: searchCtx } = getSearchContext()
+    const search = getSearchContext()
 
     const unitInfo = alphabetical(
         [...Object.values(info.units)],
@@ -18,14 +18,14 @@
 
     function selectAll() {
         for (const unitId of Object.keys(info.units)) {
-            searchCtx.units.add(unitId)
+            search.value.units.add(unitId)
         }
-        searchCtx.units = searchCtx.units
+        search.value.units = search.value.units
     }
 
     function deselectAll() {
-        searchCtx.units.clear()
-        searchCtx.units = searchCtx.units
+        search.value.units.clear()
+        search.value.units = search.value.units
     }
 </script>
 
@@ -35,9 +35,9 @@
             <h1 class="section-header">Units</h1>
 
             <div class="flex gap-4 pb-2 pt-1">
-                <Checkbox bind:checked={searchCtx.stars[1]} label="1 Star" />
-                <Checkbox bind:checked={searchCtx.stars[2]} label="2 Stars" />
-                <Checkbox bind:checked={searchCtx.stars[3]} label="3 Stars" />
+                <Checkbox bind:checked={search.value.stars[1]} label="1 Star" />
+                <Checkbox bind:checked={search.value.stars[2]} label="2 Stars" />
+                <Checkbox bind:checked={search.value.stars[3]} label="3 Stars" />
             </div>
         </div>
 

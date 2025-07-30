@@ -1,14 +1,17 @@
+import type { GameInfoContext } from '$lib/gameInfoContext.svelte'
 import { isEqual } from 'radash'
 import { getContext, setContext } from 'svelte'
-import type { SvelteSet } from 'svelte/reactivity'
+import { SvelteSet } from 'svelte/reactivity'
 import { hasSetDiff } from '../utils/miscUtils'
-import { DEFAULT_SEARCH_CONTEXT } from './searchContextConstants'
+import { DEFAULT_SEARCH_CONTEXT, EMPTY_SEARCH_CONTEXT } from './searchContextConstants'
 
 export type SearchContext = {
     value: SearchContextValue
     lastValue: null | SearchContextValue
     reset: () => void
     hasChanges: () => boolean
+    toUrl: (v: SearchContextValue) => URLSearchParams
+    fromUrl: (p: URLSearchParams) => Partial<SearchContextValue>
 }
 
 export type SearchContextValue = {
@@ -35,12 +38,14 @@ export type SearchContextValue = {
 
 const CONTEXT_KEY = 'search_context'
 
-export function setSearchContext(): SearchContext {
+export function setSearchContext(info: GameInfoContext): SearchContext {
     const ctx = $state<SearchContext>({
         value: DEFAULT_SEARCH_CONTEXT(),
         lastValue: null,
         reset,
         hasChanges,
+        toUrl,
+        fromUrl,
     })
     setContext(CONTEXT_KEY, ctx)
     return ctx
@@ -80,6 +85,93 @@ export function setSearchContext(): SearchContext {
         function checkTraits() {
             return !isEqual($state.snapshot(a.traits), $state.snapshot(b.traits))
         }
+    }
+
+    function toUrl(ctxVal: SearchContextValue): URLSearchParams {
+        const params = new URLSearchParams()
+
+        params.set('t', String(ctxVal.period))
+
+        const units = [...ctxVal.units]
+            .map((unitId) => info.value.units[unitId])
+            .map((unit) => unit.index)
+        for (const idx of units) {
+            params.append('units', String(idx))
+        }
+
+        if (ctxVal.onlyItemRecs) {
+            params.set('item_recs', '1')
+        } else {
+            const items = [...ctxVal.items]
+                .map((itemId) => info.value.items[itemId])
+                .map((item) => item.index)
+            for (const idx of items) {
+                params.append('items', String(idx))
+            }
+        }
+
+        for (const k of [1, 2, 3] as const) {
+            if (ctxVal.stars[k]) {
+                params.append('stars', String(k))
+            }
+        }
+
+        for (const k of Object.keys(ctxVal.traits)) {
+            if ((ctxVal.traits as any)[k]) {
+                params.append('traits', String(k))
+            }
+        }
+
+        return params
+    }
+
+    function fromUrl(params: URLSearchParams): Partial<SearchContextValue> {
+        const val: Partial<SearchContextValue> = {}
+        const empty = EMPTY_SEARCH_CONTEXT()
+
+        const t = parseInt(params.get('t') ?? '')
+        if (!isNaN(t)) val.period = t
+
+        const units = params
+            .getAll('units')
+            .map((idxString) => parseInt(idxString))
+            .map((idx) => info.value.unitsByIndex[idx])
+            .filter((unitId) => !!unitId)
+        if (units.length) val.units = new SvelteSet(units)
+
+        if (params.get('item_recs')) {
+            val.onlyItemRecs = true
+        } else {
+            const items = params
+                .getAll('items')
+                .map((idxString) => parseInt(idxString))
+                .map((idx) => info.value.itemsByIndex[idx])
+                .filter((itemId) => !!itemId)
+            if (items.length) val.items = new SvelteSet(items)
+        }
+
+        const stars = params
+            .getAll('stars')
+            .map((x) => parseInt(x))
+            .filter((x): x is keyof SearchContextValue['stars'] => [1, 2, 3].includes(x))
+        if (stars.length) {
+            val.stars = { 1: false, 2: false, 3: false }
+            for (const s of stars) {
+                val.stars[s] = true
+            }
+        }
+
+        const traits = params
+            .getAll('traits')
+            .filter((x): x is keyof SearchContextValue['traits'] => x in empty.traits)
+        if (traits.length) {
+            val.traits = empty.traits
+            for (const s of traits) {
+                val.traits[s] = true
+            }
+        }
+
+        return val
     }
 }
 

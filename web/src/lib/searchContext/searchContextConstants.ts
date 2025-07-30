@@ -133,3 +133,22 @@ export const DEFAULT_SEARCH_CONTEXT = () => ({
         prismatic: false,
     },
 })
+
+export const EMPTY_SEARCH_CONTEXT = () => ({
+    ...DEFAULT_SEARCH_CONTEXT(),
+    stars: {
+        1: false,
+        2: false,
+        3: false,
+    },
+    units: new SvelteSet([]),
+    items: new SvelteSet([]),
+    onlyItemRecs: false,
+    traits: {
+        inactive: false,
+        bronze: false,
+        silver: false,
+        gold: false,
+        prismatic: false,
+    },
+})

@@ -9,7 +9,7 @@
     import ItemRow from './itemRow.svelte'
 
     const { value: info } = getGameInfoContext()
-    const { value: searchCtx } = getSearchContext()
+    const search = getSearchContext()
 
     const itemInfo = alphabetical([...Object.values(info.items)], (u) => {
         let typeValue = ''
@@ -27,14 +27,14 @@
 
     function selectAll() {
         for (const itemId of Object.keys(info.items)) {
-            searchCtx.items.add(itemId)
+            search.value.items.add(itemId)
         }
-        searchCtx.items = searchCtx.items
+        search.value.items = search.value.items
     }
 
     function deselectAll() {
-        searchCtx.items.clear()
-        searchCtx.items = searchCtx.items
+        search.value.items.clear()
+        search.value.items = search.value.items
     }
 </script>
 
@@ -46,7 +46,7 @@
             <div class="pb-2 pt-1">
                 <Checkbox
                     label="Limit to recommended items"
-                    bind:checked={searchCtx.onlyItemRecs}
+                    bind:checked={search.value.onlyItemRecs}
                 />
             </div>
         </div>
@@ -56,7 +56,7 @@
                 <button
                     {onclick}
                     class="hover:bg-foreground/10 flex h-full flex-col rounded-md p-2 text-sm disabled:pointer-events-none disabled:opacity-50"
-                    disabled={searchCtx.onlyItemRecs}
+                    disabled={search.value.onlyItemRecs}
                 >
                     <Tag class="size-5 grow" />
                 </button>
@@ -67,7 +67,7 @@
         </div>
     </div>
 
-    <div class="flex flex-wrap items-center" class:pointer-events-none={searchCtx.onlyItemRecs}>
+    <div class="flex flex-wrap items-center" class:pointer-events-none={search.value.onlyItemRecs}>
         {#each itemInfo as d}
             <ItemRow itemInfo={d} />
         {/each}

@@ -7,19 +7,19 @@
 
     const { itemInfo }: { itemInfo: GameInfoValue['items'][string] } = $props()
 
-    const { value: searchCtx } = getSearchContext()
-    const isSelected = $derived(searchCtx.items.has(itemInfo.id) && !searchCtx.onlyItemRecs)
+    const search = getSearchContext()
+    const isSelected = $derived(search.value.items.has(itemInfo.id) && !search.value.onlyItemRecs)
 
     let enableRef: HTMLInputElement
 
     function onEnableChange() {
         enableRef.click()
         if (enableRef.checked) {
-            searchCtx.items.add(itemInfo.id)
+            search.value.items.add(itemInfo.id)
         } else {
-            searchCtx.items.delete(itemInfo.id)
+            search.value.items.delete(itemInfo.id)
         }
-        searchCtx.items = new SvelteSet(searchCtx.items)
+        search.value.items = new SvelteSet(search.value.items)
     }
 </script>
 
@@ -33,7 +33,7 @@
         hidden
         bind:this={enableRef}
         type="checkbox"
-        checked={searchCtx.items.has(itemInfo.id)}
+        checked={search.value.items.has(itemInfo.id)}
     />
     <div
         class:hidden={!isSelected}

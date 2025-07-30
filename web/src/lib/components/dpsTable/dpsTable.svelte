@@ -2,6 +2,8 @@
     import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
     import CogIcon from '$lib/components/icons/cogIcon.svelte'
     import { getSearchContext } from '$lib/searchContext/searchContext.svelte'
+    import { EMPTY_SEARCH_CONTEXT } from '$lib/searchContext/searchContextConstants'
+    import { onMount } from 'svelte'
     import { SvelteSet } from 'svelte/reactivity'
     import SearchFormDialog from '../searchForm/searchFormDialog.svelte'
     import DpsTableBody from './dpsTableBody.svelte'
@@ -29,7 +31,28 @@
             units: new SvelteSet(ss.units),
             items: new SvelteSet(ss.items),
         }
+
+        const url = new URL(window.location.href)
+        url.search = search.toUrl(search.value).toString()
+        window.history.pushState(null, '', url)
     }
+
+    onMount(() => {
+        const lastSearch = search.fromUrl(new URLSearchParams(window.location.search))
+        if (Object.keys(lastSearch).length > 0) {
+            const v = {
+                ...EMPTY_SEARCH_CONTEXT(),
+                ...lastSearch,
+            }
+            search.value = v
+            search.lastValue = {
+                ...v,
+                units: new SvelteSet(v.units),
+                items: new SvelteSet(v.items),
+            }
+            activeSearch.set(v)
+        }
+    })
 </script>
 
 <SearchFormDialog open={showDialog} on:close={onClose} />
