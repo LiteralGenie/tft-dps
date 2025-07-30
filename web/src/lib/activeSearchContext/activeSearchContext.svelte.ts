@@ -244,7 +244,7 @@ class ComboIter {
             })
 
             let items
-            if (!this.info.items) {
+            if (!this.params.onlyItemRecs) {
                 items = [...this.params.items]
             } else {
                 items = [...unitInfo.info.role_items]
@@ -287,36 +287,38 @@ class ComboIter {
         if (this.params.stars[2]) stars.push(2)
         if (this.params.stars[3]) stars.push(3)
 
-        const numItems = this.params.items.size
-        const numItemCombos = 1 + numItems + nCr(numItems + 1, 2) + nCr(numItems + 2, 3)
+        const estimate =
+            stars.length *
+            sum(
+                [...this.params.units].flatMap((unitId) => {
+                    const unit = this.info.units[unitId]
 
-        const numUnitTraitCombos = sum(
-            [...this.params.units].flatMap((unitId) => {
-                const unit = this.info.units[unitId]
+                    const tiersPerTrait = unit.info.traits
+                        .map((traitId) => this.info.traits[traitId])
+                        .map((trait) =>
+                            trait.tiers.filter(
+                                (tier) =>
+                                    tier.rarity === 'unique' || this.params.traits[tier.rarity],
+                            ),
+                        )
+                        .map((validTiers) => {
+                            const bps = new Set(validTiers.map((tier) => tier.breakpoint))
+                            bps.add(1)
+                            return bps.size
+                        })
 
-                const tiersPerTrait = unit.info.traits
-                    .map((traitId) => this.info.traits[traitId])
-                    .map((trait) =>
-                        trait.tiers.filter(
-                            (tier) => tier.rarity === 'unique' || this.params.traits[tier.rarity],
-                        ),
-                    )
-                    .map((validTiers) => {
-                        const bps = new Set(validTiers.map((tier) => tier.breakpoint))
-                        bps.add(1)
-                        return bps.size
-                    })
+                    const numTierCombos = product(tiersPerTrait)
 
-                return product(tiersPerTrait)
-            }),
-        )
+                    const numItems = this.params.onlyItemRecs
+                        ? unit.info.role_items.length
+                        : this.params.items.size
+                    const numItemCombos = 1 + numItems + nCr(numItems + 1, 2) + nCr(numItems + 2, 3)
 
-        console.log(
-            stars.length * numItemCombos * numUnitTraitCombos,
-            stars.length,
-            numItemCombos,
-            numUnitTraitCombos,
-        )
-        return stars.length * numItemCombos * numUnitTraitCombos
+                    console.log(unitId, tiersPerTrait, numItemCombos)
+                    return numTierCombos * numItemCombos
+                }),
+            )
+
+        return estimate
     }
 }

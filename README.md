@@ -2,10 +2,9 @@
 pip install -e .
 
 form
-    clear
-    unit stars
     item recs
-    combo count estimate?
+        disable item buttons
+    save / cancel bar
 
 table
     T

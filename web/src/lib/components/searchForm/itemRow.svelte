@@ -2,19 +2,15 @@
     import CheckmarkIcon from '$lib/components/icons/checkmarkIcon.svelte'
     import { type GameInfoValue } from '$lib/gameInfoContext.svelte'
     import { getSearchContext } from '$lib/searchContext/searchContext.svelte'
-    import { onMount } from 'svelte'
+    import { SvelteSet } from 'svelte/reactivity'
     import ItemIcon from './itemIcon.svelte'
 
     const { itemInfo }: { itemInfo: GameInfoValue['items'][string] } = $props()
 
     const { value: searchCtx } = getSearchContext()
-    const isSelected = $derived(searchCtx.items.has(itemInfo.id))
+    const isSelected = $derived(searchCtx.items.has(itemInfo.id) && !searchCtx.onlyItemRecs)
 
     let enableRef: HTMLInputElement
-
-    onMount(() => {
-        enableRef.checked = searchCtx.units.has(itemInfo.id)
-    })
 
     function onEnableChange() {
         enableRef.click()
@@ -23,7 +19,7 @@
         } else {
             searchCtx.items.delete(itemInfo.id)
         }
-        searchCtx.items = new Set(searchCtx.items)
+        searchCtx.items = new SvelteSet(searchCtx.items)
     }
 </script>
 
@@ -33,7 +29,12 @@
     class:opacity-100!={isSelected}
 >
     <ItemIcon {itemInfo} />
-    <input hidden bind:this={enableRef} type="checkbox" />
+    <input
+        hidden
+        bind:this={enableRef}
+        type="checkbox"
+        checked={searchCtx.items.has(itemInfo.id)}
+    />
     <div
         class:hidden={!isSelected}
         class="icon absolute bottom-2 right-2 size-4 rounded-full bg-green-500 p-1"

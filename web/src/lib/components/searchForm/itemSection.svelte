@@ -55,7 +55,8 @@
             {#snippet IconButton(Tag: Component, onclick: () => void)}
                 <button
                     {onclick}
-                    class="hover:bg-foreground/10 flex h-full flex-col rounded-md p-2 text-sm"
+                    class="hover:bg-foreground/10 flex h-full flex-col rounded-md p-2 text-sm disabled:pointer-events-none disabled:opacity-50"
+                    disabled={searchCtx.onlyItemRecs}
                 >
                     <Tag class="size-5 grow" />
                 </button>
@@ -66,7 +67,7 @@
         </div>
     </div>
 
-    <div class="flex flex-wrap items-center">
+    <div class="flex flex-wrap items-center" class:pointer-events-none={searchCtx.onlyItemRecs}>
         {#each itemInfo as d}
             <ItemRow itemInfo={d} />
         {/each}
