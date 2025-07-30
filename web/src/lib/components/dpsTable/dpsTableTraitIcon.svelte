@@ -2,10 +2,25 @@
     import type { GameInfoValue } from '$lib/gameInfoContext.svelte'
     import { assetUrl } from '$lib/utils/networkUtils'
 
-    let { trait, tier }: { trait: GameInfoValue['traits'][string]; tier: number } = $props()
+    const { trait, tier }: { trait: GameInfoValue['traits'][string]; tier: number } = $props()
 
     const variant: string = 'sm'
-    const style: string = 'kBronze'
+
+    let rarity = $state('')
+    let bp = $state(0)
+    if (trait.has_bp_1) {
+        const t = trait.tiers[tier]
+        rarity = t.rarity
+        bp = t.breakpoint
+    } else if (tier === 0) {
+        rarity = 'inactive'
+        bp = 1
+    } else {
+        const t = trait.tiers[tier - 1]
+        rarity = t.rarity
+        bp = t.breakpoint
+    }
+
     const showHover = true
 
     // export let id: string
@@ -20,10 +35,10 @@
     <div
         class:sm={variant === 'sm'}
         class:md={variant === 'md'}
-        class:bronze={style === 'kBronze'}
-        class:silver={style === 'kSilver'}
-        class:gold={style === 'kGold'}
-        class:chromatic={style === 'kChromatic'}
+        class:bronze={rarity === 'bronze'}
+        class:silver={rarity === 'silver'}
+        class:gold={rarity === 'gold'}
+        class:prismatic={rarity === 'prismatic'}
         class:hover-layer={showHover}
         class="hex size-10!"
     >
@@ -36,7 +51,7 @@
         </div>
     </div>
 
-    <span class="text-xs"> ({tier}) </span>
+    <span class="text-xs"> ({bp}) </span>
 </div>
 
 <style lang="postcss">
@@ -111,8 +126,7 @@
             background-color: hsla(0, 0%, 80%);
         }
     }
-    .hex.chromatic {
-        /* This should never be used. Chromatic tiers aren't currently possible without emblems. */
+    .hex.prismatic {
         & .bg-layer {
             background: conic-gradient(
                 #b8f9b8,
@@ -142,7 +156,7 @@
     .hex.bronze,
     .hex.silver,
     .hex.gold,
-    .hex.chromatic {
+    .hex.prismatic {
         & img {
             filter: invert(1);
         }

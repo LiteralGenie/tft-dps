@@ -32,12 +32,12 @@
     })
 
     const numPages = $derived.by(() => {
-        const numItems = ctx.value?.data.sortedFilteredIds.length ?? 0
+        const numItems = ctx.value?.data.sortedFilteredIds.length ?? 1
         return Math.ceil(numItems / ctx.pageSize)
     })
 
     const numUnfilteredPages = $derived.by(() => {
-        const numItems = ctx.value?.data.values.size ?? 0
+        const numItems = ctx.value?.data.values.size ?? 1
         return Math.ceil(numItems / ctx.pageSize)
     })
 </script>

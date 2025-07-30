@@ -3,6 +3,7 @@ import type { GameInfoContext, GameInfoValue } from '$lib/gameInfoContext.svelte
 import { packAllSimIds, packSimId } from '$lib/utils/networkUtils'
 import { alphabetical, sum } from 'radash'
 import { getContext, setContext } from 'svelte'
+import { SvelteMap } from 'svelte/reactivity'
 import type { SearchContextValue } from '../searchContext/searchContext.svelte'
 import {
     assert,
@@ -36,7 +37,7 @@ export interface ActiveSearchContextValue {
     id: string
     params: SearchContextValue
     data: {
-        values: Map<PackedId, ActiveSearchData> // id -> avg dps
+        values: SvelteMap<PackedId, ActiveSearchData> // id -> avg dps
         sortedValues: Record<string, OrderedValueMap>
         sortedFilteredIds: Array<PackedId>
     }
@@ -71,7 +72,7 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
         ctx.value = {
             id: String(Date.now()),
             params,
-            data: { values: new Map(), sortedValues: {}, sortedFilteredIds: [] },
+            data: { values: new SvelteMap(), sortedValues: {}, sortedFilteredIds: [] },
             progress: {
                 count: 0,
                 total: 0,
