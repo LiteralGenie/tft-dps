@@ -9,11 +9,11 @@ services:
     web:
         build:
             args:
-                - VITE_API_URL=http://tftdps.velchees.dev
+                - VITE_API_URL=https://tftdpsapi.velchees.dev
             context: .
             target: web
         ports:
-            - "5175:5173"
+            - "5175:3000"
         environment:
-            - VITE_API_URL=http://tftdps.velchees.dev
-        command: "npm run dev"
+            - VITE_API_URL=https://tftdpsapi.velchees.dev
+        command: "node build"
