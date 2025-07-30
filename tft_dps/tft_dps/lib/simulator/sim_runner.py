@@ -64,17 +64,23 @@ class SimRunner:
     def _get_units(cls, unit_proc: TFTUnitsProcessor):
         units: dict = {}
         for id in CHAMPION_UNITS:
+            info = unit_proc.get_unit(id, unit_proc.get_base_stats(id))
+            if not info:
+                continue
+
             idxUnit = len(units)
             base_stats = unit_proc.get_base_stats(id)
-            info = unit_proc.get_unit(id, unit_proc.get_base_stats(id))
             spell_vars = unit_proc.calc_spell_vars_for_level(id, 3, base_stats)
-            if info:
-                units[info["id"]] = dict(
-                    index=idxUnit,
-                    base_stats=base_stats,
-                    spell_vars=spell_vars,
-                    info=info,
-                )
+            info["role_items"] = [
+                itemId for itemId in info["role_items"] if itemId in ITEMS
+            ]
+
+            units[info["id"]] = dict(
+                index=idxUnit,
+                base_stats=base_stats,
+                spell_vars=spell_vars,
+                info=info,
+            )
         return units
 
     @classmethod

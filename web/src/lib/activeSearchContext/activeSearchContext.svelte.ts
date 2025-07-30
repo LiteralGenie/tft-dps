@@ -219,7 +219,6 @@ class ComboIter {
 
     *[Symbol.iterator]() {
         const units = alphabetical([...this.params.units], (x) => x)
-        const items = alphabetical(['__BLANK__', ...this.params.items], (x) => x)
 
         const stars = []
         if (this.params.stars[1]) stars.push(1)
@@ -227,7 +226,9 @@ class ComboIter {
         if (this.params.stars[3]) stars.push(3)
 
         for (const unitId of units) {
-            const traitBps = this.info.units[unitId].info.traits.map((traitId) => {
+            const unitInfo = this.info.units[unitId]
+
+            const traitBps = unitInfo.info.traits.map((traitId) => {
                 const trait = this.info.traits[traitId]
                 const bps = new Set(
                     trait.tiers
@@ -241,6 +242,14 @@ class ComboIter {
                 }
                 return [...bps].map((bp) => [traitId, bp] as [string, number])
             })
+
+            let items
+            if (!this.info.items) {
+                items = [...this.params.items]
+            } else {
+                items = [...unitInfo.info.role_items]
+            }
+            items.push('__BLANK__')
 
             for (const star of stars) {
                 for (let idxItem1 = 0; idxItem1 < items.length; idxItem1++) {

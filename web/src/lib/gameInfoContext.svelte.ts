@@ -20,6 +20,7 @@ export interface GameInfoValue {
                 traits: string[]
                 cost: number
                 icon: string
+                role_items: string[]
             }
         }
     >
