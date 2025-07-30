@@ -1,5 +1,6 @@
 from collections import Counter
 
+import bitarray
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -42,10 +43,12 @@ async def simulate(req: Request):
         body,
         max_bytes=(MAX_IDS_PER_SIMULATE * PACKED_ID_BIT_ESTIMATE) // 8,
     )
-    packed_ids = unpack_sim_id_array(data)
+    unpacked = unpack_sim_id_array(data)
+    ids: list[bitarray.bitarray] = unpacked["ids"]
+    period: float = unpacked["period"]
+
     raw_requests = [
-        unpack_sim_id(id, APP_WORKER_CONTEXT.trait_bits_by_unit_index)
-        for id in packed_ids
+        unpack_sim_id(id, APP_WORKER_CONTEXT.trait_bits_by_unit_index) for id in ids
     ]
 
     requests = []
@@ -79,15 +82,21 @@ async def simulate(req: Request):
 
     result = []
     for sim in sims:
-        avg_dps = 0
-        avg_dps += sum(
-            [x["physical_damage"] + x["magical_damage"] for x in sim["attacks"]]
-        )
-        avg_dps += sum(
-            [x["physical_damage"] + x["magical_damage"] for x in sim["casts"]]
-        )
-        avg_dps /= len(sim["attacks"] + sim["casts"])
-        result.append(avg_dps)
+        total_damage = 0
+
+        for x in sim["attacks"]:
+            if x["t"] > period:
+                break
+
+            total_damage += x["physical_damage"] + x["magical_damage"]
+
+        for x in sim["casts"]:
+            if x["t"] > period:
+                break
+
+            total_damage += x["physical_damage"] + x["magical_damage"]
+
+        result.append(total_damage / period)
 
     return result
 

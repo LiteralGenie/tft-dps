@@ -208,6 +208,6 @@ export class OrderedValueMap {
     }
 }
 
-export function areSetsEqual(a: Set<any>, b: Set<any>) {
+export function hasSetDiff(a: Set<any>, b: Set<any>) {
     return a.difference(b).size > 0 || b.difference(a).size > 0
 }

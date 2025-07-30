@@ -1,5 +1,6 @@
 <script>
     import ItemSection from './itemSection.svelte'
+    import PeriodInput from './periodInput.svelte'
     import TraitSection from './traitSection.svelte'
     import UnitSection from './unitSection.svelte'
 </script>
@@ -12,9 +13,12 @@
 
     <hr />
 
-    <TraitSection />
-    <UnitSection />
-    <ItemSection />
+    <div class="flex flex-col gap-8 pt-4">
+        <TraitSection />
+        <UnitSection />
+        <ItemSection />
+        <PeriodInput />
+    </div>
 </div>
 
 <style>

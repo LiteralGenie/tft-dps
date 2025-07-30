@@ -1,7 +1,7 @@
 import { isEqual } from 'radash'
 import { getContext, setContext } from 'svelte'
 import type { SvelteSet } from 'svelte/reactivity'
-import { areSetsEqual } from '../utils/miscUtils'
+import { hasSetDiff } from '../utils/miscUtils'
 import { DEFAULT_SEARCH_CONTEXT } from './searchContextConstants'
 
 export type SearchContext = {
@@ -12,6 +12,8 @@ export type SearchContext = {
 }
 
 export type SearchContextValue = {
+    period: number
+
     units: SvelteSet<string>
     stars: {
         1: boolean
@@ -53,10 +55,14 @@ export function setSearchContext(): SearchContext {
         const a = ctx.lastValue
         const b = ctx.value
 
-        return checkUnits() || checkStars() || checkItems() || checkTraits()
+        return checkPeriod() || checkUnits() || checkStars() || checkItems() || checkTraits()
+
+        function checkPeriod() {
+            return a.period !== b.period
+        }
 
         function checkUnits() {
-            return areSetsEqual(a.units, b.units)
+            return hasSetDiff(a.units, b.units)
         }
 
         function checkStars() {
@@ -64,7 +70,11 @@ export function setSearchContext(): SearchContext {
         }
 
         function checkItems() {
-            return areSetsEqual(a.items, b.items)
+            if (a.onlyItemRecs) {
+                return !b.onlyItemRecs
+            } else {
+                return hasSetDiff(a.items, b.items)
+            }
         }
 
         function checkTraits() {

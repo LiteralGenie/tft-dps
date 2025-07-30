@@ -5,11 +5,11 @@ form
     item recs
         disable item buttons
     save / cancel bar
+    default search
+    simulation period
 
 table
-    T
     pagination
-    progress
     plot
 
 simulate

@@ -53,7 +53,7 @@ input[type='checkbox'] {
 
 /* Fix checkbox colors */
 input[type='checkbox'] {
-    background-color: var(--color-gray-500);
+    background-color: var(--color-blue-800);
     stroke: var(--color-background);
     border-radius: var(--radius-sm);
 }

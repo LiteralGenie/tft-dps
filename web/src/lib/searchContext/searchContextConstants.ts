@@ -1,6 +1,7 @@
 import { SvelteSet } from 'svelte/reactivity'
 
 export const DEFAULT_SEARCH_CONTEXT = () => ({
+    period: 20,
     stars: {
         1: false,
         2: false,

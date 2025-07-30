@@ -9,7 +9,7 @@ def bytesToIntBe(bs: bytearray):
     return int.from_bytes(bs, "big")
 
 
-def unpack_sim_id_array(data: bytearray) -> list[bitarray]:
+def unpack_sim_id_array(data: bytearray) -> dict:
     ID_COUNT_BYTES = 2
     ID_BYTES = 5
 
@@ -26,12 +26,14 @@ def unpack_sim_id_array(data: bytearray) -> list[bitarray]:
 
     numIds = bytesToIntBe(take(ID_COUNT_BYTES))
 
+    period = bytesToIntBe(take(1)) / 8
+
     ids = []
     for idx in range(0, numIds):
         id = bitarray(take(ID_BYTES))
         ids.append(id)
 
-    return ids
+    return dict(ids=ids, period=period)
 
 
 def unpack_sim_id(id: bitarray, trait_bits_by_unit: dict[int, list[int]]) -> dict:

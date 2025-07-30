@@ -5,7 +5,6 @@ import { range } from 'radash'
 import { assert, enumerate } from './miscUtils'
 
 const ID_BYTES = 5
-const ID_BITS = 8 * ID_BYTES
 
 export function assetUrl(path: string) {
     return `https://raw.communitydragon.org/pbe/game/${path}`
@@ -161,19 +160,23 @@ export function ui8ToNumBe(bytes: Uint8Array): number {
 }
 
 /**
- * (id count) - (id 1 size) - (id 1) - (id 2 size) - ...
+ * (id count) - (sim period) - (id 1 size) - (id 1) - (id 2 size) - ...
  */
-export function packAllUnitIds(packedIds: Array<PackedId>): Uint8Array {
+export function packAllSimIds(packedIds: Array<PackedId>, period: number): Uint8Array {
     const ID_COUNT_BYTES = 2
     assert(packedIds.length < 2 ** (8 * ID_COUNT_BYTES))
 
-    const totalBytes = ID_COUNT_BYTES + packedIds.length * ID_BYTES
+    const totalBytes = ID_COUNT_BYTES + 1 + packedIds.length * ID_BYTES
     const result = new Uint8Array(totalBytes)
 
     let byteOffset = 0
 
     setSliceBE(result, packedIds.length, byteOffset, ID_COUNT_BYTES)
     byteOffset += ID_COUNT_BYTES
+
+    const periodInt = Math.ceil(period * 8)
+    setSliceBE(result, periodInt, byteOffset, 1)
+    byteOffset += 1
 
     for (const id of packedIds) {
         const idBytes = biToUint8Be(id, ID_BYTES)

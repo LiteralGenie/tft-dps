@@ -1,6 +1,6 @@
 import { API_URL } from '$lib/constants'
 import type { GameInfoContext, GameInfoValue } from '$lib/gameInfoContext.svelte'
-import { packAllUnitIds, packSimId } from '$lib/utils/networkUtils'
+import { packAllSimIds, packSimId } from '$lib/utils/networkUtils'
 import { alphabetical, sum } from 'radash'
 import { getContext, setContext } from 'svelte'
 import type { SearchContextValue } from '../searchContext/searchContext.svelte'
@@ -102,7 +102,7 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
             const packed = batch.map((x) =>
                 packSimId(infoCtx.value, x.unitId, x.stars, x.items, x.traits),
             )
-            const allPacked = packAllUnitIds(packed)
+            const allPacked = packAllSimIds(packed, ctxVal.params.period)
             const asGzip = await compressGzip(allPacked)
             const resp = await fetch(API_URL + '/simulate', {
                 method: 'POST',
