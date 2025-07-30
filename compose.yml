@@ -1,0 +1,19 @@
+services:
+    tft_dps:
+        build:
+            context: .
+            target: tft_dps
+        ports:
+            - "4725:4723"
+        command: "python main.py"
+    web:
+        build:
+            args:
+                - VITE_API_URL=http://tftdps.velchees.dev
+            context: .
+            target: web
+        ports:
+            - "5175:5173"
+        environment:
+            - VITE_API_URL=http://tftdps.velchees.dev
+        command: "npm run dev"
