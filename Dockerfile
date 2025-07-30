@@ -8,6 +8,8 @@ EXPOSE 4723
 WORKDIR /tft_dps/tft_dps
 
 FROM node:lts AS web
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 WORKDIR /web
 COPY web/package.json ./
 COPY web/package-lock.json ./
