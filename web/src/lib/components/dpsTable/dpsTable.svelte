@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
     import CogIcon from '$lib/components/icons/cogIcon.svelte'
-    import { getSearchContext } from '$lib/searchContext.svelte'
+    import { getSearchContext } from '$lib/searchContext/searchContext.svelte'
     import SearchFormDialog from '../searchForm/searchFormDialog.svelte'
     import DpsTableBody from './dpsTableBody.svelte'
     import DpsTableHeader from './dpsTableHeader.svelte'
@@ -21,6 +21,7 @@
 
         activeSearch.set(search.value)
         search.lastValue = $state.snapshot(search.value)
+        console.log($state.snapshot(search.value))
     }
 </script>
 

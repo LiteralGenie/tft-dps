@@ -2,7 +2,7 @@
     import { bootstrap } from '$lib/bootstrap'
     import SearchForm from '$lib/components/searchForm/searchForm.svelte'
     import { setGameInfoContext } from '$lib/gameInfoContext.svelte'
-    import { setSearchContext } from '$lib/searchContext.svelte'
+    import { setSearchContext } from '$lib/searchContext/searchContext.svelte'
     import { onMount } from 'svelte'
 
     let isReady = $state(false)

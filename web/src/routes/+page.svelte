@@ -3,7 +3,7 @@
     import { bootstrap } from '$lib/bootstrap'
     import DpsTable from '$lib/components/dpsTable/dpsTable.svelte'
     import { setGameInfoContext } from '$lib/gameInfoContext.svelte'
-    import { setSearchContext } from '$lib/searchContext.svelte'
+    import { setSearchContext } from '$lib/searchContext/searchContext.svelte'
     import { onMount } from 'svelte'
 
     let loadStatus = $state<string | null>('')

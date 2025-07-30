@@ -1,7 +1,7 @@
 import { isEqual } from 'radash'
 import { getContext, setContext } from 'svelte'
-import { DEFAULT_SEARCH_CONTEXT } from './constants'
-import { areSetsEqual } from './utils/miscUtils'
+import { areSetsEqual } from '../utils/miscUtils'
+import { DEFAULT_SEARCH_CONTEXT } from './searchContextConstants'
 
 export type SearchContext = {
     value: SearchContextValue
@@ -19,6 +19,8 @@ export type SearchContextValue = {
     }
 
     items: Set<string>
+    onlyItemRecs: boolean
+
     traits: {
         inactive: boolean
         bronze: boolean

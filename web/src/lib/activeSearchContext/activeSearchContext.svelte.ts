@@ -3,7 +3,7 @@ import type { GameInfoContext, GameInfoValue } from '$lib/gameInfoContext.svelte
 import { packAllUnitIds, packSimId } from '$lib/utils/networkUtils'
 import { alphabetical, sum } from 'radash'
 import { getContext, setContext } from 'svelte'
-import type { SearchContextValue } from '../searchContext.svelte'
+import type { SearchContextValue } from '../searchContext/searchContext.svelte'
 import {
     assert,
     compressGzip,
