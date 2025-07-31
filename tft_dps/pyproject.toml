@@ -13,6 +13,7 @@ dependencies = [
     "bitarray",
     "build",
     "fastapi",
+    "loguru",
     "pillow",
     "pytest",
     "requests",

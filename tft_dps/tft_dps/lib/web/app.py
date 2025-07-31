@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from tft_dps.lib.constants import MAX_IDS_PER_SIMULATE, PACKED_ID_BIT_ESTIMATE
+from tft_dps.lib.simulator.sim_state import SimResult
 from tft_dps.lib.utils.network_utils import (
     decompress_gzip,
     unpack_sim_id,
@@ -78,7 +79,7 @@ async def simulate(req: Request):
         SimulateAllRequest(type="simulate_all_request", requests=requests)
     )
 
-    sims: list[dict] = APP_WORKER_CONTEXT.resp_queue.get()
+    sims: list[SimResult] = APP_WORKER_CONTEXT.resp_queue.get()
 
     result = []
     for sim in sims:

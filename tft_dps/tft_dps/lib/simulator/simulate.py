@@ -1,7 +1,7 @@
 from ..calc_ctx import CalcCtx
 from .calc_stats import calc_stats, init_stats
 from .combat_system import CombatSystem
-from .sim_state import SimState
+from .sim_state import SimResult, SimState
 from .sim_system import SimSystem
 
 """
@@ -18,7 +18,7 @@ Each system populates the queue when the system is run. After that system finish
 TICK_PERIOD_MS = 10
 
 
-def simulate(ctx: CalcCtx):
+def simulate(ctx: CalcCtx) -> SimResult:
     s = SimState(
         t=0,
         systems=_init_systems(ctx),
@@ -30,6 +30,8 @@ def simulate(ctx: CalcCtx):
         buffs=dict(),
         mana_locks=0,
     )
+
+    initial_stats = calc_stats(s)
 
     while s.t <= ctx.T:
         for sys in s.systems:
@@ -43,7 +45,13 @@ def simulate(ctx: CalcCtx):
 
         s.t += TICK_PERIOD_MS / 1000
 
-    return s
+    return SimResult(
+        attacks=s.attacks,
+        casts=s.casts,
+        initial_stats=initial_stats,
+        final_stats=s.stats,
+        notes=[],
+    )
 
 
 def _init_systems(ctx: CalcCtx):

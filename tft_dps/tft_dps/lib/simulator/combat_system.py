@@ -56,7 +56,7 @@ class CombatSystem(SimSystem):
         d = s.ctx.unit_quirks.get_auto_damage(s)
         s.attacks.append(
             SimAttack(
-                s.t,
+                t=s.t,
                 physical_damage=d["physical"],
                 magical_damage=d["magical"],
             )
@@ -72,7 +72,7 @@ class CombatSystem(SimSystem):
         d = s.ctx.unit_quirks.get_spell_damage(s)
         s.casts.append(
             SimCast(
-                s.t,
+                t=s.t,
                 physical_damage=d["physical"],
                 magical_damage=d["magical"],
             )

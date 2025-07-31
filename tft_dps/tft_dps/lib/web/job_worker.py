@@ -3,6 +3,7 @@ import multiprocessing as mp
 from typing import Literal, TypedDict
 
 from tft_dps.lib.simulator.sim_runner import SimRunner
+from tft_dps.lib.simulator.sim_state import SimResult
 
 
 class SimulateAllRequest(TypedDict):
@@ -27,7 +28,7 @@ class SimulateJob(TypedDict):
 class SimulateJobResult(TypedDict):
     type: Literal["simulate_job_result"]
     batch: "BatchInfo"
-    resp: dict
+    resp: SimResult
 
 
 class BatchInfo(TypedDict):
@@ -52,14 +53,12 @@ async def _run_job_worker(
 
         job: SimulateJob = job_queue.get()
         req = job["req"]
-        resp = (
-            await runner.run(
-                unit_id=req["id_unit"],
-                stars=req["stars"],
-                items=req["items"],
-                traits=req["traits"],
-            )
-        ).as_dict()
+        resp = await runner.run(
+            unit_id=req["id_unit"],
+            stars=req["stars"],
+            items=req["items"],
+            traits=req["traits"],
+        )
         result_queue.put(
             SimulateJobResult(
                 type="simulate_job_result",

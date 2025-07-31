@@ -1,16 +1,28 @@
 import math
 
+import loguru
+
 from tft_dps.lib.cache import Cache
 from tft_dps.lib.calc_ctx import CalcCtx, CalcCtxStats
 from tft_dps.lib.constants import CHAMPION_UNITS, ITEMS, VERSION
+from tft_dps.lib.paths import LOG_DIR
 from tft_dps.lib.resolver import (
     fetch_cached_and_get_items,
     fetch_cached_and_get_traits,
     fetch_cached_and_init_unit_processor,
 )
+from tft_dps.lib.simulator.quirks import UNIT_QUIRK_MAP
+from tft_dps.lib.simulator.sim_state import SimResult
 from tft_dps.lib.simulator.simulate import simulate
-from tft_dps.lib.simulator.unit_quirks import GarenQuirks
 from tft_dps.lol_resolver.tft.units import TFTUnitsProcessor
+
+loguru.logger.add(
+    LOG_DIR / "sim.log",
+    filter=lambda record: record["extra"].get("name") == "sim",
+    rotation="10 MB",
+    retention=2,
+)
+SIM_LOGGER = loguru.logger.bind(name="sim")
 
 
 class SimRunner:
@@ -42,11 +54,16 @@ class SimRunner:
         stars: int,
         items: dict[str, int],
         traits: dict[str, int],
-    ):
+    ) -> SimResult:
+
+        UnitQuirkClass = UNIT_QUIRK_MAP.get(unit_id, None)
+        if not UnitQuirkClass:
+            raise Exception()
+
         ctx = CalcCtx(
             T=30,
             unit_id=unit_id,
-            unit_quirks=GarenQuirks(),
+            unit_quirks=UnitQuirkClass(SIM_LOGGER),
             unit_proc=self.unit_proc,
             base_stats=CalcCtxStats.from_unit(unit_id, stars, self.unit_proc),
             item_inventory=items,

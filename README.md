@@ -7,6 +7,9 @@ form
 
 table
     plot
+    cast count
+    aa count
+    notes
 
 simulate
     db
@@ -19,4 +22,10 @@ data
         dl script
         serve
     version check
+
+misc
+    mobile
+    appl
+    title
+    footer
 ```

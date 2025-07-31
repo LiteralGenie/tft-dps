@@ -1,38 +1,11 @@
-import abc
 from typing import TYPE_CHECKING
 
-from .sim_state import SimState, SimStats
-from .sim_system import SimSystem
+from tft_dps.lib.simulator.quirks.quirks import UnitQuirks
+
+from ..sim_state import SimState, SimStats
 
 if TYPE_CHECKING:
-    from .sim_state import SimState
-
-
-class UnitQuirks(SimSystem):
-    id: str
-
-    notes: list[str] = []
-
-    def get_auto_damage(self, s: "SimState") -> dict:
-        return dict(
-            physical=s.stats.ad,
-            magical=0,
-        )
-
-    @abc.abstractmethod
-    def get_spell_damage(self, s: "SimState") -> dict: ...
-
-    def get_unit_bonus(self, s: "SimState") -> "SimStats":
-        return SimStats.zeros()
-
-    def _calc_spell_vars(self, s: "SimState"):
-        raw_stats = s.stats.to_raw()
-        return s.ctx.unit_proc.calc_spell_vars_for_level(
-            self.id, s.ctx.base_stats.stars, raw_stats
-        )
-
-    def run(self, s: SimState):
-        pass
+    from ..sim_state import SimState
 
 
 class AatroxQuirks(UnitQuirks):
@@ -140,3 +113,35 @@ class KayleQuirks(UnitQuirks):
             physical=spell_vars["addamage"],
             magical=spell_vars["apdamage"],
         )
+
+
+class KennenQuirks(UnitQuirks):
+    id = "Characters/TFT15_Kennen"
+
+
+class LucianQuirks(UnitQuirks):
+    id = "Characters/TFT15_Lucian"
+
+
+class MalphiteQuirks(UnitQuirks):
+    id = "Characters/TFT15_Malphite"
+
+
+class NaafiriQuirks(UnitQuirks):
+    id = "Characters/TFT15_Naafiri"
+
+
+class RellQuirks(UnitQuirks):
+    id = "Characters/TFT15_Rell"
+
+
+class SivirQuirks(UnitQuirks):
+    id = "Characters/TFT15_Sivir"
+
+
+class SyndraQuirks(UnitQuirks):
+    id = "Characters/TFT15_Syndra"
+
+
+class ZacQuirks(UnitQuirks):
+    id = "Characters/TFT15_Zac"

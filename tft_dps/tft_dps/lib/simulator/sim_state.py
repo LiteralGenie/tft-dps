@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypedDict
 
 from .sim_event import SimEvent
 from .sim_system import SimSystem
@@ -23,8 +23,8 @@ class SimState:
     def as_dict(self):
         return dict(
             t=self.t,
-            attacks=[x.as_dict() for x in self.attacks],
-            casts=[x.as_dict() for x in self.casts],
+            attacks=self.attacks,
+            casts=self.casts,
         )
 
 
@@ -73,29 +73,21 @@ class SimStats:
         return cls(0, 0, 0, 0, 0, 0, 0)
 
 
-@dataclass(frozen=True)
-class SimAttack:
+class SimAttack(TypedDict):
     t: float
     physical_damage: float
     magical_damage: float
 
-    def as_dict(self):
-        return dict(
-            t=self.t,
-            physical_damage=self.physical_damage,
-            magical_damage=self.magical_damage,
-        )
 
-
-@dataclass(frozen=True)
-class SimCast:
+class SimCast(TypedDict):
     t: float
     physical_damage: float
     magical_damage: float
 
-    def as_dict(self):
-        return dict(
-            t=self.t,
-            physical_damage=self.physical_damage,
-            magical_damage=self.magical_damage,
-        )
+
+class SimResult(TypedDict):
+    attacks: list[SimAttack]
+    casts: list[SimCast]
+    initial_stats: SimStats
+    final_stats: SimStats
+    notes: list[str]

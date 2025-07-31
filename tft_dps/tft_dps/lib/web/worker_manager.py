@@ -6,6 +6,7 @@ from typing import TypedDict
 from uuid import uuid4
 
 from tft_dps.lib.simulator.sim_runner import SimRunner
+from tft_dps.lib.simulator.sim_state import SimResult
 from tft_dps.lib.web.app_worker import run_app_worker
 from tft_dps.lib.web.job_worker import (
     BatchInfo,
@@ -26,7 +27,7 @@ class AppWorkerHandle:
 class SimulateAllBatch(TypedDict):
     req: SimulateAllRequest
     idx_handle: int
-    data: list
+    data: list[SimResult | None]
     rem: int
 
 
