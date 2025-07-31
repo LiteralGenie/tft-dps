@@ -1,6 +1,8 @@
 import abc
+from typing import TYPE_CHECKING
 
-import loguru
+if TYPE_CHECKING:
+    from loguru import Logger
 
 from tft_dps.lib.simulator.sim_state import SimState, SimStats
 from tft_dps.lib.simulator.sim_system import SimSystem
@@ -11,7 +13,7 @@ class UnitQuirks(SimSystem):
 
     notes: list[str] = []
 
-    def __init__(self, logger: loguru.Logger):
+    def __init__(self, logger: "Logger"):
         super().__init__()
 
         self.logger = logger
@@ -36,3 +38,11 @@ class UnitQuirks(SimSystem):
 
     def run(self, s: SimState):
         pass
+
+
+class NoopUnitQuirks(UnitQuirks):
+    def get_spell_damage(self, s: SimState) -> dict:
+        return dict(
+            physical=0,
+            magical=0,
+        )

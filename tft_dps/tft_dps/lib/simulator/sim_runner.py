@@ -11,7 +11,8 @@ from tft_dps.lib.resolver import (
     fetch_cached_and_get_traits,
     fetch_cached_and_init_unit_processor,
 )
-from tft_dps.lib.simulator.quirks import UNIT_QUIRK_MAP
+from tft_dps.lib.simulator.quirks.quirks import NoopUnitQuirks
+from tft_dps.lib.simulator.quirks.unit_quirk_map import UNIT_QUIRK_MAP
 from tft_dps.lib.simulator.sim_state import SimResult
 from tft_dps.lib.simulator.simulate import simulate
 from tft_dps.lol_resolver.tft.units import TFTUnitsProcessor
@@ -55,10 +56,14 @@ class SimRunner:
         items: dict[str, int],
         traits: dict[str, int],
     ) -> SimResult:
+        has_errors = False
 
         UnitQuirkClass = UNIT_QUIRK_MAP.get(unit_id, None)
         if not UnitQuirkClass:
-            raise Exception()
+            has_errors = True
+            SIM_LOGGER.exception(f"No quirk class for unit {unit_id}")
+            UnitQuirkClass = NoopUnitQuirks
+            # raise Exception()
 
         ctx = CalcCtx(
             T=30,
@@ -75,6 +80,7 @@ class SimRunner:
         )
 
         result = simulate(ctx)
+        result["has_errors"] = result["has_errors"] or has_errors
         return result
 
     @classmethod

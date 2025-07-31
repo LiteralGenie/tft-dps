@@ -51,6 +51,7 @@ def simulate(ctx: CalcCtx) -> SimResult:
         initial_stats=initial_stats,
         final_stats=s.stats,
         notes=[],
+        has_errors=False,
     )
 
 

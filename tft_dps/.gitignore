@@ -1,5 +1,7 @@
 dist/
 venv/
 .pyodide-xbuildenv/
+data/logs/
+data/prof
 
 *.pyc

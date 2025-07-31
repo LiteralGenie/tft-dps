@@ -4,7 +4,7 @@ import socket
 from dataclasses import dataclass
 
 import uvicorn
-from uvicorn.config import logger
+from loguru import logger
 
 from tft_dps.lib.constants import PORT
 
@@ -22,6 +22,7 @@ class AppWorkerContext:
     item_info_by_index: dict
 
 
+@logger.catch(reraise=True)
 def run_app_worker(*args, **kwargs):
     asyncio.run(_serve_app(*args, **kwargs))
 

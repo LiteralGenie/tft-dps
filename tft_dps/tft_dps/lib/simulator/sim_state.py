@@ -91,3 +91,4 @@ class SimResult(TypedDict):
     initial_stats: SimStats
     final_stats: SimStats
     notes: list[str]
+    has_errors: bool

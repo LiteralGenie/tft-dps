@@ -2,6 +2,8 @@ import asyncio
 import multiprocessing as mp
 from typing import Literal, TypedDict
 
+from loguru import logger
+
 from tft_dps.lib.simulator.sim_runner import SimRunner
 from tft_dps.lib.simulator.sim_state import SimResult
 
@@ -37,6 +39,7 @@ class BatchInfo(TypedDict):
     total: int
 
 
+@logger.catch(reraise=True)
 def run_job_worker(*args, **kwargs):
     asyncio.run(_run_job_worker(*args, **kwargs))
 
