@@ -22,12 +22,54 @@ class AatroxQuirks(UnitQuirks):
 class EzrealQuirks(UnitQuirks):
     id = "Characters/TFT15_Ezreal"
 
+    BUFF_KEY = "ezreal_spell"
+
     def get_spell_damage(self, s: "SimState") -> dict:
         svs = self._calc_spell_vars(s)
         return dict(
             physical=svs["addamage"],
             magical=svs["apdamage"],
         )
+
+    def get_unit_bonus(self, s: SimState) -> SimStats:
+        bonus = SimStats.zeros()
+
+        svs = self._calc_spell_vars(s)
+
+        num_potential = 0
+        if trait := s.ctx.trait_inventory.get("TFT15_BattleAcademia"):
+            num_potential = trait.effects["numpotential"]
+
+        if self.BUFF_KEY in s.buffs:
+            bonus.speed += num_potential * svs["potential_as"] * 100
+
+        bonus.ad += len(s.casts) * svs["bonusadperpotential"] * num_potential
+        bonus.ap += len(s.casts) * svs["bonusapperpotential"] * num_potential
+
+        return bonus
+
+    def run_events(self, s: SimState):
+        if s.ctx.unit_id != self.id:
+            return
+
+        buff = s.buffs.get(self.BUFF_KEY, None)
+        if buff and s.t > buff["until"]:
+            self._end_buff(s)
+            return
+
+        did_cast = any(ev.type == "cast" for ev in s.events)
+        if did_cast:
+            self._start_buff(s)
+            return
+
+    def _start_buff(self, s: SimState):
+        svs = self._calc_spell_vars(s)
+
+        s.buffs[self.BUFF_KEY] = dict(until=s.t + svs["potentialduration"])
+        s.stats.mana = 0
+
+    def _end_buff(self, s: SimState):
+        del s.buffs[self.BUFF_KEY]
 
 
 class GarenQuirks(UnitQuirks):
@@ -39,6 +81,23 @@ class GarenQuirks(UnitQuirks):
             physical=svs["additionaldamage"] + svs["additionaldamage"],
             magical=0,
         )
+
+    def get_unit_bonus(self, s: SimState) -> SimStats:
+        bonus = SimStats.zeros()
+
+        svs = self._calc_spell_vars(s)
+
+        num_potential = 0
+        if trait := s.ctx.trait_inventory.get("TFT15_BattleAcademia"):
+            num_potential = trait.effects["numpotential"]
+
+        bonus_hp = len(s.casts) * (
+            num_potential * svs["healthperpotential"] + svs["healthgainbase"]
+        )
+        bonus.health += bonus_hp
+        bonus.health_max += bonus_hp
+
+        return bonus
 
 
 class GnarQuirks(UnitQuirks):
@@ -122,7 +181,7 @@ class KayleQuirks(UnitQuirks):
             bonus += aoe_mult * svs["ascensionmodifiedmagicdamage"]
 
         return dict(
-            physical=0,
+            physical=s.stats.ad,
             magical=bonus,
         )
 

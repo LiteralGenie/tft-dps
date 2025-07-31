@@ -18,19 +18,22 @@ class UnitQuirks(SimSystem):
 
         self.logger = logger
 
-    def get_auto_damage(self, s: "SimState") -> dict:
+    def get_auto_damage(self, s: SimState) -> dict:
         return dict(
             physical=s.stats.ad,
             magical=0,
         )
 
     @abc.abstractmethod
-    def get_spell_damage(self, s: "SimState") -> dict: ...
+    def get_spell_damage(self, s: SimState) -> dict: ...
 
-    def get_unit_bonus(self, s: "SimState") -> "SimStats":
-        return SimStats.zeros()
+    def get_unit_bonus(self, s: SimState) -> SimStats | None:
+        return None
 
-    def _calc_spell_vars(self, s: "SimState"):
+    def get_stats_override(self, s: SimState, update: SimStats) -> SimStats:
+        return update
+
+    def _calc_spell_vars(self, s: SimState):
         raw_stats = s.stats.to_raw()
         return s.ctx.unit_proc.calc_spell_vars_for_level(
             self.id, s.ctx.base_stats.stars, raw_stats

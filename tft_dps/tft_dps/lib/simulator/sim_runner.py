@@ -72,7 +72,8 @@ class SimRunner:
             unit_proc=self.unit_proc,
             base_stats=CalcCtxStats.from_unit(unit_id, stars, self.unit_proc),
             item_inventory=items,
-            trait_inventory=traits,
+            # @todo: traits
+            trait_inventory=dict(),
             #
             item_info=self.items,
             trait_info=self.traits,

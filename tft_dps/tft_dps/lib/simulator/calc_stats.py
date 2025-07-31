@@ -7,11 +7,13 @@ def calc_stats(s: SimState) -> SimStats:
 
     bonus = SimStats.zeros()
     bonus += _sum_item_bonus(s)
-    bonus += s.ctx.unit_quirks.get_unit_bonus(s)
+
+    if unit_bonus := s.ctx.unit_quirks.get_unit_bonus(s):
+        bonus += unit_bonus
 
     health = _calc_hp(s, bonus)
 
-    return SimStats(
+    update = SimStats(
         ad=_calc_ad(s, bonus),
         ap=_calc_ap(s, bonus),
         speed=_calc_as(s, bonus),
@@ -22,6 +24,10 @@ def calc_stats(s: SimState) -> SimStats:
         armor=0,
         mr=0,
     )
+
+    update = s.ctx.unit_quirks.get_stats_override(s, update)
+
+    return update
 
 
 def init_stats(ctx: CalcCtx) -> SimStats:

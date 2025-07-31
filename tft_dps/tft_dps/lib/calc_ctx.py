@@ -11,7 +11,7 @@ class CalcCtx:
     base_stats: "CalcCtxStats"
     item_inventory: dict[str, int]
     item_info: dict[str, dict]
-    trait_inventory: dict[str, int]
+    trait_inventory: dict[str, "CalcCtxTraits"]
     trait_info: dict
     unit_proc: TFTUnitsProcessor
     unit_quirks: UnitQuirks
@@ -48,3 +48,11 @@ class CalcCtxStats:
             mana_max=root.get("maxMana", 0),
             mana_per_auto=root.get("primaryAbilityResource", dict()).get("arBase", 100),
         )
+
+
+@dataclass
+class CalcCtxTraits:
+    id: str
+    breakpoint: int
+    index: int
+    effects: dict

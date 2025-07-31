@@ -138,4 +138,7 @@ FLAGS = dict(
     rell_aoe_targets=2,
     sivir_aoe_targets=2,
     zac_aoe_targets=2,
+    #
+    kaisa_passive_stacks=40,
+    katarina_aoe_targets=2,
 )
