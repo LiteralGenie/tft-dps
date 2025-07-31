@@ -43,7 +43,7 @@
 </script>
 
 <span class="td index">#{offset + idx + 1}</span>
-<span class="td">{d.dps.toFixed(0)}</span>
+<span class="td text-base! font-bold">{d.dps.toFixed(0)}</span>
 <span class="td flex gap-2">
     <DpsTableUnitIcon {unit} {stars} />
     <span class="whitespace-nowrap">{stars}* {unit.info.name}</span>

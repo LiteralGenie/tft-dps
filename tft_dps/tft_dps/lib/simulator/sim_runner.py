@@ -4,7 +4,7 @@ import loguru
 
 from tft_dps.lib.cache import Cache
 from tft_dps.lib.calc_ctx import CalcCtx, CalcCtxStats
-from tft_dps.lib.constants import CHAMPION_UNITS, ITEMS, VERSION
+from tft_dps.lib.constants import CHAMPION_UNITS, FLAGS, ITEMS, VERSION
 from tft_dps.lib.paths import LOG_DIR
 from tft_dps.lib.resolver import (
     fetch_cached_and_get_items,
@@ -76,7 +76,7 @@ class SimRunner:
             #
             item_info=self.items,
             trait_info=self.traits,
-            flags=dict(),
+            flags=FLAGS,
         )
 
         result = simulate(ctx)
@@ -91,6 +91,7 @@ class SimRunner:
             if not info:
                 continue
 
+            # HP / AD aren't scaled to star level
             idxUnit = len(units)
             base_stats = unit_proc.get_base_stats(id)
             spell_vars = unit_proc.calc_spell_vars_for_level(id, 3, base_stats)

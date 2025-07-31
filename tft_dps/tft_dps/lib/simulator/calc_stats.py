@@ -19,6 +19,8 @@ def calc_stats(s: SimState) -> SimStats:
         mana_max=curr.mana_max,
         health=health,
         health_max=health,
+        armor=0,
+        mr=0,
     )
 
 
@@ -33,6 +35,8 @@ def init_stats(ctx: CalcCtx) -> SimStats:
         mana_max=b.mana_max,
         health=b.health,
         health_max=b.health,
+        armor=0,
+        mr=0,
     )
 
     return stats
@@ -49,6 +53,8 @@ def _item_to_stats(item: dict) -> SimStats:
         mana_max=0,
         health=c.get("Health", 0),
         health_max=c.get("Health", 0),
+        armor=0,
+        mr=0,
     )
 
 

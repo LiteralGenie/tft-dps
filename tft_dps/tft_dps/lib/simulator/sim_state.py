@@ -37,6 +37,8 @@ class SimStats:
     mana_max: float
     health: float
     health_max: float
+    armor: float
+    mr: float
 
     def __add__(self, other: "SimStats") -> "SimStats":
         return SimStats(
@@ -47,6 +49,8 @@ class SimStats:
             mana_max=self.mana_max + other.mana_max,
             health=self.health + other.health,
             health_max=self.health_max + other.health_max,
+            armor=self.armor + other.armor,
+            mr=self.mr + other.mr,
         )
 
     def __radd__(self, other: "SimStats") -> "SimStats":
@@ -70,7 +74,7 @@ class SimStats:
 
     @classmethod
     def zeros(cls):
-        return cls(0, 0, 0, 0, 0, 0, 0)
+        return cls(0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 
 class SimAttack(TypedDict):

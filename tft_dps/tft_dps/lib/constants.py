@@ -84,7 +84,7 @@ CHAMPION_UNITS = [
     "Characters/TFT15_Kobuko",
     "Characters/TFT15_LeeSin",
     "Characters/TFT15_Leona",
-    "Characters/TFT15_Lulu",
+    # "Characters/TFT15_Lulu",
     "Characters/TFT15_Lux",
     "Characters/TFT15_Malphite",
     "Characters/TFT15_Malzahar",
@@ -129,3 +129,13 @@ CHAMPION_UNITS = [
     "Characters/TFT15_Neeko",
     # "Characters/TFT15_Ekko",
 ]
+
+FLAGS = dict(
+    gnar_passive_stacks=2,
+    kayle_wave_frequency=3,
+    kayle_aoe_targets=2,
+    malphite_aoe_targets=2,
+    rell_aoe_targets=2,
+    sivir_aoe_targets=2,
+    zac_aoe_targets=2,
+)

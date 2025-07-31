@@ -12,10 +12,10 @@ class AatroxQuirks(UnitQuirks):
     id = "Characters/TFT15_Aatrox"
 
     def get_spell_damage(self, s: "SimState") -> dict:
-        spell_vars = self._calc_spell_vars(s)
+        svs = self._calc_spell_vars(s)
         return dict(
-            physical=spell_vars["addamage"],
-            magical=spell_vars["apdamage"],
+            physical=svs["totaldamage"],
+            magical=0,
         )
 
 
@@ -23,10 +23,10 @@ class EzrealQuirks(UnitQuirks):
     id = "Characters/TFT15_Ezreal"
 
     def get_spell_damage(self, s: "SimState") -> dict:
-        spell_vars = self._calc_spell_vars(s)
+        svs = self._calc_spell_vars(s)
         return dict(
-            physical=spell_vars["addamage"],
-            magical=spell_vars["apdamage"],
+            physical=svs["addamage"],
+            magical=svs["apdamage"],
         )
 
 
@@ -34,9 +34,9 @@ class GarenQuirks(UnitQuirks):
     id = "Characters/TFT15_Garen"
 
     def get_spell_damage(self, s: "SimState") -> dict:
-        spell_vars = self._calc_spell_vars(s)
+        svs = self._calc_spell_vars(s)
         return dict(
-            physical=spell_vars["basespelldamage"] + spell_vars["additionaldamage"],
+            physical=svs["additionaldamage"] + svs["additionaldamage"],
             magical=0,
         )
 
@@ -67,22 +67,20 @@ class GnarQuirks(UnitQuirks):
             return
 
     def get_unit_bonus(self, s: SimState) -> SimStats:
-        spell_vars = self._calc_spell_vars(s)
+        svs = self._calc_spell_vars(s)
 
         bonus = SimStats.zeros()
-        bonus.speed = (
-            s.ctx.flags["gnar_passive_stacks"] * spell_vars["as_per_stack"] * 100
-        )
+        bonus.speed = s.ctx.flags["gnar_passive_stacks"] * svs["asperstack"] * 100
 
         if self.BUFF_KEY in s.buffs:
-            bonus.ad += spell_vars["gnarad"] * 100
+            bonus.ad += svs["gnarad"] * 100
 
         return bonus
 
     def _start_buff(self, s: SimState):
-        spell_vars = self._calc_spell_vars(s)
+        svs = self._calc_spell_vars(s)
 
-        s.buffs[self.BUFF_KEY] = dict(until=s.t + spell_vars["spell_duration"])
+        s.buffs[self.BUFF_KEY] = dict(until=s.t + svs["spell_duration"])
         s.mana_locks += 1
         s.stats.mana = 0
 
@@ -95,53 +93,152 @@ class KalistaQuirks(UnitQuirks):
     id = "Characters/TFT15_Kalista"
 
     def get_spell_damage(self, s: "SimState") -> dict:
-        spell_vars = self._calc_spell_vars(s)
+        svs = self._calc_spell_vars(s)
         return dict(
-            physical=spell_vars["addamage"],
-            magical=spell_vars["apdamage"],
+            physical=svs["totaldamage"],
+            magical=0,
         )
 
 
 class KayleQuirks(UnitQuirks):
     id = "Characters/TFT15_Kayle"
 
-    notes = ["Passive activated every {kayle_wave_frequency} attacks"]
+    FLAG_KEY_FREQ = "kayle_wave_frequency"
+    FLAG_KEY_AOE = "kayle_aoe_targets"
+    notes = [
+        "Kayle launches waves every {kayle_wave_frequency} attacks",
+        "AoE hits {kayle_aoe_targets} targets",
+    ]
+
+    def get_auto_damage(self, s: SimState):
+        svs = self._calc_spell_vars(s)
+
+        bonus = svs["modifieddamage"]
+
+        num_attacks = len(s.attacks) + 1
+        has_wave = (num_attacks % s.ctx.flags[self.FLAG_KEY_FREQ]) == 0
+        if has_wave:
+            aoe_mult = s.ctx.flags[self.FLAG_KEY_AOE]
+            bonus += aoe_mult * svs["ascensionmodifiedmagicdamage"]
+
+        return dict(
+            physical=0,
+            magical=bonus,
+        )
 
     def get_spell_damage(self, s: "SimState") -> dict:
-        spell_vars = self._calc_spell_vars(s)
+        svs = self._calc_spell_vars(s)
         return dict(
-            physical=spell_vars["addamage"],
-            magical=spell_vars["apdamage"],
+            physical=0,
+            magical=0,
         )
 
 
 class KennenQuirks(UnitQuirks):
     id = "Characters/TFT15_Kennen"
 
+    def get_spell_damage(self, s: "SimState") -> dict:
+        svs = self._calc_spell_vars(s)
+        return dict(
+            physical=0,
+            magical=svs["numjolts"] * svs["modifieddamage"],
+        )
+
 
 class LucianQuirks(UnitQuirks):
     id = "Characters/TFT15_Lucian"
+
+    def get_spell_damage(self, s: "SimState") -> dict:
+        svs = self._calc_spell_vars(s)
+        return dict(
+            physical=0,
+            magical=svs["numshots"] * svs["modifieddamage"],
+        )
 
 
 class MalphiteQuirks(UnitQuirks):
     id = "Characters/TFT15_Malphite"
 
+    FLAG_KEY = "malphite_aoe_targets"
+    notes = ["AoE hits {malphite_aoe_targets}"]
+
+    def get_spell_damage(self, s: "SimState") -> dict:
+        svs = self._calc_spell_vars(s)
+        aoe_mult = s.ctx.flags[self.FLAG_KEY]
+        return dict(
+            physical=aoe_mult * svs["modifieddamage"],
+            magical=0,
+        )
+
+    def get_unit_bonus(self, s: SimState) -> SimStats:
+        svs = self._calc_spell_vars(s)
+        stats = SimStats.zeros()
+        stats.armor = svs["bonusresists"] * sum(s.ctx.item_inventory.values())
+        return stats
+
 
 class NaafiriQuirks(UnitQuirks):
     id = "Characters/TFT15_Naafiri"
+
+    def get_spell_damage(self, s: "SimState") -> dict:
+        svs = self._calc_spell_vars(s)
+        return dict(
+            physical=svs["modifieddamage"],
+            magical=0,
+        )
 
 
 class RellQuirks(UnitQuirks):
     id = "Characters/TFT15_Rell"
 
+    FLAG_KEY = "rell_aoe_targets"
+    notes = ["AoE hits {rell_aoe_targets}"]
+
+    def get_spell_damage(self, s: "SimState") -> dict:
+        svs = self._calc_spell_vars(s)
+        aoe_mult = s.ctx.flags[self.FLAG_KEY]
+        return dict(
+            physical=0,
+            magical=aoe_mult * svs["modifieddamage"],
+        )
+
 
 class SivirQuirks(UnitQuirks):
     id = "Characters/TFT15_Sivir"
+
+    FLAG_KEY = "sivir_aoe_targets"
+    notes = ["AoE hits {sivir_aoe_targets}"]
+
+    def get_spell_damage(self, s: "SimState") -> dict:
+        svs = self._calc_spell_vars(s)
+        aoe_mult = s.ctx.flags[self.FLAG_KEY]
+        return dict(
+            physical=aoe_mult * svs["totaldamage"],
+            magical=0,
+        )
 
 
 class SyndraQuirks(UnitQuirks):
     id = "Characters/TFT15_Syndra"
 
+    def get_spell_damage(self, s: "SimState") -> dict:
+        svs = self._calc_spell_vars(s)
+        return dict(
+            physical=0,
+            magical=svs["modifieddamage"],
+        )
+
 
 class ZacQuirks(UnitQuirks):
     id = "Characters/TFT15_Zac"
+
+    FLAG_KEY = "zac_aoe_targets"
+    notes = ["AoE hits {zac_aoe_targets}"]
+
+    def get_spell_damage(self, s: "SimState") -> dict:
+        svs = self._calc_spell_vars(s)
+        aoe_mult = s.ctx.flags[self.FLAG_KEY]
+        return dict(
+            physical=0,
+            magical=aoe_mult * svs["finaldamage"],
+        )

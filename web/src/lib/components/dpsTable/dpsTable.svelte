@@ -95,7 +95,7 @@
 
     /* Row borders */
     .root :global(.td) {
-        border-top: 1px solid var(--color-foreground);
+        border-top: 1px solid color-mix(in oklab, var(--color-foreground), transparent 80%);
     }
 
     /* Index col */
