@@ -35,7 +35,7 @@ class CombatSystem(SimSystem):
                     s.stats.mana -= s.stats.mana_max
                     self.state = dict(
                         type="PRE_CAST",
-                        until=s.t + s.ctx.base_stats.cast_time,
+                        until=s.t + s.stats.cast_time,
                     )
                 else:
                     # Start next auto

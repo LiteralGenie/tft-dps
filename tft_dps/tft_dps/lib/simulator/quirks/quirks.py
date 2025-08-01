@@ -21,8 +21,7 @@ class UnitQuirks(SimSystem):
 
     def get_auto_damage(self, s: SimState) -> dict:
         return dict(
-            physical=s.stats.ad,
-            magical=0,
+            physical=s.stats.ad * self._calc_crit_bonus(s),
         )
 
     @abc.abstractmethod
@@ -45,6 +44,9 @@ class UnitQuirks(SimSystem):
 
     def run(self, s: SimState):
         pass
+
+    def _calc_crit_bonus(self, s: SimState):
+        return 1 + (s.stats.crit_mult - 1) * s.stats.crit_rate
 
 
 class NoopUnitQuirks(UnitQuirks):

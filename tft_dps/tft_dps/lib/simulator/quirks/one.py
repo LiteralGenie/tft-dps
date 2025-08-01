@@ -172,12 +172,17 @@ class KayleQuirks(UnitQuirks):
             bonus += aoe_mult * svs["ascensionmodifiedmagicdamage"]
 
         return dict(
-            physical=s.stats.ad,
+            physical=s.stats.ad * self._calc_crit_bonus(s),
             magical=bonus,
         )
 
     def get_spell_damage(self, s: "SimState") -> dict:
         return dict()
+
+    def get_stats_override(self, s: SimState, update: SimStats) -> SimStats:
+        update.mana = 0
+        update.mana_max = 999
+        return update
 
 
 class KennenQuirks(UnitQuirks):

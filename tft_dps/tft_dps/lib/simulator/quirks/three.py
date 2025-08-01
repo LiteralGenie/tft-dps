@@ -1,6 +1,5 @@
 import math
 
-from tft_dps.lib.calc_ctx import CalcCtx
 from tft_dps.lib.simulator.quirks.quirks import UnitQuirks
 from tft_dps.lib.simulator.sim_state import SimMiscDamage, SimState, SimStats
 
@@ -166,9 +165,9 @@ class SennaQuirks(UnitQuirks):
     FLAG_KEY = "senna_aoe_targets"
     notes = ["AoE hits {senna_aoe_targets}"]
 
-    def init_ctx(self, ctx: CalcCtx) -> CalcCtx:
-        ctx.base_stats.cast_time = 1.25
-        return ctx
+    def get_stats_override(self, s: SimState, update: SimStats) -> SimStats:
+        update.cast_time = 1.25
+        return update
 
     def get_spell_damage(self, s: SimState) -> dict:
         svs = self._calc_spell_vars(s)
@@ -281,7 +280,7 @@ class UdyrQuirks(UnitQuirks):
             bonus = aoe_mult * buff["damage"]
 
         return dict(
-            physical=s.stats.ad + bonus,
+            physical=(s.stats.ad + bonus) * self._calc_crit_bonus(s),
         )
 
 
@@ -334,7 +333,7 @@ class ViegoQuirks(UnitQuirks):
             bonus += buff["damage"][buff["num_autos"]]
 
         return dict(
-            physical=s.stats.ad,
+            physical=s.stats.ad * self._calc_crit_bonus(s),
             magical=bonus,
         )
 
@@ -365,7 +364,7 @@ class ZiggsQuirks(UnitQuirks):
     def get_auto_damage(self, s: SimState) -> dict:
         svs = self._calc_spell_vars(s)
         return dict(
-            magical=svs["totalattackdamage"],
+            magical=svs["totalattackdamage"] * (s.stats.crit_mult * s.stats.crit_rate),
             physical=0,
         )
 

@@ -23,6 +23,9 @@ def calc_stats(s: SimState) -> SimStats:
         health_max=health,
         armor=0,
         mr=0,
+        crit_rate=0,
+        crit_mult=0,
+        cast_time=0,
     )
 
     update = s.ctx.unit_quirks.get_stats_override(s, update)

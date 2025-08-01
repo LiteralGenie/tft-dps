@@ -29,7 +29,7 @@ class DrMundoQuirks(UnitQuirks):
             bonus += svs["totaldamage"]
 
         return dict(
-            physical=s.stats.ad + bonus,
+            physical=(s.stats.ad + bonus) * self._calc_crit_bonus(s),
         )
 
     def run_events(self, s: SimState):
@@ -112,6 +112,9 @@ class JhinQuirks(UnitQuirks):
         conversion_ad = bonus_as * 0.8
         update.ad = base_ad * (1 + bonus_ad + conversion_ad)
 
+        update.mana = 0
+        update.mana_max = 999
+
         return update
 
     def get_spell_damage(self, s: SimState) -> dict:
@@ -122,12 +125,12 @@ class JhinQuirks(UnitQuirks):
 
         num_attacks = len(s.attacks) + 1
 
-        bonus = 0
+        dmg = s.stats.ad
         if (num_attacks % 4) == 0:
-            bonus = svs["totaldamage"]
+            dmg = svs["totaldamage"]
 
         return dict(
-            physical=s.stats.ad + bonus,
+            physical=dmg * self._calc_crit_bonus(s),
         )
 
 
@@ -193,7 +196,7 @@ class KobukoQuirks(UnitQuirks):
             svs["modifieddamage"]
 
         return dict(
-            physical=s.stats.ad + bonus,
+            physical=(s.stats.ad + bonus) * self._calc_crit_bonus(s),
         )
 
     def run_events(self, s: SimState):
@@ -261,7 +264,7 @@ class ShenQuirks(UnitQuirks):
             bonus = svs["modifieddamage"]
 
         return dict(
-            physical=s.stats.ad,
+            physical=s.stats.ad * self._calc_crit_bonus(s),
             true=bonus,
         )
 
@@ -316,13 +319,17 @@ class XayahQuirks(UnitQuirks):
         return dict()
 
     def get_auto_damage(self, s: SimState) -> dict:
-        bonus = 0
+        dmg = s.stats.ad
+
         if self.BUFF_KEY in s.buffs:
             svs = self._calc_spell_vars(s)
-            bonus = svs["modifieddamage"] * (1 + svs["additionaltargets"])
+            dmg += svs["modifieddamage"]
+            dmg *= 1 + svs["additionaltargets"]
+
+        dmg *= self._calc_crit_bonus(s)
 
         return dict(
-            physical=s.stats.ad + bonus,
+            physical=dmg,
         )
 
     def run_events(self, s: SimState):

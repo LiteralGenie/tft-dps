@@ -16,6 +16,8 @@ simulate
     item quirks
     traits
     catch errors
+    crits
+    lulu
 
 data
     cache
@@ -25,7 +27,10 @@ data
 
 misc
     mobile
-    appl
     title
     footer
+        github
+        license
+        faq
+    faq
 ```
