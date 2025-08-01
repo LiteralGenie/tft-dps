@@ -10,7 +10,7 @@ class AhriQuirks(UnitQuirks):
     FLAG_KEY_1 = "ahri_missing_hp_bonus"
     FLAG_KEY_2 = "ahri_overkill_frequency"
     notes = [
-        "Bonus spell damage from missing health amortized to {ahri_missing_hp_bonus} per cast",
+        "Bonus spell damage from missing health averaged to {ahri_missing_hp_bonus} per cast",
         "Overkill effect is triggered every {ahri_overkill_frequency} casts. Overkill damage is assumed to be zero so only the flat bonus is added.",
     ]
 
@@ -56,7 +56,7 @@ class DariusQuirks(UnitQuirks):
     FLAG_KEY_1 = "darius_spell_bonus_mult"
     FLAG_KEY_2 = "darius_kill_frequency"
     notes = [
-        "Bonus spell damage from targeting tanks is amortized to {darius_spell_bonus_mult} of original bonus per cast",
+        "Bonus spell damage from targeting tanks is averaged to {darius_spell_bonus_mult} of original bonus per cast",
         "On-kill bonus cast is triggered every {darius_kill_frequency} casts.",
     ]
 
