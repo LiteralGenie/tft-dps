@@ -45,7 +45,7 @@
             {#snippet IconButton(Tag: Component, onclick: () => void)}
                 <button
                     {onclick}
-                    class="hover:bg-foreground/10 flex h-full flex-col rounded-md p-2 text-sm"
+                    class="flex h-full flex-col rounded-md bg-blue-500/30 p-2 text-sm hover:bg-blue-500"
                 >
                     <Tag class="size-5 grow" />
                 </button>

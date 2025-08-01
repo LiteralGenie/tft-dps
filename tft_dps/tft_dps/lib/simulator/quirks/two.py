@@ -52,7 +52,6 @@ class DrMundoQuirks(UnitQuirks):
             until=s.t + svs["duration"],
             duration=svs["duration"],
         )
-        s.stats.mana = 0
 
     def _end_buff(self, s: SimState):
         del s.buffs[self.BUFF_KEY]
@@ -214,7 +213,6 @@ class KobukoQuirks(UnitQuirks):
     def _start_buff(self, s: SimState):
         s.buffs[self.BUFF_KEY] = True
         s.mana_locks += 1
-        s.stats.mana = 0
 
     def _end_buff(self, s: SimState):
         del s.buffs[self.BUFF_KEY]

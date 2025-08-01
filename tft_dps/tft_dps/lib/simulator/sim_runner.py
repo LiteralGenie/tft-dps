@@ -80,6 +80,8 @@ class SimRunner:
             flags=FLAGS,
         )
 
+        ctx.unit_quirks.init_ctx(ctx)
+
         result = simulate(ctx)
         result["has_errors"] = result["has_errors"] or has_errors
         return result

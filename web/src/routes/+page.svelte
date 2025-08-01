@@ -50,7 +50,7 @@
 {#if loadStatus !== null}
     <pre>{loadStatus}</pre>
 {:else}
-    <div class="p-8">
+    <div class="min-h-full p-8">
         <DpsTable />
     </div>
 {/if}

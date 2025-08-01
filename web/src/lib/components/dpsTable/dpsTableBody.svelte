@@ -33,6 +33,10 @@
     {/each}
 
     {#if !ctx.value?.progress.total}
-        <div class="col-span-5 flex w-full justify-center border-t p-4 opacity-75">No results!</div>
+        <div
+            class="col-span-5 flex h-full w-full items-center justify-center border-t p-4 opacity-75"
+        >
+            No results!
+        </div>
     {/if}
 </div>

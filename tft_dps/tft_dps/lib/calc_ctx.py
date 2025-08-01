@@ -1,7 +1,10 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from ..lol_resolver.tft.units import TFTUnitsProcessor
-from .simulator.quirks.quirks import UnitQuirks
+
+if TYPE_CHECKING:
+    from .simulator.quirks.quirks import UnitQuirks
 
 
 @dataclass
@@ -14,7 +17,7 @@ class CalcCtx:
     trait_inventory: dict[str, "CalcCtxTraits"]
     trait_info: dict
     unit_proc: TFTUnitsProcessor
-    unit_quirks: UnitQuirks
+    unit_quirks: "UnitQuirks"
     flags: dict
 
 

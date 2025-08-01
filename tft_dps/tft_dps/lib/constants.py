@@ -1,4 +1,4 @@
-VERSION = "pbe"
+VERSION = "latest"
 PORT = 4723
 
 MAX_IDS_PER_SIMULATE = 2000
@@ -144,4 +144,14 @@ FLAGS = dict(
     vi_aoe_targets=2,
     xin_aoe_targets=2,
     #
+    ahri_missing_hp_bonus=1.2,
+    ahri_overkill_frequency=3,
+    darius_spell_bonus_mult=0.9,
+    darius_kill_frequency=5,
+    jayce_aoe_targets=2,
+    neeko_aoe_targets=2,
+    senna_aoe_targets=3,
+    swain_aoe_targets=2,
+    udyr_aoe_targets=2,
+    ziggs_aoe_targets=2,
 )

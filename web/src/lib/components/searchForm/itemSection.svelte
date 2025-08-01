@@ -55,7 +55,7 @@
             {#snippet IconButton(Tag: Component, onclick: () => void)}
                 <button
                     {onclick}
-                    class="hover:bg-foreground/10 flex h-full flex-col rounded-md p-2 text-sm disabled:pointer-events-none disabled:opacity-50"
+                    class="flex h-full flex-col rounded-md bg-blue-500/30 p-2 text-sm hover:bg-blue-500 disabled:pointer-events-none disabled:opacity-50"
                     disabled={search.value.onlyItemRecs}
                 >
                     <Tag class="size-5 grow" />

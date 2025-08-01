@@ -63,7 +63,6 @@ class EzrealQuirks(UnitQuirks):
         svs = self._calc_spell_vars(s)
 
         s.buffs[self.BUFF_KEY] = dict(until=s.t + svs["potentialduration"])
-        s.stats.mana = 0
 
     def _end_buff(self, s: SimState):
         del s.buffs[self.BUFF_KEY]
@@ -135,7 +134,6 @@ class GnarQuirks(UnitQuirks):
 
         s.buffs[self.BUFF_KEY] = dict(until=s.t + svs["spell_duration"])
         s.mana_locks += 1
-        s.stats.mana = 0
 
     def _end_buff(self, s: SimState):
         del s.buffs[self.BUFF_KEY]

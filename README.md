@@ -15,7 +15,7 @@ simulate
     db
     item quirks
     traits
-    quirk map
+    catch errors
 
 data
     cache

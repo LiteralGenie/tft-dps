@@ -16,6 +16,8 @@ class SimState:
     t: float
     attacks: list["SimAttack"]
     casts: list["SimCast"]
+    # currently no events for misc damage
+    misc_damage: list["SimMiscDamage"]
     stats: "SimStats"
     buffs: dict[str, Any]
     mana_locks: int
@@ -91,10 +93,17 @@ class SimCast(TypedDict):
     true_damage: float
 
 
+class SimMiscDamage(TypedDict):
+    t: float
+    physical_damage: float
+    magical_damage: float
+    true_damage: float
+
+
 class SimResult(TypedDict):
     attacks: list[SimAttack]
     casts: list[SimCast]
+    misc_damage: list[SimMiscDamage]
     initial_stats: SimStats
     final_stats: SimStats
-    notes: list[str]
     has_errors: bool

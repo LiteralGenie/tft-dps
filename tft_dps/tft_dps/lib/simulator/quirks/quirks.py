@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from loguru import Logger
 
+from tft_dps.lib.calc_ctx import CalcCtx
 from tft_dps.lib.simulator.sim_state import SimState, SimStats
 from tft_dps.lib.simulator.sim_system import SimSystem
 
@@ -32,6 +33,9 @@ class UnitQuirks(SimSystem):
 
     def get_stats_override(self, s: SimState, update: SimStats) -> SimStats:
         return update
+
+    def init_ctx(self, ctx: CalcCtx) -> CalcCtx:
+        return ctx
 
     def _calc_spell_vars(self, s: SimState):
         raw_stats = s.stats.to_raw()

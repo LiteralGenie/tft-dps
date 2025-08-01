@@ -26,6 +26,7 @@ def simulate(ctx: CalcCtx) -> SimResult:
         ctx=ctx,
         attacks=[],
         casts=[],
+        misc_damage=[],
         stats=init_stats(ctx),
         buffs=dict(),
         mana_locks=0,
@@ -48,9 +49,9 @@ def simulate(ctx: CalcCtx) -> SimResult:
     return SimResult(
         attacks=s.attacks,
         casts=s.casts,
+        misc_damage=s.misc_damage,
         initial_stats=initial_stats,
         final_stats=s.stats,
-        notes=[],
         has_errors=False,
     )
 

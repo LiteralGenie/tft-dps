@@ -65,7 +65,7 @@
         </span>
     </button>
 
-    <div class="grid-container rounded-md border">
+    <div class="grid-container rounded-md border bg-[#0F0F0F]">
         <DpsTableHeader />
         <DpsTableBody />
     </div>
@@ -78,6 +78,8 @@
     .grid-container {
         display: grid;
         grid-template-columns: 5em 5em 15em 10em 11em;
+        grid-template-rows: max-content;
+        grid-auto-rows: 1fr;
     }
 
     /* Padded rows */
