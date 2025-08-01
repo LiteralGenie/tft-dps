@@ -141,6 +141,7 @@ FLAGS = dict(
     #
     kaisa_passive_stacks=40,
     katarina_aoe_targets=2,
+    lux_aoe_targets=2,
     vi_aoe_targets=2,
     xin_aoe_targets=2,
     #
@@ -163,6 +164,8 @@ FLAGS = dict(
     karma_aoe_targets=2,
     leona_aoe_targets=4,
     leona_sunburst_targets=5,
+    poppy_shield_duration=3,
+    poppy_aoe_targets=2,
     ryze_aoe_targets=2,
     samira_aoe_targets=4,
     sett_aoe_targets=2,

@@ -39,6 +39,7 @@
         class:silver={rarity === 'silver'}
         class:gold={rarity === 'gold'}
         class:prismatic={rarity === 'prismatic'}
+        class:unique={rarity === 'unique'}
         class:hover-layer={showHover}
         class="hex size-10!"
     >
@@ -126,6 +127,31 @@
             background-color: hsla(0, 0%, 80%);
         }
     }
+    .hex.unique {
+        & .bg-layer {
+            background: conic-gradient(
+                from -90deg,
+                oklch(54.073% 0.14997 36.653),
+                oklch(79.979% 0.16751 45.934),
+                oklch(54.073% 0.14997 36.653),
+                oklch(79.979% 0.16751 45.934),
+                oklch(54.073% 0.14997 36.653),
+                oklch(79.979% 0.16751 45.934),
+                oklch(54.073% 0.14997 36.653)
+            );
+            /* background: conic-gradient(
+                from -135deg,
+                yellow 0deg 90deg,
+                red 90deg 180deg,
+                blue 180deg 270deg,
+                green 270deg
+            ); */
+        }
+
+        & .border-layer {
+            background-color: #afafaf;
+        }
+    }
     .hex.prismatic {
         & .bg-layer {
             background: conic-gradient(
@@ -156,7 +182,8 @@
     .hex.bronze,
     .hex.silver,
     .hex.gold,
-    .hex.prismatic {
+    .hex.prismatic,
+    .hex.unique {
         & img {
             filter: invert(1);
         }

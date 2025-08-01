@@ -166,5 +166,6 @@ class SimRunner:
                 t["has_bp_1"] = True
 
             t["num_bits"] = math.ceil(math.log2(num_bps))
+            t["num_bits"] = max(t["num_bits"], 1)
 
         return traits

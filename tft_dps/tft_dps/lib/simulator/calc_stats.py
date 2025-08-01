@@ -46,6 +46,9 @@ def init_stats(ctx: CalcCtx) -> SimStats:
         health_max=b.health,
         armor=0,
         mr=0,
+        crit_rate=0,
+        crit_mult=0,
+        cast_time=0,
     )
 
     return stats
@@ -64,6 +67,9 @@ def _item_to_stats(item: dict) -> SimStats:
         health_max=c.get("Health", 0),
         armor=0,
         mr=0,
+        crit_rate=0,
+        crit_mult=0,
+        cast_time=0,
     )
 
 

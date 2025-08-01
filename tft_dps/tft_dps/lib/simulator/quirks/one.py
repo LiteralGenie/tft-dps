@@ -40,7 +40,7 @@ class EzrealQuirks(UnitQuirks):
             num_potential = trait.effects["numpotential"]
 
         if self.BUFF_KEY in s.buffs:
-            bonus.speed += num_potential * svs["potential_as"] * 100
+            bonus.speed += num_potential * svs["potentialas"] * 100
 
         bonus.ad += len(s.casts) * svs["bonusadperpotential"] * num_potential
         bonus.ap += len(s.casts) * svs["bonusapperpotential"] * num_potential
@@ -132,7 +132,7 @@ class GnarQuirks(UnitQuirks):
     def _start_buff(self, s: SimState):
         svs = self._calc_spell_vars(s)
 
-        s.buffs[self.BUFF_KEY] = dict(until=s.t + svs["spell_duration"])
+        s.buffs[self.BUFF_KEY] = dict(until=s.t + svs["spellduration"])
         s.mana_locks += 1
 
     def _end_buff(self, s: SimState):

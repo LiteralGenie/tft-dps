@@ -212,7 +212,7 @@ class PoppyQuirks(UnitQuirks):
 
         dmg = svs["modifieddamage"]
 
-        aoe_mult = s.ctx.flags.get(self.FLAG_KEY_2)
+        aoe_mult = s.ctx.flags[self.FLAG_KEY_2]
         dmg += aoe_mult * svs["secondarydamage"]
 
         return dict(
@@ -312,7 +312,7 @@ class SettQuirks(UnitQuirks):
             self.BUFF_KEY,
             dict(healing=0),
         )
-        s.buffs[self.BUFF_KEY] += svs["modifiedheal"]
+        s.buffs[self.BUFF_KEY]["healing"] += svs["modifiedheal"]
 
 
 class VolibearQuirks(UnitQuirks):

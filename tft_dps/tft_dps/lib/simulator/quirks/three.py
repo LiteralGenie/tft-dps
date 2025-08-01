@@ -117,7 +117,7 @@ class MalzaharQuirks(UnitQuirks):
             if rem_ticks <= 0:
                 continue
 
-            num_to_apply = int((s.t - dot["start"]) / dot["tickrate"])
+            num_to_apply = int((s.t - dot["start"]) / dot["tick_rate"])
             for _ in range(min(num_to_apply, rem_ticks)):
                 s.misc_damage.append(
                     SimMiscDamage(
@@ -344,7 +344,7 @@ class YasuoQuirks(UnitQuirks):
     def get_spell_damage(self, s: SimState) -> dict:
         svs = self._calc_spell_vars(s)
         return dict(
-            physical=svs["num_targets"] * svs["totaldamage"],
+            physical=svs["numtargets"] * svs["totaldamage"],
         )
 
 

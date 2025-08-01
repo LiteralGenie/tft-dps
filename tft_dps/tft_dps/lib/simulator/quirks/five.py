@@ -1,3 +1,5 @@
+import math
+
 from tft_dps.lib.simulator.quirks.quirks import UnitQuirks
 from tft_dps.lib.simulator.sim_state import SimState, SimStats
 
@@ -103,7 +105,7 @@ class TwistedFateQuirks(UnitQuirks):
         phys = svs["attacknumenemies"] * s.stats.ad * crit_bonus
 
         magic = 0
-        for idx in range(svs["attacknumenemies"]):
+        for idx in range(int(svs["attacknumenemies"])):
             reduction = (1 - svs["multattackdamagereduction"]) ** idx
             magic += svs["modifiedpassivedamage"] * reduction * crit_bonus
 
@@ -158,9 +160,9 @@ class VarusQuirks(UnitQuirks):
 class YoneQuirks(UnitQuirks):
     id = "Characters/TFT15_Yone"
 
-    FLAG_KEY = "yone_aoe_targets_spell"
+    FLAG_KEY = "yone_aoe_targets"
     notes = [
-        "AoE hits {yone_aoe_targets_spell} units total",
+        "AoE hits {yone_aoe_targets} units total",
     ]
 
     BUFF_KEY = "yone_spell"
@@ -168,7 +170,7 @@ class YoneQuirks(UnitQuirks):
     def get_spell_damage(self, s: SimState) -> dict:
         svs = self._calc_spell_vars(s)
 
-        aoe_mult = s.ctx.flags.get(self.FLAG_KEY)
+        aoe_mult = s.ctx.flags[self.FLAG_KEY]
         dmg = aoe_mult * svs["modifiedstrikedamage"]
 
         return dict(
@@ -235,7 +237,9 @@ class ZyraQuirks(UnitQuirks):
             self._start_buff(s, svs)
 
     def _start_buff(self, s: SimState, svs: dict):
-        s.buffs[self.BUFF_KEY] = (dict(bonus_speed=svs["flatteamas"] + svs["bonusas"]),)
+        s.buffs[self.BUFF_KEY] = dict(
+            bonus_speed=svs["flatteamas"] + svs["bonusas"],
+        )
 
     def get_unit_bonus(self, s: SimState) -> SimStats | None:
         bonus = None
