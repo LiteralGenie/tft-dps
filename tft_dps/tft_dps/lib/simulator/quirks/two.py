@@ -17,7 +17,6 @@ class DrMundoQuirks(UnitQuirks):
         svs = self._calc_spell_vars(s)
         return dict(
             physical=svs["totaldamage"],
-            magical=0,
         )
 
     def get_auto_damage(self, s: SimState) -> dict:
@@ -31,7 +30,6 @@ class DrMundoQuirks(UnitQuirks):
 
         return dict(
             physical=s.stats.ad + bonus,
-            magical=0,
         )
 
     def run_events(self, s: SimState):
@@ -41,12 +39,10 @@ class DrMundoQuirks(UnitQuirks):
         buff = s.buffs.get(self.BUFF_KEY, None)
         if buff and s.t > buff["until"]:
             self._end_buff(s)
-            return
 
         did_cast = any(ev.type == "cast" for ev in s.events)
         if did_cast:
             self._start_buff(s)
-            return
 
     def _start_buff(self, s: SimState):
         svs = self._calc_spell_vars(s)
@@ -87,7 +83,6 @@ class GangplankQuirks(UnitQuirks):
         svs = self._calc_spell_vars(s)
         return dict(
             physical=svs["totaldamage"],
-            magical=0,
         )
 
 
@@ -98,7 +93,6 @@ class JannaQuirks(UnitQuirks):
         svs = self._calc_spell_vars(s)
         return dict(
             physical=svs["numbutterflies"] * svs["butterflydamage"],
-            magical=0,
         )
 
 
@@ -122,10 +116,7 @@ class JhinQuirks(UnitQuirks):
         return update
 
     def get_spell_damage(self, s: SimState) -> dict:
-        return dict(
-            physical=0,
-            magical=0,
-        )
+        return dict()
 
     def get_auto_damage(self, s: SimState) -> dict:
         svs = self._calc_spell_vars(s)
@@ -138,7 +129,6 @@ class JhinQuirks(UnitQuirks):
 
         return dict(
             physical=s.stats.ad + bonus,
-            magical=0,
         )
 
 
@@ -152,7 +142,6 @@ class KaiSaQuirks(UnitQuirks):
         svs = self._calc_spell_vars(s)
         return dict(
             physical=svs["totaldamage"] * svs["missilestofire"],
-            magical=0,
         )
 
     def get_unit_bonus(self, s: SimState) -> SimStats:
@@ -186,7 +175,6 @@ class KatarinaQuirks(UnitQuirks):
         dmg *= aoe_mult
 
         return dict(
-            physical=0,
             magical=dmg,
         )
 
@@ -197,10 +185,7 @@ class KobukoQuirks(UnitQuirks):
     BUFF_KEY = "kobuko_spell"
 
     def get_spell_damage(self, s: SimState) -> dict:
-        return dict(
-            physical=0,
-            magical=0,
-        )
+        return dict()
 
     def get_auto_damage(self, s: SimState) -> dict:
         bonus = 0
@@ -210,7 +195,6 @@ class KobukoQuirks(UnitQuirks):
 
         return dict(
             physical=s.stats.ad + bonus,
-            magical=0,
         )
 
     def run_events(self, s: SimState):
@@ -222,16 +206,12 @@ class KobukoQuirks(UnitQuirks):
             buff = s.buffs.get(self.BUFF_KEY, None)
             if buff:
                 self._end_buff(s)
-                return
 
         did_cast = any(ev.type == "cast" for ev in s.events)
         if did_cast:
             self._start_buff(s)
-            return
 
     def _start_buff(self, s: SimState):
-        svs = self._calc_spell_vars(s)
-
         s.buffs[self.BUFF_KEY] = True
         s.mana_locks += 1
         s.stats.mana = 0
@@ -244,11 +224,17 @@ class KobukoQuirks(UnitQuirks):
 class LuxQuirks(UnitQuirks):
     id = "Characters/TFT15_Lux"
 
+    FLAG_KEY = "lux_aoe_targets"
+    notes = ["AoE hits {lux_aoe_targets}"]
+
     def get_spell_damage(self, s: SimState) -> dict:
         svs = self._calc_spell_vars(s)
+
+        aoe_mult = s.ctx.flags[self.FLAG_KEY]
+        dmg = svs["modifieddamage"] + aoe_mult * svs["modifiedbasedamage"]
+
         return dict(
-            physical=0,
-            magical=0,
+            magical=dmg,
         )
 
 
@@ -258,50 +244,136 @@ class RakanQuirks(UnitQuirks):
     def get_spell_damage(self, s: SimState) -> dict:
         svs = self._calc_spell_vars(s)
         return dict(
-            physical=0,
-            magical=0,
+            magical=svs["modifieddamage"] * svs["numtargets"],
         )
 
 
 class ShenQuirks(UnitQuirks):
     id = "Characters/TFT15_Shen"
 
+    BUFF_KEY = "shen_spell"
+
     def get_spell_damage(self, s: SimState) -> dict:
-        svs = self._calc_spell_vars(s)
+        return dict()
+
+    def get_auto_damage(self, s: SimState) -> dict:
+        bonus = 0
+        if self.BUFF_KEY in s.buffs:
+            svs = self._calc_spell_vars(s)
+            bonus = svs["modifieddamage"]
+
         return dict(
-            physical=0,
-            magical=0,
+            physical=s.stats.ad,
+            true=bonus,
         )
 
+    def run_events(self, s: SimState):
+        if s.ctx.unit_id != self.id:
+            return
 
+        did_auto = any(ev.type == "auto" for ev in s.events)
+        if did_auto:
+            buff = s.buffs.get(self.BUFF_KEY, None)
+            if buff:
+                buff["num_autos"] += 1
+
+                svs = self._calc_spell_vars(s)
+                if buff["num_autos"] >= svs["attackcount"]:
+                    self._end_buff(s)
+
+        did_cast = any(ev.type == "cast" for ev in s.events)
+        if did_cast:
+            self._start_buff(s)
+
+    def _start_buff(self, s: SimState):
+        s.buffs[self.BUFF_KEY] = dict(num_autos=0)
+        s.mana_locks += 1
+
+    def _end_buff(self, s: SimState):
+        del s.buffs[self.BUFF_KEY]
+        s.mana_locks -= 1
+
+
+# Armor bonus not calculated
 class ViQuirks(UnitQuirks):
     id = "Characters/TFT15_Vi"
 
+    FLAG_KEY = "vi_aoe_targets"
+    notes = ["AoE hits {vi_aoe_targets}"]
+
     def get_spell_damage(self, s: SimState) -> dict:
         svs = self._calc_spell_vars(s)
+        aoe_mult = s.ctx.flags[self.FLAG_KEY]
         return dict(
-            physical=0,
-            magical=0,
+            physical=aoe_mult * svs["modifieddamage"],
         )
 
 
 class XayahQuirks(UnitQuirks):
     id = "Characters/TFT15_Xayah"
 
+    BUFF_KEY = "xayah_spell"
+
     def get_spell_damage(self, s: SimState) -> dict:
-        svs = self._calc_spell_vars(s)
+        return dict()
+
+    def get_auto_damage(self, s: SimState) -> dict:
+        bonus = 0
+        if self.BUFF_KEY in s.buffs:
+            svs = self._calc_spell_vars(s)
+            bonus = svs["modifieddamage"] * (1 + svs["additionaltargets"])
+
         return dict(
-            physical=0,
-            magical=0,
+            physical=s.stats.ad + bonus,
         )
+
+    def run_events(self, s: SimState):
+        if s.ctx.unit_id != self.id:
+            return
+
+        did_auto = any(ev.type == "auto" for ev in s.events)
+        if did_auto:
+            buff = s.buffs.get(self.BUFF_KEY, None)
+            if buff:
+                buff["num_autos"] += 1
+
+                svs = self._calc_spell_vars(s)
+                if buff["num_autos"] >= svs["attacknum"]:
+                    self._end_buff(s)
+
+        did_cast = any(ev.type == "cast" for ev in s.events)
+        if did_cast:
+            self._start_buff(s)
+
+    def _start_buff(self, s: SimState):
+        s.buffs[self.BUFF_KEY] = dict(num_autos=0)
+        s.mana_locks += 1
+
+    def _end_buff(self, s: SimState):
+        del s.buffs[self.BUFF_KEY]
+        s.mana_locks -= 1
+
+    def get_unit_bonus(self, s: SimState) -> SimStats | None:
+        if not (buff := s.buffs.get(self.BUFF_KEY)):
+            return None
+
+        svs = self._calc_spell_vars(s)
+
+        bonus = SimStats.zeros()
+        bonus.speed = svs["attackspeed"] * 100
+
+        return bonus
 
 
 class XinZhaoQuirks(UnitQuirks):
     id = "Characters/TFT15_XinZhao"
 
+    FLAG_KEY = "xin_aoe_targets"
+    notes = ["AoE hits {xin_aoe_targets}"]
+
     def get_spell_damage(self, s: SimState) -> dict:
         svs = self._calc_spell_vars(s)
+        aoe_mult = s.ctx.flags[self.FLAG_KEY]
         return dict(
-            physical=0,
-            magical=0,
+            physical=aoe_mult * svs["modifieddamage"],
         )

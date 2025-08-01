@@ -141,4 +141,7 @@ FLAGS = dict(
     #
     kaisa_passive_stacks=40,
     katarina_aoe_targets=2,
+    vi_aoe_targets=2,
+    xin_aoe_targets=2,
+    #
 )

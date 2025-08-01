@@ -89,13 +89,17 @@ async def simulate(req: Request):
             if x["t"] > period:
                 break
 
-            total_damage += x["physical_damage"] + x["magical_damage"]
+            total_damage += (
+                x["physical_damage"] + x["magical_damage"] + x["true_damage"]
+            )
 
         for x in sim["casts"]:
             if x["t"] > period:
                 break
 
-            total_damage += x["physical_damage"] + x["magical_damage"]
+            total_damage += (
+                x["physical_damage"] + x["magical_damage"] + x["true_damage"]
+            )
 
         result.append(total_damage / period)
 

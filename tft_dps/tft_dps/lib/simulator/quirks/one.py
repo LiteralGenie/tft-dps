@@ -15,7 +15,6 @@ class AatroxQuirks(UnitQuirks):
         svs = self._calc_spell_vars(s)
         return dict(
             physical=svs["totaldamage"],
-            magical=0,
         )
 
 
@@ -55,12 +54,10 @@ class EzrealQuirks(UnitQuirks):
         buff = s.buffs.get(self.BUFF_KEY, None)
         if buff and s.t > buff["until"]:
             self._end_buff(s)
-            return
 
         did_cast = any(ev.type == "cast" for ev in s.events)
         if did_cast:
             self._start_buff(s)
-            return
 
     def _start_buff(self, s: SimState):
         svs = self._calc_spell_vars(s)
@@ -79,7 +76,6 @@ class GarenQuirks(UnitQuirks):
         svs = self._calc_spell_vars(s)
         return dict(
             physical=svs["additionaldamage"] + svs["additionaldamage"],
-            magical=0,
         )
 
     def get_unit_bonus(self, s: SimState) -> SimStats:
@@ -109,7 +105,7 @@ class GnarQuirks(UnitQuirks):
     FLAG_KEY = "gnar_passive_stacks"
 
     def get_spell_damage(self, s: "SimState") -> dict:
-        return dict(physical=0, magical=0)
+        return dict()
 
     def run_events(self, s: SimState):
         if s.ctx.unit_id != self.id:
@@ -118,12 +114,10 @@ class GnarQuirks(UnitQuirks):
         buff = s.buffs.get(self.BUFF_KEY, None)
         if buff and s.t > buff["until"]:
             self._end_buff(s)
-            return
 
         did_cast = any(ev.type == "cast" for ev in s.events)
         if did_cast:
             self._start_buff(s)
-            return
 
     def get_unit_bonus(self, s: SimState) -> SimStats:
         svs = self._calc_spell_vars(s)
@@ -155,7 +149,6 @@ class KalistaQuirks(UnitQuirks):
         svs = self._calc_spell_vars(s)
         return dict(
             physical=svs["totaldamage"],
-            magical=0,
         )
 
 
@@ -186,11 +179,7 @@ class KayleQuirks(UnitQuirks):
         )
 
     def get_spell_damage(self, s: "SimState") -> dict:
-        svs = self._calc_spell_vars(s)
-        return dict(
-            physical=0,
-            magical=0,
-        )
+        return dict()
 
 
 class KennenQuirks(UnitQuirks):
@@ -199,7 +188,6 @@ class KennenQuirks(UnitQuirks):
     def get_spell_damage(self, s: "SimState") -> dict:
         svs = self._calc_spell_vars(s)
         return dict(
-            physical=0,
             magical=svs["numjolts"] * svs["modifieddamage"],
         )
 
@@ -210,7 +198,6 @@ class LucianQuirks(UnitQuirks):
     def get_spell_damage(self, s: "SimState") -> dict:
         svs = self._calc_spell_vars(s)
         return dict(
-            physical=0,
             magical=svs["numshots"] * svs["modifieddamage"],
         )
 
@@ -226,7 +213,6 @@ class MalphiteQuirks(UnitQuirks):
         aoe_mult = s.ctx.flags[self.FLAG_KEY]
         return dict(
             physical=aoe_mult * svs["modifieddamage"],
-            magical=0,
         )
 
     def get_unit_bonus(self, s: SimState) -> SimStats:
@@ -243,7 +229,6 @@ class NaafiriQuirks(UnitQuirks):
         svs = self._calc_spell_vars(s)
         return dict(
             physical=svs["modifieddamage"],
-            magical=0,
         )
 
 
@@ -257,7 +242,6 @@ class RellQuirks(UnitQuirks):
         svs = self._calc_spell_vars(s)
         aoe_mult = s.ctx.flags[self.FLAG_KEY]
         return dict(
-            physical=0,
             magical=aoe_mult * svs["modifieddamage"],
         )
 
@@ -273,7 +257,6 @@ class SivirQuirks(UnitQuirks):
         aoe_mult = s.ctx.flags[self.FLAG_KEY]
         return dict(
             physical=aoe_mult * svs["totaldamage"],
-            magical=0,
         )
 
 
@@ -283,7 +266,6 @@ class SyndraQuirks(UnitQuirks):
     def get_spell_damage(self, s: "SimState") -> dict:
         svs = self._calc_spell_vars(s)
         return dict(
-            physical=0,
             magical=svs["modifieddamage"],
         )
 
@@ -298,6 +280,5 @@ class ZacQuirks(UnitQuirks):
         svs = self._calc_spell_vars(s)
         aoe_mult = s.ctx.flags[self.FLAG_KEY]
         return dict(
-            physical=0,
             magical=aoe_mult * svs["finaldamage"],
         )

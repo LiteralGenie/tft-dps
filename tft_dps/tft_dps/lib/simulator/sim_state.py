@@ -81,12 +81,14 @@ class SimAttack(TypedDict):
     t: float
     physical_damage: float
     magical_damage: float
+    true_damage: float
 
 
 class SimCast(TypedDict):
     t: float
     physical_damage: float
     magical_damage: float
+    true_damage: float
 
 
 class SimResult(TypedDict):

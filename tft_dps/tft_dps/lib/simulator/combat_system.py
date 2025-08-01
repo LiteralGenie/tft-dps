@@ -27,7 +27,8 @@ class CombatSystem(SimSystem):
 
                 # Auto
                 self._auto(s)
-                s.stats.mana += s.ctx.base_stats.mana_per_auto
+                if s.mana_locks == 0:
+                    s.stats.mana += s.ctx.base_stats.mana_per_auto
 
                 if s.stats.mana >= s.stats.mana_max:
                     # Start casting
@@ -57,8 +58,9 @@ class CombatSystem(SimSystem):
         s.attacks.append(
             SimAttack(
                 t=s.t,
-                physical_damage=d["physical"],
-                magical_damage=d["magical"],
+                physical_damage=d.get("physical", 0),
+                magical_damage=d.get("magical", 0),
+                true_damage=d.get("true", 0),
             )
         )
         s.events.append(
@@ -73,8 +75,9 @@ class CombatSystem(SimSystem):
         s.casts.append(
             SimCast(
                 t=s.t,
-                physical_damage=d["physical"],
-                magical_damage=d["magical"],
+                physical_damage=d.get("physical", 0),
+                magical_damage=d.get("magical", 0),
+                true_damage=d.get("true", 0),
             )
         )
         s.events.append(
