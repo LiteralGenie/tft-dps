@@ -1,8 +1,8 @@
 from abc import ABC
-from typing import TYPE_CHECKING
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from tft_dps.lib.simulator.sim_event import SimEvent
     from tft_dps.lib.simulator.sim_state import SimState, SimStats
 
 
@@ -32,3 +32,9 @@ class SimSystem(ABC):
     ) -> list | None:
         """Runs once per tick, after all systems have run"""
         pass
+
+
+@dataclass(frozen=True)
+class SimEvent:
+    type: str
+    data: Any

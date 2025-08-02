@@ -1,8 +1,8 @@
 from abc import ABCMeta
 
 from tft_dps.lib.simulator.quirks.quirks import ItemQuirks
-from tft_dps.lib.simulator.sim_event import SimEvent
 from tft_dps.lib.simulator.sim_state import SimMiscDamage, SimState, SimStats
+from tft_dps.lib.simulator.sim_system import SimEvent
 
 
 class BFQuirks(ItemQuirks):

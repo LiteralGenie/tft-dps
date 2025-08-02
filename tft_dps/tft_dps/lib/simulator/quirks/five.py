@@ -1,6 +1,6 @@
 from tft_dps.lib.simulator.quirks.quirks import UnitQuirks, UnitQuirksDamage
-from tft_dps.lib.simulator.sim_event import SimEvent
 from tft_dps.lib.simulator.sim_state import SimState, SimStats
+from tft_dps.lib.simulator.sim_system import SimEvent
 
 
 class BraumQuirks(UnitQuirks):

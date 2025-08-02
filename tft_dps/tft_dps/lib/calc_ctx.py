@@ -75,4 +75,5 @@ class CalcCtxTraits:
     id: str
     breakpoint: int
     index: int
-    effects: dict
+    effects_bonus: dict[str, float]
+    effects_main: dict[str, float]

@@ -31,6 +31,9 @@ async def main():
     Path("/tmp/units").write_text(json.dumps(runner.units, indent=2))
     Path("/tmp/items").write_text(json.dumps(runner.items, indent=2))
     Path("/tmp/traits").write_text(json.dumps(runner.traits, indent=2))
+    Path("/tmp/props").write_text(
+        json.dumps(runner.unit_proc.unit_properties, indent=2)
+    )
 
     #
 

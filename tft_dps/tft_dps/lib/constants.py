@@ -125,7 +125,7 @@ CHAMPION_UNITS = [
     "Characters/TFT15_Shen",
     # "Characters/TFT15_Rammus",
     # "Characters/TFT15_Thresh",
-    "Characters/TFT15_Zyra",
+    # "Characters/TFT15_Zyra",
     "Characters/TFT15_Neeko",
     # "Characters/TFT15_Ekko",
 ]
@@ -190,4 +190,7 @@ FLAGS = dict(
     titans_stack_frequency=0.4,
     #
     tank_mana_regen=0.2,
+    #
+    sniper_hexes=5,
+    star_jinx_as=10,
 )

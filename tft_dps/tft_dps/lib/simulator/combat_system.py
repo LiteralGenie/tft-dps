@@ -1,8 +1,11 @@
 from tft_dps.lib.simulator.quirks.item_quirks import SpearOfShojinQuirks
+from tft_dps.lib.simulator.quirks.trait_quirks import (
+    OldMentorQuirks,
+    StarGuardianQuirks,
+)
 
-from .sim_event import SimEvent
 from .sim_state import SimAttack, SimCast, SimState, SimStats
-from .sim_system import SimSystem
+from .sim_system import SimEvent, SimSystem
 
 
 class CombatSystem(SimSystem):
@@ -63,7 +66,9 @@ class CombatSystem(SimSystem):
                     # Auto
                     evs.append(self._auto(s, stats))
                     if s.mana_locks == 0:
-                        stats.mana += stats.mana_per_auto + self.shojin_bonus
+                        stats.mana += stats.mana_per_auto
+                        stats.mana += self.shojin_bonus
+                        stats.mana += s.buffs.get(OldMentorQuirks.BUFF_KEY_RYZE, 0)
 
                     if s.mana_locks == 0 and stats.mana >= stats.mana_max:
                         # Start casting
@@ -85,6 +90,9 @@ class CombatSystem(SimSystem):
 
                     # Start auto
                     self.attack_state = self._calc_post_auto_state(s, stats)
+
+                    if sg_ahri_mana := s.buffs.get(StarGuardianQuirks.BUFF_KEY_AHRI):
+                        stats.mana += sg_ahri_mana
                 case _:
                     raise Exception()
 

@@ -1,4 +1,3 @@
-import abc
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -57,12 +56,26 @@ class ItemQuirks(SimSystem):
 
         self.logger = logger
 
-    @abc.abstractmethod
-    def get_stat_bonus(self, s: SimState) -> SimStats: ...
-
     def _calc_spell_vars(self, s: SimState):
         # @todo
         pass
 
     def info(self, s: SimState):
         return s.ctx.item_info[self.id]
+
+
+class TraitQuirks(SimSystem):
+    id: str
+
+    notes: list[str] = []
+
+    def __init__(self, logger: "Logger"):
+        super().__init__()
+
+        self.logger = logger
+
+    def _eb(self, s: SimState):
+        return s.ctx.trait_inventory[self.id].effects_bonus
+
+    def _em(self, s: SimState):
+        return s.ctx.trait_inventory[self.id].effects_main

@@ -34,12 +34,14 @@ class SimRunner:
         units: dict,
         items: dict,
         traits: dict,
+        unit_props: dict,
     ) -> None:
         self.cache = cache
         self.unit_proc = unit_proc
         self.units = units
         self.items = items
         self.traits = traits
+        self.unit_props = unit_props
 
     @classmethod
     async def ainit(cls, cache: Cache):
@@ -47,7 +49,7 @@ class SimRunner:
         items = await cls._get_items(cache)
         traits = await cls._get_traits(cache)
         units = cls._get_units(unit_proc)
-        return cls(cache, unit_proc, units, items, traits)
+        return cls(cache, unit_proc, units, items, traits, unit_proc.unit_properties)
 
     async def run(
         self,
