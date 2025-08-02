@@ -10,6 +10,7 @@ table
     cast count
     aa count
     notes
+    fix sorted insertion reactivity
 
 simulate
     db

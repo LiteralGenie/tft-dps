@@ -31,7 +31,7 @@ class EzrealQuirks(UnitQuirks):
 
         if active := s.buffs.get(self.BUFF_KEY_ACTIVE):
             bonus.speed_mult += active["bonus_speed_mult"]
-        if passive := s.buffs.get(self.BUFF_KEY_ACTIVE):
+        if passive := s.buffs.get(self.BUFF_KEY_PASSIVE):
             bonus.ad_mult += passive["bonus_ad_mult"]
             bonus.ap += passive["bonus_ap"]
 
@@ -145,7 +145,7 @@ class GnarQuirks(UnitQuirks):
         if active := s.buffs.get(self.BUFF_KEY_ACTIVE):
             bonus.ad_mult = active["bonus_ad_mult"]
 
-        if passive := s.buffs.get(self.BUFF_KEY_ACTIVE):
+        if passive := s.buffs.get(self.BUFF_KEY_PASSIVE):
             bonus.speed_mult = passive["bonus_speed_mult"]
 
         return bonus
