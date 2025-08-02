@@ -68,9 +68,9 @@ class CombatSystem(SimSystem):
         s.attacks.append(
             SimAttack(
                 t=s.t,
-                physical_damage=d.get("physical", 0),
-                magical_damage=d.get("magical", 0),
-                true_damage=d.get("true", 0),
+                physical_damage=d.phys,
+                magical_damage=d.magic,
+                true_damage=d.true,
             )
         )
         return SimEvent(
@@ -83,9 +83,9 @@ class CombatSystem(SimSystem):
         s.casts.append(
             SimCast(
                 t=s.t,
-                physical_damage=d.get("physical", 0),
-                magical_damage=d.get("magical", 0),
-                true_damage=d.get("true", 0),
+                physical_damage=d.phys,
+                magical_damage=d.magic,
+                true_damage=d.true,
             )
         )
         return SimEvent(

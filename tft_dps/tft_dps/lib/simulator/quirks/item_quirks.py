@@ -3,12 +3,6 @@ from abc import ABCMeta
 from tft_dps.lib.simulator.quirks.quirks import ItemQuirks
 from tft_dps.lib.simulator.sim_state import SimState, SimStats
 
-ITEM_QUIRK_MAP = {
-    cls.id: cls
-    for cls in locals().values()
-    if type(cls) == ABCMeta and issubclass(cls, ItemQuirks) and cls is not ItemQuirks
-}
-
 
 class BFQuirks(ItemQuirks):
     id = "TFT_Item_BFSword"
@@ -475,3 +469,10 @@ class LeviathanQuirks(ItemQuirks):
         c = self.info(s)["constants"]
 
         return bonus
+
+
+ITEM_QUIRK_MAP = {
+    cls.id: cls
+    for cls in locals().values()
+    if type(cls) == ABCMeta and issubclass(cls, ItemQuirks) and cls is not ItemQuirks
+}

@@ -11,7 +11,7 @@ from tft_dps.lib.resolver import (
     fetch_cached_and_get_traits,
     fetch_cached_and_init_unit_processor,
 )
-from tft_dps.lib.simulator.quirks.quirks import NoopUnitQuirks
+from tft_dps.lib.simulator.quirks.item_quirks import ITEM_QUIRK_MAP
 from tft_dps.lib.simulator.quirks.unit_quirk_map import UNIT_QUIRK_MAP
 from tft_dps.lib.simulator.sim_state import SimResult
 from tft_dps.lib.simulator.simulate import simulate
@@ -58,20 +58,17 @@ class SimRunner:
     ) -> SimResult:
         has_errors = False
 
-        UnitQuirkClass = UNIT_QUIRK_MAP.get(unit_id, None)
-        if not UnitQuirkClass:
-            has_errors = True
-            SIM_LOGGER.exception(f"No quirk class for unit {unit_id}")
-            UnitQuirkClass = NoopUnitQuirks
-            # raise Exception()
+        unit_quirks = UNIT_QUIRK_MAP[unit_id](SIM_LOGGER)
+        item_quirks = [ITEM_QUIRK_MAP[id](SIM_LOGGER) for id in items]
 
         ctx = CalcCtx(
             T=30,
             unit_id=unit_id,
-            unit_quirks=UnitQuirkClass(SIM_LOGGER),
+            unit_quirks=unit_quirks,
             unit_proc=self.unit_proc,
             base_stats=CalcCtxStats.from_unit(unit_id, stars, self.unit_proc),
             item_inventory=items,
+            item_quirks=item_quirks,
             # @todo: traits
             trait_inventory=dict(),
             #
@@ -79,8 +76,6 @@ class SimRunner:
             trait_info=self.traits,
             flags=FLAGS,
         )
-
-        ctx.unit_quirks.init_ctx(ctx)
 
         result = simulate(ctx)
         result["has_errors"] = result["has_errors"] or has_errors

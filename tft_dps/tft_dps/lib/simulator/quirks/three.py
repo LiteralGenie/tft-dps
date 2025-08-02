@@ -1,6 +1,6 @@
 import math
 
-from tft_dps.lib.simulator.quirks.quirks import UnitQuirks
+from tft_dps.lib.simulator.quirks.quirks import UnitQuirks, UnitQuirksDamage
 from tft_dps.lib.simulator.sim_event import SimEvent
 from tft_dps.lib.simulator.sim_state import SimMiscDamage, SimState, SimStats
 
@@ -15,7 +15,7 @@ class AhriQuirks(UnitQuirks):
         "Overkill effect is triggered every {ahri_overkill_frequency} casts. Overkill damage is assumed to be zero so only the flat bonus is added.",
     ]
 
-    def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
 
         dmg = svs["modifieddamage"] * (1 + s.ctx.flags[self.FLAG_KEY_1])
@@ -24,15 +24,15 @@ class AhriQuirks(UnitQuirks):
         if (num_casts % s.ctx.flags[self.FLAG_KEY_2]) == 0:
             dmg += svs["overkilltargetspreadcount"] * svs["modifiedsecondarydamage"]
 
-        return dict(
-            magical=dmg,
+        return UnitQuirksDamage(
+            magic=dmg,
         )
 
 
 class CaitlynQuirks(UnitQuirks):
     id = "Characters/TFT15_Caitlyn"
 
-    def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
 
         dmg = svs["totaldamage"]
@@ -44,8 +44,8 @@ class CaitlynQuirks(UnitQuirks):
         num_bounces = svs["numbounces"] + num_potential * svs["bouncesperpotential"]
         dmg += num_bounces * svs["modifiedsecondarydamage"]
 
-        return dict(
-            physical=dmg,
+        return UnitQuirksDamage(
+            phys=dmg,
         )
 
 
@@ -59,7 +59,7 @@ class DariusQuirks(UnitQuirks):
         "On-kill bonus cast is triggered every {darius_kill_frequency} casts.",
     ]
 
-    def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
 
         dmg = svs["modifieddamage"]
@@ -70,8 +70,8 @@ class DariusQuirks(UnitQuirks):
         if (num_casts % s.ctx.flags[self.FLAG_KEY_2]) == 0:
             dmg *= 1 + svs["percentdamagefalloff"]
 
-        return dict(
-            physical=dmg,
+        return UnitQuirksDamage(
+            phys=dmg,
         )
 
 
@@ -81,7 +81,7 @@ class JayceQuirks(UnitQuirks):
     FLAG_KEY = "jayce_aoe_targets"
     notes = ["AoE hits {jayce_aoe_targets}"]
 
-    def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
 
         dmg = svs["totaldamage"] * s.ctx.flags[self.FLAG_KEY]
@@ -92,8 +92,8 @@ class JayceQuirks(UnitQuirks):
 
         dmg += num_potential * svs["modifiedsparkdamage"]
 
-        return dict(
-            physical=dmg,
+        return UnitQuirksDamage(
+            phys=dmg,
         )
 
 
@@ -149,11 +149,11 @@ class NeekoQuirks(UnitQuirks):
     FLAG_KEY = "neeko_aoe_targets"
     notes = ["AoE hits {neeko_aoe_targets}"]
 
-    def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
         aoe_mult = s.ctx.flags[self.FLAG_KEY]
-        return dict(
-            magical=aoe_mult * svs["modifieddamage"],
+        return UnitQuirksDamage(
+            magic=aoe_mult * svs["modifieddamage"],
         )
 
 
@@ -166,7 +166,7 @@ class SennaQuirks(UnitQuirks):
     def hook_stats_override(self, s: SimState, stats: SimStats):
         stats.cast_time = 1.25
 
-    def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
 
         dmg = svs["totaldamage"]
@@ -174,8 +174,8 @@ class SennaQuirks(UnitQuirks):
         aoe_mult = s.ctx.flags[self.FLAG_KEY] - 1
         dmg *= 1 + aoe_mult * svs["reductionaftertwo"]
 
-        return dict(
-            physical=dmg,
+        return UnitQuirksDamage(
+            phys=dmg,
         )
 
 
@@ -236,14 +236,14 @@ class UdyrQuirks(UnitQuirks):
 
     BUFF_KEY = "udyr_spell"
 
-    def get_auto_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_auto_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         bonus = 0
         if buff := s.buffs.get(self.BUFF_KEY):
             aoe_mult = s.ctx.flags[self.FLAG_KEY]
             bonus = aoe_mult * buff["damage"]
 
-        return dict(
-            physical=(stats.effective_ad + bonus) * stats.crit_bonus,
+        return UnitQuirksDamage(
+            phys=(stats.effective_ad + bonus) * stats.crit_bonus,
         )
 
     def hook_events(
@@ -284,16 +284,16 @@ class ViegoQuirks(UnitQuirks):
 
     BUFF_KEY = "viego_spell"
 
-    def get_auto_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_auto_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
 
         bonus = svs["modifiedpassivedamage"]
         if buff := s.buffs.get(self.BUFF_KEY):
             bonus += buff["damage"][buff["num_autos"]]
 
-        return dict(
-            physical=stats.effective_ad * stats.crit_bonus,
-            magical=bonus * stats.crit_bonus,
+        return UnitQuirksDamage(
+            phys=stats.effective_ad * stats.crit_bonus,
+            magic=bonus * stats.crit_bonus,
         )
 
     def hook_events(
@@ -335,10 +335,10 @@ class ViegoQuirks(UnitQuirks):
 class YasuoQuirks(UnitQuirks):
     id = "Characters/TFT15_Yasuo"
 
-    def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
-        return dict(
-            physical=svs["numtargets"] * svs["totaldamage"],
+        return UnitQuirksDamage(
+            phys=svs["numtargets"] * svs["totaldamage"],
         )
 
 
@@ -348,17 +348,17 @@ class ZiggsQuirks(UnitQuirks):
     FLAG_KEY = "ziggs_aoe_targets"
     notes = ["AoE hits {ziggs_aoe_targets}"]
 
-    def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
         aoe_mult = s.ctx.flags[self.FLAG_KEY]
-        return dict(
-            magical=aoe_mult * svs["modifiedexplosiondamage"],
+        return UnitQuirksDamage(
+            magic=aoe_mult * svs["modifiedexplosiondamage"],
         )
 
-    def get_auto_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_auto_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
-        return dict(
-            magical=svs["totalattackdamage"] * stats.crit_bonus,
+        return UnitQuirksDamage(
+            magic=svs["totalattackdamage"] * stats.crit_bonus,
         )
 
 
@@ -368,7 +368,7 @@ class ZiggsQuirks(UnitQuirks):
 #     FLAG_KEY = "kogmaw_trainer_level"
 #     notes = ["Trainer Leve {ziggs_aoe_targets}"]
 
-#     def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+#     def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
 #         svs = self._calc_spell_vars(s, stats)
 #         return dict()
 
@@ -376,7 +376,7 @@ class ZiggsQuirks(UnitQuirks):
 # class SmolderQuirks(UnitQuirks):
 #     id = "Characters/TFT15_Smolder"
 
-#     def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+#     def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
 #         svs = self._calc_spell_vars(s, stats)
 #         return dict()
 
@@ -384,6 +384,6 @@ class ZiggsQuirks(UnitQuirks):
 # class RammusQuirks(UnitQuirks):
 #     id = "Characters/TFT15_Rammus"
 
-#     def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+#     def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
 #         svs = self._calc_spell_vars(s, stats)
 #         return dict()

@@ -1,4 +1,4 @@
-from tft_dps.lib.simulator.quirks.quirks import UnitQuirks
+from tft_dps.lib.simulator.quirks.quirks import UnitQuirks, UnitQuirksDamage
 from tft_dps.lib.simulator.sim_event import SimEvent
 from tft_dps.lib.simulator.sim_state import SimState, SimStats
 
@@ -19,7 +19,7 @@ class BraumQuirks(UnitQuirks):
         svs = self._calc_spell_vars(s, stats)
         stats.cast_time = svs["duration"]
 
-    def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
 
         dmg = svs["modifieddamage"]
@@ -33,8 +33,8 @@ class BraumQuirks(UnitQuirks):
         bonus_frac = s.ctx.flags[self.FLAG_KEY_3]
         execute_dmg = bonus_frac * svs["executethresholdap"] * svs["modifieddamage"]
 
-        return dict(
-            physical=dmg,
+        return UnitQuirksDamage(
+            phys=dmg,
             true=execute_dmg,
         )
 
@@ -49,7 +49,7 @@ class GwenQuirks(UnitQuirks):
         "Auto attack AoE hits {gwen_aoe_targets_auto} units",
     ]
 
-    def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
 
         num_casts = len(s.casts) + 1
@@ -60,17 +60,19 @@ class GwenQuirks(UnitQuirks):
             dmg += svs["modifiedburstdamage"]
             dmg *= 1 + svs["threadincrease"]
 
-        return dict(magical=dmg)
+        return UnitQuirksDamage(
+            magic=dmg,
+        )
 
-    def get_auto_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_auto_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
 
         aoe_mult = s.ctx.flags[self.FLAG_KEY_2]
         dmg = aoe_mult * svs["modifiedconedamage"]
         dmg *= stats.crit_bonus
 
-        return dict(
-            magical=dmg,
+        return UnitQuirksDamage(
+            magic=dmg,
         )
 
 
@@ -86,7 +88,7 @@ class GwenQuirks(UnitQuirks):
 #         "AoE hits {seraphine_aoe_targets_spell} units",
 #     ]
 
-#     def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+#     def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
 #         return super().get_spell_damage(s)
 
 
@@ -95,7 +97,7 @@ class TwistedFateQuirks(UnitQuirks):
 
     BUFF_KEY = "tf_spell"
 
-    def get_auto_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_auto_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
 
         crit_bonus = stats.crit_bonus
@@ -107,9 +109,9 @@ class TwistedFateQuirks(UnitQuirks):
             reduction = (1 - svs["multattackdamagereduction"]) ** idx
             magic += svs["modifiedpassivedamage"] * reduction * crit_bonus
 
-        return dict(
-            physical=phys,
-            magical=magic,
+        return UnitQuirksDamage(
+            phys=phys,
+            magic=magic,
         )
 
     def hook_events(
@@ -139,7 +141,7 @@ class TwistedFateQuirks(UnitQuirks):
         )
         s.buffs[self.BUFF_KEY]["marks"] = 0
 
-    def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
 
         phys = svs["modifieddamage"] * svs["spellnumenemies"]
@@ -147,9 +149,9 @@ class TwistedFateQuirks(UnitQuirks):
         num_marks = s.buffs.get(self.BUFF_KEY, dict()).get("marks", 0)
         magical = num_marks * svs["modifiedpassivedamage"]
 
-        return dict(
-            physical=phys,
-            magical=magical,
+        return UnitQuirksDamage(
+            phys=phys,
+            magic=magical,
         )
 
 
@@ -172,27 +174,27 @@ class YoneQuirks(UnitQuirks):
         bonus.speed = s.buffs.get(self.BUFF_KEY, dict()).get("bonus_speed", 0)
         return bonus
 
-    def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
 
         aoe_mult = s.ctx.flags[self.FLAG_KEY]
         dmg = aoe_mult * svs["modifiedstrikedamage"]
 
-        return dict(
-            physical=dmg,
+        return UnitQuirksDamage(
+            phys=dmg,
         )
 
-    def get_auto_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_auto_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
 
         num_autos = len(s.attacks) + 1
         if (num_autos % 2) == 0:
-            dmg = dict(
+            dmg = UnitQuirksDamage(
                 true=svs["modifiedattacktruedamage"] * stats.crit_bonus,
             )
         else:
-            dmg = dict(
-                true=svs["modifiedattackmagicdamage"] * stats.crit_bonus,
+            dmg = UnitQuirksDamage(
+                magic=svs["modifiedattackmagicdamage"] * stats.crit_bonus,
             )
 
         return dmg
@@ -223,13 +225,13 @@ class ZyraQuirks(UnitQuirks):
 
     BUFF_KEY = "zyra_spell"
 
-    def get_spell_damage(self, s: SimState, stats: SimStats) -> dict:
+    def get_spell_damage(self, s: SimState, stats: SimStats) -> UnitQuirksDamage:
         svs = self._calc_spell_vars(s, stats)
 
         dmg = svs["modifieddamage"] * svs["numplants"] * svs["summonattacks"]
 
-        return dict(
-            magical=dmg,
+        return UnitQuirksDamage(
+            magic=dmg,
         )
 
     def hook_events(

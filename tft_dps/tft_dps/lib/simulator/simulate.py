@@ -57,6 +57,9 @@ def simulate(ctx: CalcCtx) -> SimResult:
         mana_locks=0,
     )
 
+    for sys in s.systems:
+        sys.hook_init(s)
+
     # Side effects from hook_stats() and hook_stats_override() is necessary here
     initial_stats = _calc_stats(s)
 
