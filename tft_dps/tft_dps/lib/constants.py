@@ -131,7 +131,7 @@ CHAMPION_UNITS = [
 ]
 
 FLAGS = dict(
-    gnar_passive_stacks=2,
+    gnar_passive_stacks=7,
     kayle_wave_frequency=3,
     kayle_aoe_targets=2,
     malphite_aoe_targets=2,

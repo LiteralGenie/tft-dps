@@ -16,8 +16,11 @@ simulate
     item quirks
     traits
     catch errors
-    crits
+    spell crits
     lulu
+    5 costs
+    amp
+    mana regen
 
 data
     cache
@@ -34,3 +37,8 @@ misc
         faq
     faq
 ```
+
+"""
+Sim loop:
+
+"""

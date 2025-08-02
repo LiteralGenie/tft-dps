@@ -53,7 +53,7 @@ class SimRunner:
         self,
         unit_id: str,
         stars: int,
-        items: dict[str, int],
+        items: list[str],
         traits: dict[str, int],
     ) -> SimResult:
         has_errors = False

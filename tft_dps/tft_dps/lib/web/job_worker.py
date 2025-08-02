@@ -17,7 +17,7 @@ class SimulateRequest(TypedDict):
     type: Literal["simulate_request"]
     id_unit: str
     stars: int
-    items: dict[str, int]
+    items: list[str]
     traits: dict[str, int]
 
 

@@ -1,5 +1,3 @@
-from collections import Counter
-
 import bitarray
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -55,15 +53,11 @@ async def simulate(req: Request):
     requests = []
     for r in raw_requests:
         id_unit = APP_WORKER_CONTEXT.unit_info_by_index[r["unit"]]["info"]["id"]
-        items = dict(
-            Counter(
-                [
-                    APP_WORKER_CONTEXT.item_info_by_index[itemId]["id"]
-                    for itemId in r["items"]
-                    if itemId > 0
-                ]
-            ).items()
-        )
+        items = [
+            APP_WORKER_CONTEXT.item_info_by_index[itemId]["id"]
+            for itemId in r["items"]
+            if itemId > 0
+        ]
         traits = APP_WORKER_CONTEXT.unit_info[id_unit]["info"]["traits"]
         requests.append(
             SimulateRequest(

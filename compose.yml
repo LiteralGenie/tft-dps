@@ -6,6 +6,7 @@ services:
         ports:
             - "4725:4723"
         command: "python main.py"
+        restart: always
     web:
         build:
             args:
@@ -17,3 +18,4 @@ services:
         environment:
             - VITE_API_URL=https://tftdpsapi.velchees.dev
         command: "node build"
+        restart: always

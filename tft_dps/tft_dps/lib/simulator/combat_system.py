@@ -1,60 +1,70 @@
 from .sim_event import SimEvent
-from .sim_state import SimAttack, SimCast, SimState
+from .sim_state import SimAttack, SimCast, SimState, SimStats
 from .sim_system import SimSystem
 
 
 class CombatSystem(SimSystem):
     """attack -> cast delay -> cast -> attack delay"""
 
-    """
-    @todo
-        cast damage
-        events
-    """
-
     def __init__(self) -> None:
-        self.state: dict = dict(
+        self.attack_state: dict = dict(
             type="POST_AUTO",
             until=0,
         )
+        self.mana = 0
 
-    def run(self, s: SimState):
-        match self.state["type"]:
-            case "POST_AUTO":
-                # Wait for attack-speed based delay
-                if s.t < self.state["until"]:
-                    return
+    def hook_stats_override(self, s: SimState, stats: SimStats):
+        if s.t == 0:
+            # On first tick, use mana bonus from items as current mana
+            stats.mana = self.mana
+        else:
+            # Otherwise override with own value, incremented by autos / regen, decremented by casts
+            self.mana = stats.mana
 
-                # Auto
-                self._auto(s)
-                if s.mana_locks == 0:
-                    s.stats.mana += s.ctx.base_stats.mana_per_auto
+    def hook_main(self, s: SimState, stats: SimStats):
+        evs = []
 
-                if s.stats.mana >= s.stats.mana_max:
-                    # Start casting
-                    s.stats.mana -= s.stats.mana_max
-                    self.state = dict(
-                        type="PRE_CAST",
-                        until=s.t + s.stats.cast_time,
-                    )
-                else:
-                    # Start next auto
-                    self.state = self._calc_post_auto_state(s)
-            case "PRE_CAST":
-                # Wait for cast-time based delay
-                if s.t < self.state["until"]:
-                    return
+        try:
+            match self.attack_state["type"]:
+                case "POST_AUTO":
+                    # Wait for attack-speed based delay
+                    if s.t < self.attack_state["until"]:
+                        return evs
 
-                # Cast
-                self._cast(s)
+                    # Auto
+                    evs.append(self._auto(s, stats))
+                    if s.mana_locks == 0:
+                        stats.mana += stats.mana_per_auto
 
-                # Start auto
-                self.state = self._calc_post_auto_state(s)
-            case _:
-                raise Exception()
+                    if s.mana_locks == 0 and stats.mana >= stats.mana_max:
+                        # Start casting
+                        stats.mana -= stats.mana_max
+                        self.attack_state = dict(
+                            type="PRE_CAST",
+                            until=s.t + stats.cast_time,
+                        )
+                    else:
+                        # Start next auto
+                        self.attack_state = self._calc_post_auto_state(s, stats)
+                case "PRE_CAST":
+                    # Wait for cast-time based delay
+                    if s.t < self.attack_state["until"]:
+                        return evs
 
-    def _auto(self, s: SimState):
-        d = s.ctx.unit_quirks.get_auto_damage(s)
+                    # Cast
+                    evs.append(self._cast(s, stats))
+
+                    # Start auto
+                    self.attack_state = self._calc_post_auto_state(s, stats)
+                case _:
+                    raise Exception()
+
+            return evs
+        finally:
+            self.mana = stats.mana
+
+    def _auto(self, s: SimState, stats: SimStats):
+        d = s.ctx.unit_quirks.get_auto_damage(s, stats)
         s.attacks.append(
             SimAttack(
                 t=s.t,
@@ -63,15 +73,13 @@ class CombatSystem(SimSystem):
                 true_damage=d.get("true", 0),
             )
         )
-        s.events.append(
-            SimEvent(
-                type="auto",
-                data=s.attacks[-1],
-            )
+        return SimEvent(
+            type="auto",
+            data=s.attacks[-1],
         )
 
-    def _cast(self, s: SimState):
-        d = s.ctx.unit_quirks.get_spell_damage(s)
+    def _cast(self, s: SimState, stats: SimStats):
+        d = s.ctx.unit_quirks.get_spell_damage(s, stats)
         s.casts.append(
             SimCast(
                 t=s.t,
@@ -80,15 +88,13 @@ class CombatSystem(SimSystem):
                 true_damage=d.get("true", 0),
             )
         )
-        s.events.append(
-            SimEvent(
-                type="cast",
-                data=s.attacks[-1],
-            )
+        return SimEvent(
+            type="cast",
+            data=s.attacks[-1],
         )
 
-    def _calc_post_auto_state(self, s: SimState):
-        delay = 1 / s.stats.speed
+    def _calc_post_auto_state(self, s: SimState, stats: SimStats):
+        delay = 1 / stats.speed
         return dict(
             type="POST_AUTO",
             until=s.t + delay,
