@@ -1,3 +1,5 @@
+from tft_dps.lib.simulator.quirks.item_quirks import SpearOfShojinQuirks
+
 from .sim_event import SimEvent
 from .sim_state import SimAttack, SimCast, SimState, SimStats
 from .sim_system import SimSystem
@@ -6,12 +8,27 @@ from .sim_system import SimSystem
 class CombatSystem(SimSystem):
     """attack -> cast delay -> cast -> attack delay"""
 
+    FLAG_KEY_TANK_MANA_REGEN = "tank_mana_regen"
+    notes = [
+        "For tanks, mana from damage is modeled as {FLAG_KEY_TANK_MANA_REGEN}% of the unit's max health gained as mana every second"
+    ]
+
     def __init__(self) -> None:
         self.attack_state: dict = dict(
             type="POST_AUTO",
             until=0,
         )
         self.mana = 0
+        self.shojin_bonus = 0
+        self.last_mana_regen_tick = 0
+        self.tank_mana_regen = 0
+
+    def hook_init(self, s: SimState):
+        num_shojin = len(
+            [id for id in s.ctx.item_inventory if id == SpearOfShojinQuirks.id]
+        )
+        item_info = s.ctx.item_info[SpearOfShojinQuirks.id]
+        self.shojin_bonus = num_shojin * item_info["constants"]["FlatManaRestore"]
 
     def hook_stats_override(self, s: SimState, stats: SimStats):
         if s.t == 0:
@@ -21,8 +38,20 @@ class CombatSystem(SimSystem):
             # Otherwise override with own value, incremented by autos / regen, decremented by casts
             self.mana = stats.mana
 
+        self.tank_mana_regen = (
+            stats.health_max * s.ctx.flags[self.FLAG_KEY_TANK_MANA_REGEN] / 100
+        )
+
     def hook_main(self, s: SimState, stats: SimStats):
         evs = []
+
+        t_sec = int(s.t)
+        if t_sec > self.last_mana_regen_tick:
+            self.last_mana_regen_tick = t_sec
+
+            if s.mana_locks == 0:
+                stats.mana += stats.mana_regen
+                stats.mana += self.tank_mana_regen
 
         try:
             match self.attack_state["type"]:
@@ -34,7 +63,7 @@ class CombatSystem(SimSystem):
                     # Auto
                     evs.append(self._auto(s, stats))
                     if s.mana_locks == 0:
-                        stats.mana += stats.mana_per_auto
+                        stats.mana += stats.mana_per_auto + self.shojin_bonus
 
                     if s.mana_locks == 0 and stats.mana >= stats.mana_max:
                         # Start casting

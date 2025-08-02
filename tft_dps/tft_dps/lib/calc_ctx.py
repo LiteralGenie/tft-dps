@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 class CalcCtx:
     T: int
     unit_id: str
+    unit_info: dict
     base_stats: "CalcCtxStats"
     item_inventory: list[str]
     item_info: dict[str, dict]

@@ -181,4 +181,13 @@ FLAGS = dict(
     # seraphine_aoe_targets=7,
     yone_aoe_targets=8,
     zyra_decay=0.5,
+    #
+    item_spark_damage=300,
+    item_spark_frequency=3,
+    burn_damage_amp=2,
+    sunfire_burn_damage=4,
+    gargoyle_num_enemies=6,
+    titans_stack_frequency=0.4,
+    #
+    tank_mana_regen=0.2,
 )

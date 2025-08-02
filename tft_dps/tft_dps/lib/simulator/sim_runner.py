@@ -66,6 +66,7 @@ class SimRunner:
             unit_id=unit_id,
             unit_quirks=unit_quirks,
             unit_proc=self.unit_proc,
+            unit_info=self.units[unit_id],
             base_stats=CalcCtxStats.from_unit(unit_id, stars, self.unit_proc),
             item_inventory=items,
             item_quirks=item_quirks,
