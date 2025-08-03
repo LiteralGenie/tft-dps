@@ -1,3 +1,5 @@
+from tft_dps.lib.simulator.crit_system import CritSystem
+
 from ..calc_ctx import CalcCtx
 from .combat_system import CombatSystem
 from .sim_state import SimResult, SimState, SimStats
@@ -57,11 +59,10 @@ def simulate(ctx: CalcCtx) -> SimResult:
         mana_locks=0,
     )
 
-    for sys in s.systems:
-        sys.hook_init(s)
+    initial_stats = _calc_stats(s, override_phase=False)
 
-    # Side effects from hook_stats() and hook_stats_override() is necessary here
-    initial_stats = _calc_stats(s)
+    for sys in s.systems:
+        sys.hook_init(s, initial_stats)
 
     while s.t <= ctx.T:
         new_events = []
@@ -101,6 +102,7 @@ def simulate(ctx: CalcCtx) -> SimResult:
 def _init_systems(ctx: CalcCtx):
     systems: list[SimSystem] = [
         CombatSystem(),
+        CritSystem(),
         ctx.unit_quirks,
         *ctx.item_quirks,
         *ctx.trait_quirks,
@@ -109,7 +111,7 @@ def _init_systems(ctx: CalcCtx):
     return systems
 
 
-def _calc_stats(s: SimState) -> SimStats:
+def _calc_stats(s: SimState, override_phase=True) -> SimStats:
     base = _init_stats(s.ctx)
 
     bonus = SimStats.zeros()
@@ -119,8 +121,9 @@ def _calc_stats(s: SimState) -> SimStats:
 
     total = base + bonus
 
-    for sys in s.systems:
-        sys.hook_stats_override(s, total)
+    if override_phase:
+        for sys in s.systems:
+            sys.hook_stats_override(s, total)
 
     return total
 

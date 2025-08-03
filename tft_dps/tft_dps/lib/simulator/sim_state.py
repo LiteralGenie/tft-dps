@@ -12,10 +12,10 @@ class SimState:
     ctx: "CalcCtx"
     systems: list[SimSystem]
     t: float
-    attacks: list["SimAttack"]
-    casts: list["SimCast"]
+    attacks: "list[SimDamage]"
+    casts: "list[SimDamage]"
     # currently no events for misc damage
-    misc_damage: list["SimMiscDamage"]
+    misc_damage: "list[SimDamage]"
     buffs: dict[str, Any]
     mana_locks: int
 
@@ -89,7 +89,7 @@ class SimStats:
             9: self.crit_mult,
             12: self.effective_health,
             29: 0,
-            34: 1,
+            34: 0,
         }
 
     @classmethod
@@ -110,33 +110,65 @@ class SimStats:
 
     @property
     def crit_bonus(self):
-        return 1 + (self.crit_mult - 1) * self.crit_rate
-
-
-class SimAttack(TypedDict):
-    t: float
-    physical_damage: float
-    magical_damage: float
-    true_damage: float
-
-
-class SimCast(TypedDict):
-    t: float
-    physical_damage: float
-    magical_damage: float
-    true_damage: float
-
-
-class SimMiscDamage(TypedDict):
-    t: float
-    physical_damage: float
-    magical_damage: float
-    true_damage: float
+        rate = min(self.crit_rate, 1)
+        return 1 + (self.crit_mult - 1) * rate
 
 
 class SimResult(TypedDict):
-    attacks: list[SimAttack]
-    casts: list[SimCast]
-    misc_damage: list[SimMiscDamage]
+    attacks: "list[SimDamage]"
+    casts: "list[SimDamage]"
+    misc_damage: "list[SimDamage]"
     initial_stats: SimStats
     final_stats: SimStats
+
+
+class SimDamage(TypedDict):
+    t: float
+    mult: float
+    physical_damage: float
+    magical_damage: float
+    true_damage: float
+
+
+# def sim_damage(t: float, mult: float, ph=0.0, ma=0.0, tr=0.0):
+#     return SimDamage(
+#         t=t,
+#         physical_damage=ph,
+#         magical_damage=ma,
+#         true_damage=tr,
+#         mult=mult,
+#     )
+
+
+def sim_damage_spell(s: SimState, stats: SimStats, ph=0.0, ma=0.0, tr=0.0) -> SimDamage:
+    mult = 1 + stats.amp
+    if s.buffs.get("spell_crit"):
+        mult *= stats.crit_bonus
+
+    return SimDamage(
+        t=s.t,
+        mult=mult,
+        physical_damage=ph,
+        magical_damage=ma,
+        true_damage=tr,
+    )
+
+
+def sim_damage_auto(s: SimState, stats: SimStats, ph=0.0, ma=0.0, tr=0.0) -> SimDamage:
+    return SimDamage(
+        t=s.t,
+        mult=stats.crit_bonus * (1 + stats.amp),
+        physical_damage=ph,
+        magical_damage=ma,
+        true_damage=tr,
+    )
+
+
+def sim_damage_misc(s: SimState, stats: SimStats, ph=0.0, ma=0.0, tr=0.0) -> SimDamage:
+    return SimDamage(
+        t=s.t,
+        mult=1 + stats.amp,
+        physical_damage=ph,
+        magical_damage=ma,
+        true_damage=tr,
+    )

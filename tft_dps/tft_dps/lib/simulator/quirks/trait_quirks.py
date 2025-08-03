@@ -1,7 +1,8 @@
 from abc import ABCMeta
 
+from tft_dps.lib.simulator.crit_system import create_spell_crit_buff
 from tft_dps.lib.simulator.quirks.quirks import TraitQuirks
-from tft_dps.lib.simulator.sim_state import SimMiscDamage, SimState, SimStats
+from tft_dps.lib.simulator.sim_state import SimState, SimStats, sim_damage_misc
 from tft_dps.lib.simulator.sim_system import SimEvent
 
 
@@ -34,6 +35,8 @@ class ExecutionerQuirks(TraitQuirks):
 
         bonus.crit_rate = eb["critchanceamppercent"] / 100
         bonus.crit_mult = eb["critamppercent"] / 100
+
+        create_spell_crit_buff(s, 0)
 
         return bonus
 
@@ -81,7 +84,7 @@ class WraithQuirks(TraitQuirks):
         ]
 
         dmg = sum(
-            value
+            value * x["mult"]
             for x in xs
             for value in [x["physical_damage"], x["magical_damage"], x["true_damage"]]
         )
@@ -90,11 +93,10 @@ class WraithQuirks(TraitQuirks):
         after_reduction -= self.last_activation_dmg
 
         s.misc_damage.append(
-            SimMiscDamage(
-                t=s.t,
-                physical_damage=0,
-                magical_damage=after_reduction,
-                true_damage=0,
+            sim_damage_misc(
+                s,
+                stats,
+                ma=after_reduction,
             )
         )
 
@@ -277,7 +279,7 @@ class StarGuardianQuirks(TraitQuirks):
         self.last_xayah_auto = 0
         self.mult = 1
 
-    def hook_init(self, s: SimState):
+    def hook_init(self, s: SimState, stats: SimStats):
         self.units = list(self.effects.keys())
         self.units.remove(s.ctx.unit_id)
         self.units = [s.ctx.unit_id] + self.units

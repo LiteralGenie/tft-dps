@@ -1,7 +1,8 @@
 from abc import ABCMeta
 
+from tft_dps.lib.simulator.crit_system import create_spell_crit_buff
 from tft_dps.lib.simulator.quirks.quirks import ItemQuirks
-from tft_dps.lib.simulator.sim_state import SimMiscDamage, SimState, SimStats
+from tft_dps.lib.simulator.sim_state import SimState, SimStats, sim_damage_misc
 from tft_dps.lib.simulator.sim_system import SimEvent
 
 
@@ -34,6 +35,9 @@ class BloodthirsterQuirks(ItemQuirks):
 class BrambleVestQuirks(ItemQuirks):
     id = "TFT_Item_BrambleVest"
 
+    FLAG_KEY = "bramble_aoe_targets"
+    notes = ["AoE hits {bramble_aoe_targets} targets"]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -57,11 +61,10 @@ class BrambleVestQuirks(ItemQuirks):
 
         self.last_passive_trigger = s.t
         s.misc_damage.append(
-            SimMiscDamage(
-                t=s.t,
-                physical_damage=0,
-                magical_damage=c["1StarAoEDamage"],
-                true_damage=0,
+            sim_damage_misc(
+                s,
+                stats,
+                ma=c["1StarAoEDamage"],
             )
         )
 
@@ -238,9 +241,9 @@ class HextechGunbladeQuirks(ItemQuirks):
 class InfinityEdgeQuirks(ItemQuirks):
     id = "TFT_Item_InfinityEdge"
 
-    def hook_init(self, s: SimState):
-        s.buffs.setdefault("spell_crit", 0)
-        s.buffs["spell_crit"] += 1
+    def hook_init(self, s: SimState, stats: SimStats):
+        c = self._constants(s)
+        create_spell_crit_buff(s, c["CritDamageToGive"])
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
@@ -285,11 +288,10 @@ class IonicSparkQuirks(ItemQuirks):
         self.last_passive_trigger = s.t
         dmg = s.ctx.flags[self.FLAG_KEY_DAMAGE]
         s.misc_damage.append(
-            SimMiscDamage(
-                t=s.t,
-                physical_damage=0,
-                magical_damage=dmg,
-                true_damage=0,
+            sim_damage_misc(
+                s,
+                stats,
+                ma=dmg,
             )
         )
 
@@ -297,9 +299,9 @@ class IonicSparkQuirks(ItemQuirks):
 class JeweledGauntletQuirks(ItemQuirks):
     id = "TFT_Item_JeweledGauntlet"
 
-    def hook_init(self, s: SimState):
-        s.buffs.setdefault("spell_crit", 0)
-        s.buffs["spell_crit"] += 1
+    def hook_init(self, s: SimState, stats: SimStats):
+        c = self._constants(s)
+        create_spell_crit_buff(s, c["CritDamageToGive"])
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
@@ -313,6 +315,9 @@ class JeweledGauntletQuirks(ItemQuirks):
 
 class LastWhisperQuirks(ItemQuirks):
     id = "TFT_Item_LastWhisper"
+
+    def hook_init(self, s: SimState, stats: SimStats):
+        create_spell_crit_buff(s, 10)
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()

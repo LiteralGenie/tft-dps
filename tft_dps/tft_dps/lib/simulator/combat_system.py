@@ -4,7 +4,7 @@ from tft_dps.lib.simulator.quirks.trait_quirks import (
     StarGuardianQuirks,
 )
 
-from .sim_state import SimAttack, SimCast, SimState, SimStats
+from .sim_state import SimState, SimStats
 from .sim_system import SimEvent, SimSystem
 
 
@@ -29,7 +29,7 @@ class CombatSystem(SimSystem):
         self.mana_per_auto = 0
         self.bonus_mana_regen = 0
 
-    def hook_init(self, s: SimState):
+    def hook_init(self, s: SimState, stats: SimStats):
         num_shojin = len(
             [id for id in s.ctx.item_inventory if id == SpearOfShojinQuirks.id]
         )
@@ -51,27 +51,23 @@ class CombatSystem(SimSystem):
             self.mana_per_auto = 7
             self.bonus_mana_regen = 2
 
-    def hook_stats_override(self, s: SimState, stats: SimStats):
-        if s.t == 0:
-            # On first tick, use mana bonus from items as current mana
-            self.mana = stats.mana
-        else:
-            # Otherwise override with own value, incremented by autos / regen, decremented by casts
-            stats.mana = self.mana
+        self.mana = stats.mana
 
         if "Tank" in s.ctx.unit_info["info"]["role"]:
             self.tank_mana_regen = (
                 stats.health_max * s.ctx.flags[self.FLAG_KEY_TANK_MANA_REGEN] / 100
             )
 
+        self.attack_state = dict(
+            type="PRE_AUTO",
+            until=self.PRE_AUTO_DELAY * (1 / stats.effective_speed),
+        )
+
+    def hook_stats_override(self, s: SimState, stats: SimStats):
+        stats.mana = self.mana
+
         stats.mana_regen += self.bonus_mana_regen
         stats.mana_per_auto = self.mana_per_auto
-
-        if not self.attack_state:
-            self.attack_state = dict(
-                type="PRE_AUTO",
-                until=self.PRE_AUTO_DELAY * (1 / stats.effective_speed),
-            )
 
     def hook_main(self, s: SimState, stats: SimStats):
         evs = []
@@ -165,14 +161,7 @@ class CombatSystem(SimSystem):
 
     def _auto(self, s: SimState, stats: SimStats):
         d = s.ctx.unit_quirks.get_auto_damage(s, stats)
-        s.attacks.append(
-            SimAttack(
-                t=s.t,
-                physical_damage=d.phys,
-                magical_damage=d.magic,
-                true_damage=d.true,
-            )
-        )
+        s.attacks.append(d)
         return SimEvent(
             type="auto",
             data=s.attacks[-1],
@@ -180,14 +169,7 @@ class CombatSystem(SimSystem):
 
     def _cast(self, s: SimState, stats: SimStats):
         d = s.ctx.unit_quirks.get_spell_damage(s, stats)
-        s.casts.append(
-            SimCast(
-                t=s.t,
-                physical_damage=d.phys,
-                magical_damage=d.magic,
-                true_damage=d.true,
-            )
-        )
+        s.casts.append(d)
         return SimEvent(
             type="cast",
             data=s.attacks[-1],

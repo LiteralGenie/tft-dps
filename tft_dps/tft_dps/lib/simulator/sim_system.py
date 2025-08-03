@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 
 class SimSystem(ABC):
-    def hook_init(self, s: "SimState"):
+    def hook_init(self, s: "SimState", stats: "SimStats"):
         """Runs after initializing SimState, before first tick"""
         pass
 
