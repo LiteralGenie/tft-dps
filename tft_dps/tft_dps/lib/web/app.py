@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 import bitarray
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -91,6 +93,36 @@ async def simulate(req: Request):
         result.append(total_damage / period)
 
     return result
+
+
+@dataclass
+class SimulateDetailsDto:
+    id_unit: str
+    period: int
+    stars: int
+    items: list[str]
+    traits: dict[str, int]
+
+
+@app.post("/simulate/details")
+async def simulate_details(dto: SimulateDetailsDto):
+    APP_WORKER_CONTEXT.req_queue.put(
+        SimulateAllRequest(
+            type="simulate_all_request",
+            requests=[
+                SimulateRequest(
+                    type="simulate_request",
+                    id_unit=dto.id_unit,
+                    stars=dto.stars,
+                    items=dto.items,
+                    traits=dto.traits,
+                )
+            ],
+        )
+    )
+
+    sims: list[SimResult] = APP_WORKER_CONTEXT.resp_queue.get()
+    return sims[0]
 
 
 @app.get("/info/units")

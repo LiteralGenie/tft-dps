@@ -140,4 +140,3 @@ class SimResult(TypedDict):
     misc_damage: list[SimMiscDamage]
     initial_stats: SimStats
     final_stats: SimStats
-    has_errors: bool

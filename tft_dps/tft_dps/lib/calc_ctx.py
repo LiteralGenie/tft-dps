@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from ..lol_resolver.tft.units import TFTUnitsProcessor
 
 if TYPE_CHECKING:
-    from .simulator.quirks.quirks import ItemQuirks, UnitQuirks
+    from .simulator.quirks.quirks import ItemQuirks, TraitQuirks, UnitQuirks
 
 
 @dataclass
@@ -18,6 +18,7 @@ class CalcCtx:
     item_quirks: list["ItemQuirks"]
     trait_inventory: dict[str, "CalcCtxTraits"]
     trait_info: dict
+    trait_quirks: list["TraitQuirks"]
     unit_proc: TFTUnitsProcessor
     unit_quirks: "UnitQuirks"
     flags: dict
@@ -57,10 +58,10 @@ class CalcCtxStats:
             ap=base[0],
             health=base[12],
             speed=base[4],
-            cast_time=0.5,
-            mana_initial=base[12],
-            mana_max=root.get("maxMana", 0),
-            mana_per_auto=root.get("primaryAbilityResource", dict()).get("arBase", 100),
+            cast_time=1,
+            mana_initial=root.get("mInitialMana", 0),
+            mana_max=root.get("primaryAbilityResource", dict()).get("arBase", 100),
+            mana_per_auto=root.get("mManaPerAttack", 0),
             crit_rate=base[8],
             crit_mult=base[9],
             range=base[7],

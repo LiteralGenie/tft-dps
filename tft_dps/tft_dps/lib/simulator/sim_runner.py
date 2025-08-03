@@ -3,7 +3,7 @@ import math
 import loguru
 
 from tft_dps.lib.cache import Cache
-from tft_dps.lib.calc_ctx import CalcCtx, CalcCtxStats
+from tft_dps.lib.calc_ctx import CalcCtx, CalcCtxStats, CalcCtxTraits
 from tft_dps.lib.constants import CHAMPION_UNITS, FLAGS, ITEMS, VERSION
 from tft_dps.lib.paths import LOG_DIR
 from tft_dps.lib.resolver import (
@@ -12,6 +12,7 @@ from tft_dps.lib.resolver import (
     fetch_cached_and_init_unit_processor,
 )
 from tft_dps.lib.simulator.quirks.item_quirks import ITEM_QUIRK_MAP
+from tft_dps.lib.simulator.quirks.trait_quirks import TRAIT_QUIRK_MAP
 from tft_dps.lib.simulator.quirks.unit_quirk_map import UNIT_QUIRK_MAP
 from tft_dps.lib.simulator.sim_state import SimResult
 from tft_dps.lib.simulator.simulate import simulate
@@ -27,6 +28,10 @@ SIM_LOGGER = loguru.logger.bind(name="sim")
 
 
 class SimRunner:
+    """
+    Builds everything needed to call simulate()
+    """
+
     def __init__(
         self,
         cache: Cache,
@@ -58,10 +63,10 @@ class SimRunner:
         items: list[str],
         traits: dict[str, int],
     ) -> SimResult:
-        has_errors = False
-
         unit_quirks = UNIT_QUIRK_MAP[unit_id](SIM_LOGGER)
         item_quirks = [ITEM_QUIRK_MAP[id](SIM_LOGGER) for id in items]
+        trait_inventory = self._build_trait_inventory(traits)
+        trait_quirks = [TRAIT_QUIRK_MAP[id](SIM_LOGGER) for id in trait_inventory]
 
         ctx = CalcCtx(
             T=30,
@@ -72,8 +77,8 @@ class SimRunner:
             base_stats=CalcCtxStats.from_unit(unit_id, stars, self.unit_proc),
             item_inventory=items,
             item_quirks=item_quirks,
-            # @todo: traits
-            trait_inventory=dict(),
+            trait_inventory=trait_inventory,
+            trait_quirks=trait_quirks,
             #
             item_info=self.items,
             trait_info=self.traits,
@@ -81,7 +86,6 @@ class SimRunner:
         )
 
         result = simulate(ctx)
-        result["has_errors"] = result["has_errors"] or has_errors
         return result
 
     @classmethod
@@ -106,6 +110,7 @@ class SimRunner:
                 spell_vars=spell_vars,
                 info=info,
             )
+
         return units
 
     @classmethod
@@ -167,3 +172,29 @@ class SimRunner:
             t["num_bits"] = max(t["num_bits"], 1)
 
         return traits
+
+    def _build_trait_inventory(
+        self, trait_count: dict[str, int]
+    ) -> dict[str, CalcCtxTraits]:
+        result = dict()
+        for id, tier_idx in trait_count.items():
+            info = self.traits[id]
+            if not info["has_bp_1"] and tier_idx == 0:
+                continue
+
+            real_idx = tier_idx
+            if not info["has_bp_1"]:
+                real_idx -= 1
+
+            tier = info["tiers"][real_idx]
+            bp = tier["breakpoint"]
+
+            result[id] = CalcCtxTraits(
+                id=id,
+                index=real_idx,
+                breakpoint=bp,
+                effects_bonus=info["effects_bonus"][bp],
+                effects_main=info["effects_main"],
+            )
+
+        return result

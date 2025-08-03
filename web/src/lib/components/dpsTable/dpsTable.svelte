@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { pushState } from '$app/navigation'
     import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
     import CogIcon from '$lib/components/icons/cogIcon.svelte'
     import { getSearchContext } from '$lib/searchContext/searchContext.svelte'
@@ -34,7 +35,7 @@
 
         const url = new URL(window.location.href)
         url.search = search.toUrl(search.value).toString()
-        window.history.pushState(null, '', url)
+        pushState(url, {})
     }
 
     onMount(() => {
@@ -70,7 +71,7 @@
         <DpsTableBody />
     </div>
 
-    <DpsTablePaginator className="mt-5" />
+    <DpsTablePaginator className="mt-5 " />
 </div>
 
 <style lang="css">

@@ -20,7 +20,6 @@
         rarity = t.rarity
         bp = t.breakpoint
     }
-    console.log('wtf', trait, tier, rarity, bp)
 
     const showHover = true
 

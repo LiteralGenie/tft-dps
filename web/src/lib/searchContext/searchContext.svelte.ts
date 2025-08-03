@@ -75,8 +75,8 @@ export function setSearchContext(info: GameInfoContext): SearchContext {
         }
 
         function checkItems() {
-            if (a.onlyItemRecs) {
-                return !b.onlyItemRecs
+            if (b.onlyItemRecs) {
+                return !a.onlyItemRecs
             } else {
                 return hasSetDiff(a.items, b.items)
             }

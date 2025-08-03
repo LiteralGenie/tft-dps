@@ -60,8 +60,10 @@ class ItemQuirks(SimSystem):
         # @todo
         pass
 
-    def info(self, s: SimState):
-        return s.ctx.item_info[self.id]
+    def _constants(self, s: SimState):
+        return {
+            k: v["mValue"] for k, v in s.ctx.item_info[self.id]["constants"].items()
+        }
 
 
 class TraitQuirks(SimSystem):

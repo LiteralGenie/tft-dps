@@ -1,3 +1,5 @@
+from abc import ABCMeta
+
 from tft_dps.lib.simulator.quirks.quirks import TraitQuirks
 from tft_dps.lib.simulator.sim_state import SimMiscDamage, SimState, SimStats
 from tft_dps.lib.simulator.sim_system import SimEvent
@@ -445,3 +447,10 @@ class DuelistQuirks(TraitQuirks):
 
 class ElTigreQuirks(TraitQuirks):
     id = "TFT15_ElTigre"
+
+
+TRAIT_QUIRK_MAP = {
+    cls.id: cls
+    for cls in locals().values()
+    if type(cls) == ABCMeta and issubclass(cls, TraitQuirks) and cls is not TraitQuirks
+}

@@ -95,7 +95,6 @@ def simulate(ctx: CalcCtx) -> SimResult:
         misc_damage=s.misc_damage,
         initial_stats=initial_stats,
         final_stats=final_stats,
-        has_errors=False,
     )
 
 
@@ -103,6 +102,8 @@ def _init_systems(ctx: CalcCtx):
     systems: list[SimSystem] = [
         CombatSystem(),
         ctx.unit_quirks,
+        *ctx.item_quirks,
+        *ctx.trait_quirks,
     ]
 
     return systems

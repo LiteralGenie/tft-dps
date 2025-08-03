@@ -10,7 +10,7 @@ class BFQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.ad_mult = c["AD"] / 100
 
@@ -22,7 +22,7 @@ class BloodthirsterQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.ad_mult = c["AD"] / 100
         bonus.ap = c["AP"]
@@ -41,7 +41,7 @@ class BrambleVestQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.health_mult = c["PercentMaxHP"]
         bonus.armor = c["Armor"]
@@ -49,7 +49,7 @@ class BrambleVestQuirks(ItemQuirks):
         return bonus
 
     def hook_main(self, s: SimState, stats: SimStats) -> list | None:
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         elapsed = s.t - self.last_passive_trigger
         if elapsed < c["ICD"]:
@@ -71,7 +71,7 @@ class ChainVestQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.armor = c["Armor"]
 
@@ -83,7 +83,7 @@ class SparringGlovesQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.crit_rate = c["CritChance"] / 100
 
@@ -95,7 +95,7 @@ class DeathbladeQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.ad_mult = c["AD"]
         bonus.amp = c["BonusDamage"]
@@ -108,7 +108,7 @@ class DragonsClawQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.mr = c["MagicResist"]
         bonus.health_mult = c["PercentMaxHP"]
@@ -121,7 +121,7 @@ class ThiefsGlovesQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.crit_rate = c["CritChance"] / 100
         bonus.health_max = c["Health"]
@@ -134,7 +134,7 @@ class ProtectorsVowQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.mana_regen = c["ManaRegen"]
         bonus.armor = c["Armor"]
@@ -149,7 +149,7 @@ class GiantsBeltQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.health_max = c["Health"]
 
@@ -163,7 +163,7 @@ class GiantSlayerQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.ad_mult = c["AD"]
         bonus.ap = c["AP"]
@@ -178,7 +178,7 @@ class EdgeOfNightQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.ap = c["AP"]
         bonus.ad_mult = c["AD"]
@@ -193,7 +193,7 @@ class GuinsoosRagebladeQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.ap = c["AP"]
         bonus.speed_mult = c["AS"] / 100
@@ -211,7 +211,7 @@ class HandOfJusticeQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.ad_mult = c["{f23e83fc}"] * c["AD_NotStatBar"]
         bonus.ap = c["{f23e83fc}"] * c["AP_NotStatBar"]
@@ -226,7 +226,7 @@ class HextechGunbladeQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.ad_mult = c["AD"]
         bonus.ap = c["AP"]
@@ -244,7 +244,7 @@ class InfinityEdgeQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.ad_mult = c["AD"]
         bonus.crit_rate = c["CritChance"] / 100
@@ -269,7 +269,7 @@ class IonicSparkQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.health_max = c["Health"]
         bonus.ap = c["Ap"]
@@ -303,7 +303,7 @@ class JeweledGauntletQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.ap = c["AP"]
         bonus.crit_rate = c["CritChance"] / 100
@@ -316,9 +316,9 @@ class LastWhisperQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
-        bonus.ad = c["AP"]
+        bonus.ad_mult = c["AD"]
         bonus.speed_mult = c["AS"] / 100
         bonus.crit_rate = c["CritChance"] / 100
 
@@ -330,7 +330,7 @@ class ArchangelsStaffQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.mana_regen = c["ManaRegen"]
         bonus.ap = c["AP"]
@@ -346,7 +346,7 @@ class QuicksilverQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.mr = c["MagicResist"]
         bonus.speed_mult = c["AS"] / 100
@@ -368,7 +368,7 @@ class MorellonomiconQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.health_max = c["Health"]
         bonus.ap = c["AP"]
@@ -384,7 +384,7 @@ class NeedlesslyLargeRodQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.ap = c["AP"]
 
@@ -396,7 +396,7 @@ class NegatronCloakQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.mr = c["MagicResist"]
 
@@ -410,7 +410,7 @@ class StrikersFlailQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.health_max = c["Health"]
         bonus.speed_mult = c["AS"] / 100
@@ -426,7 +426,7 @@ class RabadonsDeathcapQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.ap = c["AP"]
         bonus.amp = c["BonusDamage"]
@@ -442,7 +442,7 @@ class RedBuffQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.speed_mult = c["AS"] / 100
         bonus.amp = c["{1543aa48}"]
@@ -457,7 +457,7 @@ class RecurveBowQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.speed_mult = c["AS"] / 100
 
@@ -472,7 +472,7 @@ class SunfireCapeQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.health_max = c["Health"]
         bonus.armor = c["Armor"]
@@ -488,7 +488,7 @@ class SpiritVisageQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.health_max = c["Health"]
         bonus.mana_regen = c["ManaRegen"]
@@ -501,7 +501,7 @@ class KrakensFuryQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.ad_mult = c["AD"]
         bonus.speed_mult = c["AS"] / 100
@@ -517,7 +517,7 @@ class SpearOfShojinQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.mana_regen = c["ManaRegen"]
         bonus.ad_mult = c["AD"]
@@ -531,7 +531,7 @@ class VoidStaffQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.mana_regen = c["ManaRegen"]
         bonus.ap = c["AP"]
@@ -548,7 +548,7 @@ class GargoyleStoneplateQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.health_max = c["Health"]
         bonus.armor = c["Armor"]
@@ -566,7 +566,7 @@ class TearOfTheGoddessQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.mana_regen = c["ManaRegen"]
 
@@ -581,7 +581,7 @@ class TitansResolveQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.armor = c["Armor"]
         bonus.speed_mult = c["AS"] / 100
@@ -604,7 +604,7 @@ class WarmogsArmorQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.health_max = c["Health"]
         bonus.health_mult = c["BonusPercentHP"]
@@ -617,7 +617,7 @@ class EvenshroudQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.health_mult = c["Health"]
         bonus.mr = c["MagicResist"]
@@ -634,7 +634,7 @@ class CrownguardQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.health_max = c["Health"]
         bonus.ap = c["AP"]
@@ -651,7 +651,7 @@ class SteadfastHeartQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.health_max = c["Health"]
         bonus.armor = c["Armor"]
@@ -665,7 +665,7 @@ class SteraksGageQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.health_max = c["Health"]
         bonus.ad_mult = c["AD"]
@@ -678,7 +678,7 @@ class BlueBuffQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.mana_regen = c["ManaRegen"]
         bonus.ad_mult = c["AD"]
@@ -692,12 +692,12 @@ class AdaptiveHelmQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.mana_regen = c["ManaRegen"]
         bonus.mr = c["MagicResist"]
 
-        role = s.ctx.unit_info["role"]
+        role = s.ctx.unit_info["info"]["role"]
         if "Tank" in role or "Fighter" in role:
             bonus.armor += c["FrontlineResists"]
             bonus.mr += c["FrontlineResists"]
@@ -715,7 +715,7 @@ class NashorsToothQuirks(ItemQuirks):
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
-        c = self.info(s)["constants"]
+        c = self._constants(s)
 
         bonus.health_max = c["Health"]
         bonus.ap = c["AP"]
@@ -732,7 +732,7 @@ class NashorsToothQuirks(ItemQuirks):
     ) -> list | None:
         did_cast = any(ev.type == "cast" for ev in evs)
         if did_cast:
-            c = self.info(s)["constants"]
+            c = self._constants(s)
             self._start_buff(s, c)
 
         buff = s.buffs.get(self.BUFF_KEY, None)

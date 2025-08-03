@@ -60,7 +60,7 @@ class EzrealQuirks(UnitQuirks):
     def _start_active_buff(self, s: "SimState", stats: SimStats, svs: dict):
         num_potential = 0
         if trait := s.ctx.trait_inventory.get("TFT15_BattleAcademia"):
-            num_potential = trait.effects["numpotential"]
+            num_potential = trait.effects_bonus["numpotential"]
 
         bonus_speed_mult = num_potential * svs["potentialas"]
 
@@ -75,9 +75,9 @@ class EzrealQuirks(UnitQuirks):
     def _increment_passive_buff(self, s: "SimState", stats: SimStats, svs: dict):
         num_potential = 0
         if trait := s.ctx.trait_inventory.get("TFT15_BattleAcademia"):
-            num_potential = trait.effects["numpotential"]
+            num_potential = trait.effects_bonus["numpotential"]
 
-        bonus_ad_mult = svs["bonusadperpotential"] * num_potential
+        bonus_ad_mult = svs["bonusadperpotential"] * num_potential / 100
         bonus_ap = svs["bonusapperpotential"] * num_potential
 
         s.buffs.setdefault(
