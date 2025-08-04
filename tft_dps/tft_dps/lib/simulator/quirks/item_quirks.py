@@ -162,7 +162,8 @@ class GiantsBeltQuirks(ItemQuirks):
 class GiantSlayerQuirks(ItemQuirks):
     id = "TFT_Item_MadredsBloodrazor"
 
-    notes = ["Max damage amp is always applied"]
+    FLAG_KEY = "giant_bonus_amp_frac"
+    notes = ["{giant_bonus_amp_frac}% of the role-based damage amp is always active"]
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
@@ -171,7 +172,8 @@ class GiantSlayerQuirks(ItemQuirks):
         bonus.ad_mult = c["AD"]
         bonus.ap = c["AP"]
         bonus.speed_mult = c["AS"] / 100
-        bonus.amp = c["DamageAmp"] + c["{1543aa48}"]
+        bonus.amp = c["{1543aa48}"]
+        bonus.amp += c["DamageAmp"] * s.ctx.flags[self.FLAG_KEY] / 100
 
         return bonus
 
@@ -275,7 +277,7 @@ class IonicSparkQuirks(ItemQuirks):
         c = self._constants(s)
 
         bonus.health_max = c["Health"]
-        bonus.ap = c["Ap"]
+        bonus.ap = c["AP"]
         bonus.mr = c["MagicResist"]
 
         return bonus
@@ -315,9 +317,6 @@ class JeweledGauntletQuirks(ItemQuirks):
 
 class LastWhisperQuirks(ItemQuirks):
     id = "TFT_Item_LastWhisper"
-
-    def hook_init(self, s: SimState, stats: SimStats):
-        create_spell_crit_buff(s, 10)
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()

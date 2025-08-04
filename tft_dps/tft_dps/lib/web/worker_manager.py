@@ -1,20 +1,35 @@
 import asyncio
+import dataclasses
+import json
 import multiprocessing as mp
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import TypedDict
 from uuid import uuid4
 
+import loguru
+
+from tft_dps.lib.db import TftDb
+from tft_dps.lib.paths import LOG_DIR
 from tft_dps.lib.simulator.sim_runner import SimRunner
-from tft_dps.lib.simulator.sim_state import SimResult
+from tft_dps.lib.simulator.sim_state import SimDamage, SimResult, SimStats
 from tft_dps.lib.web.app_worker import run_app_worker
 from tft_dps.lib.web.job_worker import (
     BatchInfo,
     SimulateAllRequest,
     SimulateJob,
     SimulateJobResult,
+    SimulateRequest,
     run_job_worker,
 )
+
+loguru.logger.add(
+    LOG_DIR / "manager.log",
+    filter=lambda record: record["extra"].get("name") == "mgr",
+    rotation="10 MB",
+    retention=2,
+)
+MGR_LOGGER = loguru.logger.bind(name="mgr")
 
 
 @dataclass
@@ -126,25 +141,39 @@ class WorkerManager:
                     match req["type"]:
                         case "simulate_all_request":
                             batch_id = uuid4().hex
-                            self.pending_batches[batch_id] = SimulateAllBatch(
-                                req=req,
-                                idx_handle=idx_handle,
-                                data=[None for _ in req["requests"]],
-                                rem=len(req["requests"]),
-                            )
+                            batch_data: list[SimResult | None] = [
+                                None for _ in req["requests"]
+                            ]
 
+                            to_generate = []
                             for idx, r in enumerate(req["requests"]):
-                                self.job_queue.put(
-                                    SimulateJob(
-                                        type="simulate_job",
-                                        batch=BatchInfo(
-                                            id=batch_id,
-                                            idx=idx,
-                                            total=len(req["requests"]),
-                                        ),
-                                        req=r,
+                                if from_db := _select_result(r):
+                                    batch_data[idx] = from_db
+                                else:
+                                    to_generate.append(
+                                        SimulateJob(
+                                            type="simulate_job",
+                                            batch=BatchInfo(
+                                                id=batch_id,
+                                                idx=idx,
+                                                total=len(req["requests"]),
+                                            ),
+                                            req=r,
+                                        )
                                     )
+
+                            if to_generate:
+                                self.pending_batches[batch_id] = SimulateAllBatch(
+                                    req=req,
+                                    idx_handle=idx_handle,
+                                    data=batch_data,
+                                    rem=len(to_generate),
                                 )
+
+                                for x in to_generate:
+                                    self.job_queue.put(x)
+                            else:
+                                self.handles[idx_handle].resp.put(batch_data)
                         case _:
                             raise Exception(req)
 
@@ -170,8 +199,14 @@ class WorkerManager:
                     pb["data"][b["idx"]] = result["resp"]
                     pb["rem"] -= 1
 
+                    _insert_result(
+                        pb["req"]["requests"][b["idx"]],
+                        result["resp"],
+                    )
+
                     if pb["rem"] == 0:
                         self.handles[pb["idx_handle"]].resp.put(pb["data"])
+                        del self.pending_batches[b["id"]]
                 case _:
                     raise Exception(result)
 
@@ -181,3 +216,162 @@ class WorkerManager:
 
         for worker in self.job_workers:
             worker.kill()
+
+
+def _request_to_db_id(req: SimulateRequest):
+    parts = [req["id_unit"]]
+
+    parts.append(str(req["stars"]))
+
+    parts.extend(sorted(req["items"]))
+
+    parts.extend(
+        [f"{k}|{v}" for k, v in sorted(req["traits"].items(), key=lambda kv: kv[0])]
+    )
+
+    return "_".join(parts)
+
+
+def _select_result(req: SimulateRequest) -> SimResult | None:
+    id = _request_to_db_id(req)
+
+    db = TftDb()
+
+    does_exist = bool(
+        db.connect().execute("SELECT 1 FROM combo WHERE id = ?", [id]).fetchone()
+    )
+    if not does_exist:
+        return
+
+    dps_query = db.connect().execute(
+        """
+        SELECT
+            type, t, mult, physical, magical, true
+        FROM dps
+        WHERE id_combo = ?
+        ORDER by t ASC
+        """,
+        [id],
+    )
+    dps_rows = list(dps_query.fetchall())
+
+    stats_query = db.connect().execute(
+        """
+        SELECT data
+        FROM stats
+        WHERE id_combo = ?
+        """,
+        [id],
+    )
+    stats = json.loads(stats_query.fetchone()["data"])
+
+    return SimResult(
+        attacks=[
+            SimDamage(
+                t=r["t"],
+                mult=r["mult"],
+                physical_damage=r["physical"],
+                magical_damage=r["magical"],
+                true_damage=r["true"],
+            )
+            for r in dps_rows
+            if r["type"] == "auto"
+        ],
+        casts=[],
+        misc_damage=[],
+        initial_stats=SimStats(**stats["initial_stats"]),
+        final_stats=SimStats(**stats["final_stats"]),
+    )
+
+
+def _insert_result(req: SimulateRequest, res: SimResult):
+    id = _request_to_db_id(req)
+
+    db = TftDb().connect()
+
+    does_exist = bool(db.execute("SELECT 1 FROM combo WHERE id = ?", [id]).fetchone())
+    if does_exist:
+        MGR_LOGGER.warning(f"Ignored insertion for duplicate result {req}")
+        return
+
+    db.execute("INSERT INTO combo (id) VALUES (?)", [id])
+
+    xss = [
+        ("auto", res["attacks"]),
+        ("cast", res["casts"]),
+        ("misc", res["misc_damage"]),
+    ]
+    for k, xs in xss:
+        for x in xs:
+            db.execute(
+                """
+                INSERT INTO dps (
+                    id_combo, type, t, mult, physical, magical, true
+                ) VALUES (
+                    ?, ?, ?, ?, ?, ?, ?
+                )
+                """,
+                [
+                    id,
+                    k,
+                    x["t"],
+                    x["mult"],
+                    x["physical_damage"],
+                    x["magical_damage"],
+                    x["true_damage"],
+                ],
+            )
+
+    db.execute(
+        """
+        INSERT INTO stats (
+            id_combo, data
+        ) VALUES (
+            ?, ?
+        )
+        """,
+        [
+            id,
+            json.dumps(
+                dict(
+                    initial_stats=dataclasses.asdict(res["initial_stats"]),
+                    final_stats=dataclasses.asdict(res["final_stats"]),
+                )
+            ),
+        ],
+    )
+
+    db.execute(
+        """
+        INSERT INTO combo_unit (
+            id_combo, unit, stars
+        ) VALUES (
+            ?, ?, ?
+        )""",
+        [id, req["id_unit"], req["stars"]],
+    )
+
+    items = sorted(req["items"])
+    for idx, item in enumerate(items):
+        db.execute(
+            """
+            INSERT INTO combo_item (
+                id_combo, item, idx
+            ) VALUES (
+                ?, ?, ?
+            )""",
+            [id, item, idx],
+        )
+
+    for trait, tier in req["traits"].items():
+        db.execute(
+            """
+            INSERT INTO combo_trait (
+                id_combo, trait, tier
+            ) VALUES (
+                ?, ?, ?
+            )""",
+            [id, trait, tier],
+        )
+
+    db.commit()

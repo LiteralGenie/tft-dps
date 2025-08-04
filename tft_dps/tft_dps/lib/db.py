@@ -16,40 +16,54 @@ class TftDb(DbWrapper):
             ) STRICT;
 
             CREATE TABLE IF NOT EXISTS dps (
-                id_combo    TEXT        NOT NULL,
-                type        TEXT        NOT NULL,   -- auto | cast
+                id_combo    TEXT        NOT NULL
+                    REFERENCES combo (id)
+                    ON DELETE CASCADE,
+                type        TEXT        NOT NULL,   -- auto | cast | misc
                 t           REAL        NOT NULL,
+                mult        REAL        NOT NULL,
                 physical    REAL        NOT NULL,
                 magical     REAL        NOT NULL,
+                true        REAL        NOT NULL
+            ) STRICT;
 
-                UNIQUE (id_combo, type, t),
-                FOREIGN KEY (id_combo) REFERENCES combo (id)
+            CREATE TABLE IF NOT EXISTS stats (
+                id_combo    TEXT        NOT NULL
+                    REFERENCES combo (id)
+                    ON DELETE CASCADE,
+                data        TEXT        NOT NULL,
+
+                UNIQUE (id_combo)
             ) STRICT;
 
             CREATE TABLE IF NOT EXISTS combo_unit (
-                id_combo    TEXT        PRIMARY KEY,
+                id_combo    TEXT        NOT NULL
+                    REFERENCES combo (id)
+                    ON DELETE CASCADE,
                 unit        TEXT        NOT NULL,
                 stars       INTEGER     NOT NULL,
 
                 UNIQUE (id_combo, unit, stars)
-                FOREIGN KEY (id_combo) REFERENCES combo (id)
             ) STRICT;
 
             CREATE TABLE IF NOT EXISTS combo_item (
-                id_combo    TEXT        PRIMARY KEY,
+                id_combo    TEXT        NOT NULL
+                    REFERENCES combo (id)
+                    ON DELETE CASCADE,
                 item        TEXT        NOT NULL,
+                idx         INTEGER     NOT NULL,
 
-                UNIQUE (id_combo, item)
-                FOREIGN KEY (id_combo) REFERENCES combo (id)
+                UNIQUE (id_combo, item, idx)
             ) STRICT;
 
             CREATE TABLE IF NOT EXISTS combo_trait (
-                id_combo    TEXT        PRIMARY KEY,
+                id_combo    TEXT        NOT NULL
+                    REFERENCES combo (id)
+                    ON DELETE CASCADE,
                 trait       TEXT        NOT NULL,
-                count       INTEGER     NOT NULL,
+                tier        INTEGER     NOT NULL,
 
-                UNIQUE (id_combo, trait, count)
-                FOREIGN KEY (id_combo) REFERENCES combo (id)
+                UNIQUE (id_combo, trait, tier)
             ) STRICT;
 
             COMMIT;

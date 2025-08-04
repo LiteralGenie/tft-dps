@@ -3,5 +3,6 @@ venv/
 .pyodide-xbuildenv/
 data/logs/
 data/prof
+data/*.sqlite*
 
 *.pyc

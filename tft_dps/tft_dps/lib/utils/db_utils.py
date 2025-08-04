@@ -8,14 +8,21 @@ Db: TypeAlias = sqlite3.Connection
 
 
 class DbWrapper:
-    def __init__(self, fp: Path | str, missing_ok=False, readonly=False):
+    def __init__(
+        self,
+        fp: Path | str,
+        missing_ok=False,
+        readonly=False,
+        foreign_keys=True,
+    ):
         assert not (missing_ok and readonly)
+
+        self.foreign_keys = foreign_keys
+        self.readonly = readonly
 
         self.fp = to_path(fp)
         if not missing_ok and not self.fp.exists():
             raise Exception(f"Database file does not exist {self.fp.absolute()}")
-
-        self.readonly = readonly
 
         if not self.readonly:
             with self.connect() as conn:
@@ -30,6 +37,9 @@ class DbWrapper:
 
         if self.readonly:
             db.execute("PRAGMA query_only=true")
+
+        if self.foreign_keys:
+            db.execute("PRAGMA foreign_keys = ON")
 
         return db
 

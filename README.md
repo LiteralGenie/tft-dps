@@ -33,4 +33,10 @@ misc
         github
         license
         faq
+
+future
+    extract minimum from bins
+        enables hashing
+        faster bootstraps
+    more flexible search filters
 ```

@@ -187,6 +187,7 @@ FLAGS = dict(
     sunfire_burn_damage=4,
     gargoyle_num_enemies=6,
     titans_stack_frequency=0.4,
+    giant_bonus_amp_frac=50,
     bramble_aoe_targets=3,
     #
     tank_mana_regen=0.2,
