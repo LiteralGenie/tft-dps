@@ -159,6 +159,9 @@ class KSanteQuirks(UnitQuirks):
 
     BUFF_KEY = "ksante_allout"
 
+    def hook_init(self, s: SimState, stats: SimStats):
+        self.t_wake = s.ctx.flags[self.FLAG_KEY] + 0.001
+
     def hook_stats_override(self, s: SimState, stats: SimStats):
         if self.BUFF_KEY not in s.buffs:
             stats.cast_time = 3
@@ -436,13 +439,17 @@ class VolibearQuirks(UnitQuirks):
 
     def _start_buff(self, s: SimState, svs: dict):
         s.buffs[self.BUFF_KEY] = dict(
-            until=s.t + svs["duration"], bonus_speed=svs["attackspeed"] * 100
+            until=s.t + svs["duration"],
+            bonus_speed=svs["attackspeed"] * 100,
         )
         s.mana_locks += 1
+
+        self.t_wake = s.buffs[self.BUFF_KEY]["until"] + 0.001
 
     def _end_buff(self, s: SimState):
         del s.buffs[self.BUFF_KEY]
         s.mana_locks -= 1
+        self.t_wake = 999
 
     def get_unit_bonus(self, s: SimState) -> SimStats | None:
         bonus = None

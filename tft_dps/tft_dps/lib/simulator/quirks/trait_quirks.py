@@ -63,6 +63,8 @@ class EdgelordQuirks(TraitQuirks):
 class WraithQuirks(TraitQuirks):
     id = "TFT15_Empyrean"
 
+    t_wake = 5
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -102,6 +104,8 @@ class WraithQuirks(TraitQuirks):
 
         self.last_activation = s.t
         self.last_activation_dmg = after_reduction
+
+        self.t_wake = self.last_activation + 5
 
 
 class HeavyweightQuirks(TraitQuirks):
@@ -248,6 +252,11 @@ class SoulFighterQuirks(TraitQuirks):
         if num_stacks == eb["maxstacks"]:
             bonus.amp = eb["bonustruedamage"]
 
+        if num_stacks < eb["maxstacks"]:
+            self.t_wake = num_stacks + 1
+        else:
+            self.t_wake = 999
+
         return bonus
 
 
@@ -298,6 +307,9 @@ class StarGuardianQuirks(TraitQuirks):
                 self.mult * em[self.effects["Characters/TFT15_Ahri"]]
             )
 
+        if "Characters/TFT15_Syndra" in self.units:
+            self.t_wake = em["syndratimer"]
+
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
         em = self._em(s)
@@ -308,6 +320,8 @@ class StarGuardianQuirks(TraitQuirks):
                     v = em[self.effects[unit_id]]
                     num_stacks = int(s.t / em["syndratimer"])
                     bonus.ap += num_stacks * v * self.mult
+
+                    self.t_wake = (num_stacks + 1) * em["syndratimer"]
                 case "Characters/TFT15_Ahri":
                     pass
                 case "Characters/TFT15_Xayah":
@@ -375,6 +389,8 @@ class SentaiRangerQuirks(TraitQuirks):
 
 class LuchadorQuirks(TraitQuirks):
     id = "TFT15_Luchador"
+
+    t_wake = 999
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()

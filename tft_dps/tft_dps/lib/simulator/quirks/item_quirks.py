@@ -43,6 +43,10 @@ class BrambleVestQuirks(ItemQuirks):
 
         self.last_passive_trigger = -99
 
+    def hook_init(self, s: SimState, stats: SimStats):
+        c = self._constants(s)
+        self.t_wake = c["ICD"]
+
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
         c = self._constants(s)
@@ -67,6 +71,8 @@ class BrambleVestQuirks(ItemQuirks):
                 ma=c["1StarAoEDamage"],
             )
         )
+
+        self.t_wake = s.t + c["ICD"]
 
 
 class ChainVestQuirks(ItemQuirks):
@@ -196,6 +202,8 @@ class EdgeOfNightQuirks(ItemQuirks):
 class GuinsoosRagebladeQuirks(ItemQuirks):
     id = "TFT_Item_GuinsoosRageblade"
 
+    t_wake = 1
+
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
         c = self._constants(s)
@@ -205,6 +213,8 @@ class GuinsoosRagebladeQuirks(ItemQuirks):
 
         elapsed_sec = int(s.t)
         bonus.speed_mult += elapsed_sec * c["AttackSpeedPerStack"] / 100
+
+        self.t_wake = elapsed_sec + 1
 
         return bonus
 
@@ -272,6 +282,9 @@ class IonicSparkQuirks(ItemQuirks):
 
         self.last_passive_trigger = -99
 
+    def hook_init(self, s: SimState, stats: SimStats):
+        self.t_wake = s.ctx.flags[self.FLAG_KEY_FREQUENCY]
+
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
         c = self._constants(s)
@@ -296,6 +309,8 @@ class IonicSparkQuirks(ItemQuirks):
                 ma=dmg,
             )
         )
+
+        self.t_wake = self.last_passive_trigger + s.ctx.flags[self.FLAG_KEY_FREQUENCY]
 
 
 class JeweledGauntletQuirks(ItemQuirks):
@@ -332,6 +347,10 @@ class LastWhisperQuirks(ItemQuirks):
 class ArchangelsStaffQuirks(ItemQuirks):
     id = "TFT_Item_ArchangelsStaff"
 
+    def hook_init(self, s: SimState, stats: SimStats):
+        c = self._constants(s)
+        self.t_wake = c["IntervalSeconds"]
+
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
         c = self._constants(s)
@@ -342,11 +361,17 @@ class ArchangelsStaffQuirks(ItemQuirks):
         num_stacks = int(s.t / c["IntervalSeconds"])
         bonus.ap += num_stacks * c["APPerInterval"]
 
+        self.t_wake = (num_stacks + 1) * c["IntervalSeconds"]
+
         return bonus
 
 
 class QuicksilverQuirks(ItemQuirks):
     id = "TFT_Item_Quicksilver"
+
+    def hook_init(self, s: SimState, stats: SimStats):
+        c = self._constants(s)
+        self.t_wake = c["ProcInterval"]
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
@@ -360,6 +385,11 @@ class QuicksilverQuirks(ItemQuirks):
         num_stacks = int(s.t / c["ProcInterval"])
         frac = min(num_stacks / max_stacks, 1)
         bonus.speed_mult += frac * c["ProcAttackSpeed"]
+
+        if num_stacks < max_stacks:
+            self.t_wake = (num_stacks + 1) * c["ProcInterval"]
+        else:
+            self.t_wake = 999
 
         return bonus
 
@@ -583,6 +613,9 @@ class TitansResolveQuirks(ItemQuirks):
     FLAG_KEY = "titans_stack_frequency"
     notes = ["Stack gained every {titans_stack_frequency}s"]
 
+    def hook_init(self, s: SimState, stats: SimStats):
+        self.t_wake = s.ctx.flags[self.FLAG_KEY]
+
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
         c = self._constants(s)
@@ -599,6 +632,11 @@ class TitansResolveQuirks(ItemQuirks):
         if num_stacks == c["StackCap"]:
             bonus.armor += c["BonusResistsAtStackCap"]
             bonus.mr += c["BonusResistsAtStackCap"]
+
+        if num_stacks < c["StackCap"]:
+            self.t_wake = (num_stacks + 1) * s.ctx.flags[self.FLAG_KEY]
+        else:
+            self.t_wake = 999
 
         return bonus
 

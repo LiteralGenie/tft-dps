@@ -58,9 +58,12 @@ class CombatSystem(SimSystem):
                 stats.health_max * s.ctx.flags[self.FLAG_KEY_TANK_MANA_REGEN] / 100
             )
 
-        self.attack_state = dict(
-            type="PRE_AUTO",
-            until=self.PRE_AUTO_DELAY * (1 / stats.effective_speed),
+        self._set_attack_state(
+            s,
+            dict(
+                type="PRE_AUTO",
+                until=self.PRE_AUTO_DELAY * (1 / stats.effective_speed),
+            ),
         )
 
     def hook_stats_override(self, s: SimState, stats: SimStats):
@@ -72,7 +75,7 @@ class CombatSystem(SimSystem):
     def hook_main(self, s: SimState, stats: SimStats):
         evs = []
 
-        num_ticks = int(s.t * 2)
+        num_ticks = int(s.t / 0.5)
         if num_ticks > self.mana_regen_tick_count:
             self.mana_regen_tick_count = num_ticks
 
@@ -102,16 +105,19 @@ class CombatSystem(SimSystem):
                         # )
 
                     # Post-auto delay
-                    self.attack_state = self._calc_post_auto_state(s, stats)
+                    self._set_attack_state(s, self._calc_post_auto_state(s, stats))
                     return evs
                 case "POST_AUTO":
                     can_cast = s.mana_locks == 0 and stats.mana >= stats.mana_max
                     if can_cast:
                         # Start casting
                         stats.mana -= stats.mana_max
-                        self.attack_state = dict(
-                            type="PRE_CAST",
-                            until=s.t + (self.PRE_CAST_DELAY * stats.cast_time),
+                        self._set_attack_state(
+                            s,
+                            dict(
+                                type="PRE_CAST",
+                                until=s.t + (self.PRE_CAST_DELAY * stats.cast_time),
+                            ),
                         )
                         s.mana_locks += 1
                         return evs
@@ -121,7 +127,7 @@ class CombatSystem(SimSystem):
                         return evs
 
                     # Start next auto
-                    self.attack_state = self._calc_pre_auto_state(s, stats)
+                    self._set_attack_state(s, self._calc_pre_auto_state(s, stats))
                     return evs
                 case "PRE_CAST":
                     # Wait for cast-time based delay
@@ -132,9 +138,12 @@ class CombatSystem(SimSystem):
                     evs.append(self._cast(s, stats))
 
                     stats.mana -= stats.mana_max
-                    self.attack_state = dict(
-                        type="POST_CAST",
-                        until=s.t + ((1 - self.PRE_CAST_DELAY) * stats.cast_time),
+                    self._set_attack_state(
+                        s,
+                        dict(
+                            type="POST_CAST",
+                            until=s.t + ((1 - self.PRE_CAST_DELAY) * stats.cast_time),
+                        ),
                     )
                     return evs
                 case "POST_CAST":
@@ -146,7 +155,7 @@ class CombatSystem(SimSystem):
                         stats.mana += sg_ahri_mana
 
                     # Start auto
-                    self.attack_state = self._calc_pre_auto_state(s, stats)
+                    self._set_attack_state(s, self._calc_pre_auto_state(s, stats))
 
                     s.mana_locks -= 1
                 case _:
@@ -187,4 +196,13 @@ class CombatSystem(SimSystem):
         return dict(
             type="POST_AUTO",
             until=s.t + delay,
+        )
+
+    def _set_attack_state(self, s: SimState, update: dict):
+        self.attack_state = update
+
+        num_mana_ticks = int(s.t / 0.5)
+        self.t_wake = min(
+            update["until"],
+            (num_mana_ticks + 1) * 0.5,
         )

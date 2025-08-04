@@ -80,8 +80,11 @@ class DrMundoQuirks(UnitQuirks):
             duration=svs["duration"],
         )
 
+        self.t_wake = s.buffs[self.BUFF_KEY_ACTIVE]["until"] + 0.001
+
     def _end_active_buff(self, s: SimState):
         del s.buffs[self.BUFF_KEY_ACTIVE]
+        self.t_wake = 999
 
     def _increment_stacks_buff(self, s: SimState, svs: dict):
         s.buffs.setdefault(
@@ -97,6 +100,8 @@ class DrMundoQuirks(UnitQuirks):
             start=s.t,
             end=s.t + svs["duration"],
         )
+
+        self.t_wake = s.buffs[self.BUFF_KEY_STACKS]["last_cast"]["end"] + 0.001
 
 
 class GangplankQuirks(UnitQuirks):
@@ -355,9 +360,12 @@ class ShenQuirks(UnitQuirks):
         )
         s.mana_locks += 1
 
+        self.t_wake = s.buffs[self.BUFF_KEY_SHIELD]["until"] + 0.001
+
     def _end_buff_shield(self, s: SimState):
         del s.buffs[self.BUFF_KEY_SHIELD]
         s.mana_locks -= 1
+        self.t_wake = 999
 
 
 # Armor bonus not calculated

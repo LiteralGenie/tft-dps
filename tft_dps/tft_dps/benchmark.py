@@ -34,10 +34,22 @@ async def main():
 
     #
 
-    n = 1000
+    n = 100
     ti = time.time()
     for idx in range(n):
-        result = await runner.run("Characters/TFT15_Gnar", 3, dict(), dict())
+        result = await runner.run(
+            "Characters/TFT15_Gnar",
+            3,
+            [
+                "TFT_Item_ArchangelsStaff",
+                "TFT_Item_ArchangelsStaff",
+                "TFT_Item_ArchangelsStaff",
+            ],
+            dict(
+                TFT15_Luchador=1,
+                TFT15_Sniper=1,
+            ),
+        )
     el = time.time() - ti
     print(f"{(el / n)*1000:.0f}ms")
 

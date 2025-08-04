@@ -3,6 +3,8 @@ from tft_dps.lib.simulator.sim_system import SimSystem
 
 
 class CritSystem(SimSystem):
+    t_wake = 999
+
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus_crit_mult = 0
         if buff := s.buffs.get("spell_crit"):

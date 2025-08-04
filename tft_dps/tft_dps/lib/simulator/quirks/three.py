@@ -124,6 +124,8 @@ class MalzaharQuirks(UnitQuirks):
             svs = self._calc_spell_vars(s, stats)
             self._start_dot(s, svs)
 
+        t_wake = 999
+
         for dot in s.buffs.get(self.BUFF_KEY, []):
             rem_ticks = dot["ticks_total"] - dot["ticks_applied"]
             if rem_ticks <= 0:
@@ -139,6 +141,13 @@ class MalzaharQuirks(UnitQuirks):
                     )
                 )
                 dot["ticks_applied"] += 1
+
+            t_wake = min(
+                int((num_to_apply + 1) * dot["tick_rate"]),
+                t_wake,
+            )
+
+        self.t_wake = t_wake
 
     def _start_dot(self, s: SimState, svs: dict):
         num_ticks = math.ceil(svs["duration"] / svs["tickrate"])
@@ -230,6 +239,8 @@ class SwainQuirks(UnitQuirks):
                 )
             )
             buff["ticks_applied"] += 1
+
+        self.t_wake = num_ticks + 1
 
     def hook_events(
         self, s: "SimState", evs: list[SimEvent], stats: SimStats

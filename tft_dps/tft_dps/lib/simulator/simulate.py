@@ -1,3 +1,6 @@
+import loguru
+
+from tft_dps.lib.paths import LOG_DIR
 from tft_dps.lib.simulator.crit_system import CritSystem
 
 from ..calc_ctx import CalcCtx
@@ -44,7 +47,17 @@ so events can be seen as
     before it can be stored on the main state
 """
 
-TICK_PERIOD_MS = 10
+
+loguru.logger.add(
+    LOG_DIR / "sim.log",
+    filter=lambda record: record["extra"].get("name") == "sim",
+    rotation="10 MB",
+    retention=2,
+)
+SIM_LOGGER = loguru.logger.bind(name="sim")
+
+TICK_PERIOD_MS = 25
+MAX_TICK_PERIOD_MS = 500
 
 
 def simulate(ctx: CalcCtx) -> SimResult:
@@ -86,7 +99,12 @@ def simulate(ctx: CalcCtx) -> SimResult:
         else:
             raise Exception("Possibly infinite hook_events() phase")
 
-        s.t += TICK_PERIOD_MS / 1000
+        t_step = min(sys.t_wake for sys in s.systems) - s.t
+        if t_step <= 0:
+            t_step = TICK_PERIOD_MS / 1000
+        t_step = min(t_step, MAX_TICK_PERIOD_MS / 1000)
+        # t_step = TICK_PERIOD_MS / 1000
+        s.t += t_step
 
     final_stats = _calc_stats(s)
 

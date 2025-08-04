@@ -73,8 +73,12 @@ class EzrealQuirks(UnitQuirks):
             bonus_speed_mult=bonus_speed_mult,
         )
 
+        self.t_wake = s.buffs[self.BUFF_KEY_ACTIVE]["until"] + 0.001
+
     def _end_active_buff(self, s: "SimState"):
         del s.buffs[self.BUFF_KEY_ACTIVE]
+
+        self.t_wake = 999
 
     def _increment_passive_buff(self, s: "SimState", stats: SimStats, svs: dict):
         num_potential = 0
@@ -171,14 +175,20 @@ class GnarQuirks(UnitQuirks):
         self._set_passive_buff(s, stats)
 
     def _start_active_buff(self, s: "SimState", stats: SimStats, svs: dict):
+        until = s.t + svs["spellduration"]
         s.buffs[self.BUFF_KEY_ACTIVE] = dict(
-            until=s.t + svs["spellduration"], bonus_ad_mult=svs["gnarad"]
+            until=until,
+            bonus_ad_mult=svs["gnarad"],
         )
         s.mana_locks += 1
+
+        self.t_wake = until + 0.001
 
     def _end_active_buff(self, s: "SimState"):
         del s.buffs[self.BUFF_KEY_ACTIVE]
         s.mana_locks -= 1
+
+        self.t_wake = 999
 
     def _set_passive_buff(self, s: "SimState", stats: SimStats):
         if self.BUFF_KEY_PASSIVE not in s.buffs:

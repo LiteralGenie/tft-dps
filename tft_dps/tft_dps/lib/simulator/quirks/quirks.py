@@ -18,6 +18,8 @@ class UnitQuirks(SimSystem):
 
     notes: list[str] = []
 
+    t_wake = 999
+
     def __init__(self, logger: "Logger"):
         super().__init__()
 
@@ -45,6 +47,8 @@ class ItemQuirks(SimSystem):
 
     notes: list[str] = []
 
+    t_wake = 999
+
     def __init__(self, logger: "Logger"):
         super().__init__()
 
@@ -64,6 +68,8 @@ class TraitQuirks(SimSystem):
     id: str
 
     notes: list[str] = []
+
+    t_wake = 999
 
     def __init__(self, logger: "Logger"):
         super().__init__()
