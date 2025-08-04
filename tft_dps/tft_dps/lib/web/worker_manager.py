@@ -265,7 +265,7 @@ def _select_result(req: SimulateRequest) -> SimResult | None:
     )
     stats = json.loads(stats_query.fetchone()["data"])
 
-    return SimResult(
+    result = SimResult(
         attacks=[
             SimDamage(
                 t=r["t"],
@@ -282,6 +282,7 @@ def _select_result(req: SimulateRequest) -> SimResult | None:
         initial_stats=SimStats(**stats["initial_stats"]),
         final_stats=SimStats(**stats["final_stats"]),
     )
+    return result
 
 
 def _insert_result(req: SimulateRequest, res: SimResult):

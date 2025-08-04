@@ -24,7 +24,10 @@
     {#if ctx.value?.progress.count !== ctx.value?.progress.total}
         <div class="col-span-5 flex items-center justify-center gap-2 border-t p-4 text-sm">
             <LoaderIcon class="size-6 fill-white text-white" />
-            <span>Simulating {ctx.value!.progress.count} / {ctx.value!.progress.total} ...</span>
+            <span
+                >Simulating {ctx.value!.progress.count.toLocaleString()} / {ctx.value!.progress.total.toLocaleString()}
+                ...</span
+            >
         </div>
     {/if}
 

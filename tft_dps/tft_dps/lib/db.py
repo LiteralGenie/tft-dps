@@ -26,6 +26,8 @@ class TftDb(DbWrapper):
                 magical     REAL        NOT NULL,
                 true        REAL        NOT NULL
             ) STRICT;
+            
+            CREATE INDEX IF NOT EXISTS dps_id_combo ON dps (id_combo);
 
             CREATE TABLE IF NOT EXISTS stats (
                 id_combo    TEXT        NOT NULL

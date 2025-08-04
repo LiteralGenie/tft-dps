@@ -95,7 +95,7 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
 
     async function fetchData(ctxVal: ActiveSearchContextValue) {
         const comboIter = new ComboIter(ctxVal.params, infoCtx.value)
-        const batchSize = 100
+        const batchSize = 50
 
         ctxVal.progress.total = comboIter.total
 
