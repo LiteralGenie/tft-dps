@@ -624,7 +624,7 @@ class EvenshroudQuirks(ItemQuirks):
         bonus = SimStats.zeros()
         c = self._constants(s)
 
-        bonus.health_mult = c["Health"]
+        bonus.health_max = c["Health"]
         bonus.mr = c["MagicResist"]
 
         if s.t <= c["BonusResistDuration"]:

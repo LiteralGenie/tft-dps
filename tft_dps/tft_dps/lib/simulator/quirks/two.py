@@ -185,7 +185,7 @@ class KaiSaQuirks(UnitQuirks):
     def _init_buff(self, s: SimState, stats: SimStats):
         svs = self._calc_spell_vars(s, stats)
 
-        bonus_ad_mult = svs["adperkill"] * s.ctx.flags[self.FLAG_KEY]
+        bonus_ad_mult = (svs["adperkill"] / 100) * s.ctx.flags[self.FLAG_KEY]
         s.buffs[self.BUFF_KEY] = dict(
             bonus_ad_mult=bonus_ad_mult,
         )

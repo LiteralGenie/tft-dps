@@ -125,6 +125,9 @@ def _calc_stats(s: SimState, override_phase=True) -> SimStats:
         for sys in s.systems:
             sys.hook_stats_override(s, total)
 
+    if total.effective_speed > 5:
+        total.speed_mult = 5 / total.speed
+
     return total
 
 

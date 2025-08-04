@@ -234,7 +234,7 @@ class YoneQuirks(UnitQuirks):
             self.BUFF_KEY,
             dict(bonus_speed=0),
         )
-        s.buffs[self.BUFF_KEY]["bonus_speed"] += svs["asperattack"] * 100
+        s.buffs[self.BUFF_KEY]["bonus_speed"] += svs["asperattack"]
 
 
 class ZyraQuirks(UnitQuirks):

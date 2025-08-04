@@ -55,7 +55,7 @@ class EdgelordQuirks(TraitQuirks):
         eb = self._eb(s)
 
         bonus.ad = eb["ad"]
-        bonus.speed_mult = eb["bonus_as"]
+        bonus.speed_mult = eb["bonusas"]
 
         return bonus
 
@@ -119,7 +119,9 @@ class HeavyweightQuirks(TraitQuirks):
     def hook_stats_override(self, s: SimState, stats: SimStats):
         eb = self._eb(s)
 
-        stats.ad_mult += stats.effective_health * eb["healthpercenttoad"] / 100
+        stats.ad_mult += (
+            stats.effective_health * (eb["healthpercenttoad"] / 100)
+        ) / 100
 
 
 class SorcererQuirks(TraitQuirks):
@@ -132,7 +134,7 @@ class SorcererQuirks(TraitQuirks):
         eb = self._eb(s)
 
         bonus.ap = eb["abilitypower"]
-        bonus.amp = eb["targetnum"] * eb["targetnum"]
+        bonus.amp = eb["healthpct"] * eb["targetnum"]
 
         return bonus
 
@@ -301,10 +303,9 @@ class StarGuardianQuirks(TraitQuirks):
         em = self._em(s)
 
         for unit_id in self.units:
-            v = em[self.effects[unit_id]]
-
             match unit_id:
                 case "Characters/TFT15_Syndra":
+                    v = em[self.effects[unit_id]]
                     num_stacks = int(s.t / em["syndratimer"])
                     bonus.ap += num_stacks * v * self.mult
                 case "Characters/TFT15_Ahri":
@@ -316,6 +317,7 @@ class StarGuardianQuirks(TraitQuirks):
                         self.mult * s.ctx.flags[self.FLAG_KEY_STAR_JINX] / 100
                     )
                 case "Characters/TFT15_Seraphine":
+                    v = em[self.effects[unit_id]]
                     bonus.health_mult += v * self.mult
                     bonus.ad_mult += v * self.mult
                     bonus.speed_mult += v * self.mult
@@ -355,7 +357,7 @@ class SupremeCellsQuirks(TraitQuirks):
         bonus = SimStats.zeros()
         eb = self._eb(s)
 
-        bonus.amp = eb["overlorddamageamp"]
+        bonus.amp = eb["overlorddamageamp"] / 100
 
         return bonus
 
@@ -378,7 +380,7 @@ class LuchadorQuirks(TraitQuirks):
         bonus = SimStats.zeros()
         eb = self._eb(s)
 
-        bonus.ad_mult = eb["ad_bonus"]
+        bonus.ad_mult = eb["adbonus"]
 
         return bonus
 

@@ -14,14 +14,11 @@ table
 
 simulate
     db
-    item quirks
-    traits
     catch errors
-    spell crits
-    lulu
-    5 costs
-    amp
-    mana regen
+    missing
+        lulu
+        5 costs
+    validate traits
 
 data
     cache
@@ -36,10 +33,4 @@ misc
         github
         license
         faq
-    faq
 ```
-
-"""
-Sim loop:
-
-"""

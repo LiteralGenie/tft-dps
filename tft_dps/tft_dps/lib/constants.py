@@ -1,7 +1,7 @@
 VERSION = "latest"
 PORT = 4723
 
-MAX_IDS_PER_SIMULATE = 2000
+MAX_IDS_PER_SIMULATE = 200
 PACKED_ID_BIT_ESTIMATE = 40
 
 ITEMS = [
@@ -159,7 +159,6 @@ FLAGS = dict(
     akali_strike_targets=3,
     akali_dash_targets=2,
     jarvan_aoe_targets=4,
-    jinx_aoe_targets=3,
     ksante_allout_delay=7,
     karma_aoe_targets=2,
     leona_aoe_targets=4,
@@ -173,13 +172,13 @@ FLAGS = dict(
     volibear_aoe_targets=2,
     volibear_slam_frequency=7,
     #
-    braum_aoe_targets_primary=4,
+    braum_aoe_targets_primary=3,
     braum_aoe_targets_secondary=2,
     braum_execute_bonus=0.5,
     gwen_aoe_targets_spell=6,
     gwen_aoe_targets_auto=4,
     # seraphine_aoe_targets=7,
-    yone_aoe_targets=8,
+    yone_aoe_targets=6,
     zyra_decay=0.5,
     #
     item_spark_damage=300,

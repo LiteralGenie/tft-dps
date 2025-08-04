@@ -100,20 +100,13 @@ class JarvanIVQuirks(UnitQuirks):
 class JinxQuirks(UnitQuirks):
     id = "Characters/TFT15_Jinx"
 
-    FLAG_KEY = "jinx_aoe_targets"
-    notes = [
-        "Spell AoE hits {jinx_aoe_targets} additional targets (excluding primary target)"
-    ]
-
     BUFF_KEY = "jinx_spell"
 
     def get_spell_damage(self, s: "SimState", stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)
 
         dmg = svs["modifieddamage"]
-
-        aoe_mult = s.ctx.flags[self.FLAG_KEY]
-        dmg += aoe_mult * svs["modifiedrocketaoedamage"]
+        dmg += svs["modifiedrocketaoedamage"]
 
         return sim_damage_spell(
             s,

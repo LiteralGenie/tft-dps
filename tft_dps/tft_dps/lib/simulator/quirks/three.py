@@ -213,6 +213,24 @@ class SwainQuirks(UnitQuirks):
 
         return bonus
 
+    def hook_main(self, s: SimState, stats: SimStats) -> list | None:
+        buff = s.buffs.get(self.BUFF_KEY)
+        if not buff:
+            return
+
+        elapsed = s.t - buff["start"]
+        num_ticks = int(elapsed)
+        rem_ticks = num_ticks - buff["ticks_applied"]
+        for _ in range(rem_ticks):
+            s.misc_damage.append(
+                sim_damage_spell(
+                    s,
+                    stats,
+                    ma=buff["tick_damage"],
+                )
+            )
+            buff["ticks_applied"] += 1
+
     def hook_events(
         self, s: "SimState", evs: list[SimEvent], stats: SimStats
     ) -> list | None:
@@ -221,22 +239,12 @@ class SwainQuirks(UnitQuirks):
             svs = self._calc_spell_vars(s, stats)
             self._start_buff(s, svs)
 
-        if buff := s.buffs.get(self.BUFF_KEY):
-            num_ticks = int(s.t - buff["start"])
-            for _ in range(num_ticks):
-                s.misc_damage.append(
-                    sim_damage_spell(
-                        s,
-                        stats,
-                        ma=buff["tick_damage"],
-                    )
-                )
-
     def _start_buff(self, s: SimState, svs: dict):
         if self.BUFF_KEY not in s.buffs:
             bonus_health_max = svs["modifiedinitialhealth"]
             s.buffs[self.BUFF_KEY] = dict(
                 start=s.t,
+                ticks_applied=0,
                 tick_damage=svs["modifieddamage"],
                 bonus_health_max=bonus_health_max,
             )

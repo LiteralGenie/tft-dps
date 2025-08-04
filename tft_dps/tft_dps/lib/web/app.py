@@ -86,7 +86,7 @@ async def simulate(req: Request):
                 if x["t"] > period:
                     break
 
-                total_damage += (
+                total_damage += x["mult"] * (
                     x["physical_damage"] + x["magical_damage"] + x["true_damage"]
                 )
 
