@@ -7,6 +7,10 @@ services:
             - "4725:4723"
         command: "python main.py"
         restart: always
+        volumes:
+            - type: bind
+              source: ./tft_dps/data
+              target: /tft_dps/data
     web:
         build:
             args:
