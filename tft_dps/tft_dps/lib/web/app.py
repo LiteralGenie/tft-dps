@@ -1,21 +1,13 @@
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
-import bitarray
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from tft_dps.lib.constants import MAX_IDS_PER_SIMULATE, PACKED_ID_BIT_ESTIMATE
 from tft_dps.lib.simulator.sim_state import SimResult
-from tft_dps.lib.utils.network_utils import (
-    decompress_gzip,
-    unpack_sim_id,
-    unpack_sim_id_array,
-)
 from tft_dps.lib.web.app_worker import AppWorkerContext
+from tft_dps.lib.web.handlers.handle_simulate import handle_simulate
 from tft_dps.lib.web.job_worker import SimulateRequest
-from tft_dps.lib.web.worker_manager import SimulateAllRequest, select_sim_result
+from tft_dps.lib.web.worker_manager import SimulateAllRequest
 
 __all__ = ["app"]
 
@@ -31,7 +23,6 @@ app.add_middleware(
 
 
 APP_WORKER_CONTEXT: AppWorkerContext
-QUEUE_LOCK = asyncio.Lock()
 
 
 @app.get("/ping")
@@ -41,84 +32,7 @@ async def ping():
 
 @app.post("/simulate")
 async def simulate(req: Request):
-    async with QUEUE_LOCK:
-        body = await req.body()
-
-        data = decompress_gzip(
-            body,
-            max_bytes=(MAX_IDS_PER_SIMULATE * PACKED_ID_BIT_ESTIMATE) // 8,
-        )
-        unpacked = unpack_sim_id_array(data)
-        ids: list[bitarray.bitarray] = unpacked["ids"]
-        period: float = unpacked["period"]
-
-        raw_requests = [
-            unpack_sim_id(id, APP_WORKER_CONTEXT.trait_bits_by_unit_index) for id in ids
-        ]
-
-        sim_requests: list[SimulateRequest] = []
-        for idx, r in enumerate(raw_requests):
-            id_unit = APP_WORKER_CONTEXT.unit_info_by_index[r["unit"]]["info"]["id"]
-            items = [
-                APP_WORKER_CONTEXT.item_info_by_index[itemId]["id"]
-                for itemId in r["items"]
-                if itemId > 0
-            ]
-            traits = APP_WORKER_CONTEXT.unit_info[id_unit]["info"]["traits"]
-            sim_req = SimulateRequest(
-                type="simulate_request",
-                id_unit=id_unit,
-                stars=r["stars"],
-                items=items,
-                traits={trait: tier for trait, tier in zip(traits, r["traits"])},
-            )
-
-            sim_requests.append(sim_req)
-
-        with ThreadPoolExecutor(3) as exec:
-            pending = await asyncio.gather(
-                *[
-                    asyncio.get_running_loop().run_in_executor(
-                        exec, select_sim_result, sim_req
-                    )
-                    for sim_req in sim_requests
-                ]
-            )
-            # pending: list[SimResult | None] = []
-
-        idx_from_worker = []
-        for idx, res in enumerate(pending):
-            if not res:
-                idx_from_worker.append(idx)
-
-        APP_WORKER_CONTEXT.req_queue.put(
-            SimulateAllRequest(
-                type="simulate_all_request",
-                requests=[sim_requests[idx] for idx in idx_from_worker],
-            )
-        )
-
-        sims_from_workers: list[SimResult] = APP_WORKER_CONTEXT.resp_queue.get()
-        for idx_sim, res in zip(idx_from_worker, sims_from_workers):
-            pending[idx_sim] = res
-
-        sims: list[SimResult] = pending  # type: ignore
-        dps = []
-        for sim in sims:
-            total_damage = 0
-
-            for key in ["attacks", "casts", "misc_damage"]:
-                for x in sim[key]:
-                    if x["t"] > period:
-                        break
-
-                    total_damage += x["mult"] * (
-                        x["physical_damage"] + x["magical_damage"] + x["true_damage"]
-                    )
-
-            dps.append(total_damage / period)
-
-        return dps
+    return await handle_simulate(req)
 
 
 @dataclass

@@ -13,6 +13,7 @@ from tft_dps.lib.constants import PORT
 class AppWorkerContext:
     req_queue: mp.Queue
     resp_queue: mp.Queue
+    queue_lock: asyncio.Lock
     unit_info: dict
     item_info: dict
     trait_info: dict
@@ -46,6 +47,7 @@ async def _serve_app(
     __builtins__["APP_WORKER_CONTEXT"] = AppWorkerContext(
         req_queue,
         resp_queue,
+        asyncio.Lock(),
         unit_info,
         item_info,
         trait_info,
