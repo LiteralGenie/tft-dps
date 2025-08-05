@@ -147,20 +147,20 @@ class WorkerManager:
 
                             to_generate = []
                             for idx, r in enumerate(req["requests"]):
-                                if from_db := _select_result(r):
-                                    batch_data[idx] = from_db
-                                else:
-                                    to_generate.append(
-                                        SimulateJob(
-                                            type="simulate_job",
-                                            batch=BatchInfo(
-                                                id=batch_id,
-                                                idx=idx,
-                                                total=len(req["requests"]),
-                                            ),
-                                            req=r,
-                                        )
+                                # if from_db := select_sim_result(r):
+                                #     batch_data[idx] = from_db
+                                # else:
+                                to_generate.append(
+                                    SimulateJob(
+                                        type="simulate_job",
+                                        batch=BatchInfo(
+                                            id=batch_id,
+                                            idx=idx,
+                                            total=len(req["requests"]),
+                                        ),
+                                        req=r,
                                     )
+                                )
 
                             if to_generate:
                                 self.pending_batches[batch_id] = SimulateAllBatch(
@@ -199,7 +199,7 @@ class WorkerManager:
                     pb["data"][b["idx"]] = result["resp"]
                     pb["rem"] -= 1
 
-                    _insert_result(
+                    insert_sim_result(
                         pb["req"]["requests"][b["idx"]],
                         result["resp"],
                     )
@@ -218,7 +218,7 @@ class WorkerManager:
             worker.kill()
 
 
-def _request_to_db_id(req: SimulateRequest):
+def dbid_from_request(req: SimulateRequest):
     parts = [req["id_unit"]]
 
     parts.append(str(req["stars"]))
@@ -232,8 +232,8 @@ def _request_to_db_id(req: SimulateRequest):
     return "_".join(parts)
 
 
-def _select_result(req: SimulateRequest) -> SimResult | None:
-    id = _request_to_db_id(req)
+def select_sim_result(req: SimulateRequest) -> SimResult | None:
+    id = dbid_from_request(req)
 
     db = TftDb()
 
@@ -285,8 +285,8 @@ def _select_result(req: SimulateRequest) -> SimResult | None:
     return result
 
 
-def _insert_result(req: SimulateRequest, res: SimResult):
-    id = _request_to_db_id(req)
+def insert_sim_result(req: SimulateRequest, res: SimResult):
+    id = dbid_from_request(req)
 
     db = TftDb().connect()
 

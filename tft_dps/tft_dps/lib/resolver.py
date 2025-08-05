@@ -178,3 +178,18 @@ async def fetch_cdragon_unit(version: str, unit_id: str) -> dict:
         return await fetch_cdragon(version, f"{unit_id.lower()}.cdtb.bin.json")
     except Exception:
         return {}
+
+
+async def fetch_cdragon_version(version: str) -> dict:
+    url = f"https://raw.communitydragon.org/{version}/content-metadata.json"
+    resp = requests.get(url)
+    resp.raise_for_status()
+    return json.loads(resp.text)
+
+
+async def fetch_cdragon_version_cached(cache: Cache, version: str) -> dict:
+    return await fetch_cached(
+        lambda: fetch_cdragon_version(version),
+        cache,
+        "content-metadata",
+    )

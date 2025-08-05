@@ -10,6 +10,7 @@ from tft_dps.lib.resolver import (
     fetch_cached_and_get_items,
     fetch_cached_and_get_traits,
     fetch_cached_and_init_unit_processor,
+    fetch_cdragon_version_cached,
 )
 from tft_dps.lib.simulator.quirks.item_quirks import ITEM_QUIRK_MAP
 from tft_dps.lib.simulator.quirks.trait_quirks import TRAIT_QUIRK_MAP
@@ -50,6 +51,8 @@ class SimRunner:
 
     @classmethod
     async def ainit(cls, cache: Cache):
+        await fetch_cdragon_version_cached(cache, VERSION)
+
         unit_proc = await fetch_cached_and_init_unit_processor(cache, VERSION)
         items = await cls._get_items(cache)
         traits = await cls._get_traits(cache)

@@ -13,7 +13,7 @@ from tft_dps.lib.utils.network_utils import (
 )
 from tft_dps.lib.web.app_worker import AppWorkerContext
 from tft_dps.lib.web.job_worker import SimulateRequest
-from tft_dps.lib.web.worker_manager import SimulateAllRequest
+from tft_dps.lib.web.worker_manager import SimulateAllRequest, select_sim_result
 
 __all__ = ["app"]
 
@@ -52,8 +52,10 @@ async def simulate(req: Request):
         unpack_sim_id(id, APP_WORKER_CONTEXT.trait_bits_by_unit_index) for id in ids
     ]
 
-    requests = []
-    for r in raw_requests:
+    sim_requests: list[SimulateRequest] = []
+    pending: list[SimResult | None] = []
+    idx_from_worker = []
+    for idx, r in enumerate(raw_requests):
         id_unit = APP_WORKER_CONTEXT.unit_info_by_index[r["unit"]]["info"]["id"]
         items = [
             APP_WORKER_CONTEXT.item_info_by_index[itemId]["id"]
@@ -61,23 +63,34 @@ async def simulate(req: Request):
             if itemId > 0
         ]
         traits = APP_WORKER_CONTEXT.unit_info[id_unit]["info"]["traits"]
-        requests.append(
-            SimulateRequest(
-                type="simulate_request",
-                id_unit=id_unit,
-                stars=r["stars"],
-                items=items,
-                traits={trait: tier for trait, tier in zip(traits, r["traits"])},
-            )
+        sim_req = SimulateRequest(
+            type="simulate_request",
+            id_unit=id_unit,
+            stars=r["stars"],
+            items=items,
+            traits={trait: tier for trait, tier in zip(traits, r["traits"])},
         )
 
+        sim_requests.append(sim_req)
+        if res := select_sim_result(sim_req):
+            pending.append(res)
+        else:
+            pending.append(None)
+            idx_from_worker.append(idx)
+
     APP_WORKER_CONTEXT.req_queue.put(
-        SimulateAllRequest(type="simulate_all_request", requests=requests)
+        SimulateAllRequest(
+            type="simulate_all_request",
+            requests=[sim_requests[idx] for idx in idx_from_worker],
+        )
     )
 
-    sims: list[SimResult] = APP_WORKER_CONTEXT.resp_queue.get()
+    sims_from_workers: list[SimResult] = APP_WORKER_CONTEXT.resp_queue.get()
+    for idx_sim, res in zip(idx_from_worker, sims_from_workers):
+        pending[idx_sim] = res
 
-    result = []
+    sims: list[SimResult] = pending  # type: ignore
+    dps = []
     for sim in sims:
         total_damage = 0
 
@@ -90,9 +103,9 @@ async def simulate(req: Request):
                     x["physical_damage"] + x["magical_damage"] + x["true_damage"]
                 )
 
-        result.append(total_damage / period)
+        dps.append(total_damage / period)
 
-    return result
+    return dps
 
 
 @dataclass

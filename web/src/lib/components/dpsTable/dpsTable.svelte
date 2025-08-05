@@ -52,6 +52,8 @@
                 items: new SvelteSet(v.items),
             }
             activeSearch.set(v)
+        } else {
+            activeSearch.set(search.value)
         }
     })
 </script>
