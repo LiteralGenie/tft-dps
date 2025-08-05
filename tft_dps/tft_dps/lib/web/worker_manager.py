@@ -12,7 +12,8 @@ import loguru
 from tft_dps.lib.db import TftDb
 from tft_dps.lib.paths import LOG_DIR
 from tft_dps.lib.simulator.sim_runner import SimRunner
-from tft_dps.lib.simulator.sim_state import SimDamage, SimResult, SimStats
+from tft_dps.lib.simulator.sim_state import SimResult
+from tft_dps.lib.utils.db_utils import dbid_from_request
 from tft_dps.lib.web.app_worker import run_app_worker
 from tft_dps.lib.web.job_worker import (
     BatchInfo,
@@ -199,7 +200,7 @@ class WorkerManager:
                     pb["data"][b["idx"]] = result["resp"]
                     pb["rem"] -= 1
 
-                    insert_sim_result(
+                    _insert_sim_result(
                         pb["req"]["requests"][b["idx"]],
                         result["resp"],
                     )
@@ -218,74 +219,7 @@ class WorkerManager:
             worker.kill()
 
 
-def dbid_from_request(req: SimulateRequest):
-    parts = [req["id_unit"]]
-
-    parts.append(str(req["stars"]))
-
-    parts.extend(sorted(req["items"]))
-
-    parts.extend(
-        [f"{k}|{v}" for k, v in sorted(req["traits"].items(), key=lambda kv: kv[0])]
-    )
-
-    return "_".join(parts)
-
-
-def select_sim_result(req: SimulateRequest) -> SimResult | None:
-    id = dbid_from_request(req)
-
-    db = TftDb()
-
-    does_exist = bool(
-        db.connect().execute("SELECT 1 FROM combo WHERE id = ?", [id]).fetchone()
-    )
-    if not does_exist:
-        return
-
-    dps_query = db.connect().execute(
-        """
-        SELECT
-            type, t, mult, physical, magical, true
-        FROM dps
-        WHERE id_combo = ?
-        ORDER by t ASC
-        """,
-        [id],
-    )
-    dps_rows = list(dps_query.fetchall())
-
-    stats_query = db.connect().execute(
-        """
-        SELECT data
-        FROM stats
-        WHERE id_combo = ?
-        """,
-        [id],
-    )
-    stats = json.loads(stats_query.fetchone()["data"])
-
-    result = SimResult(
-        attacks=[
-            SimDamage(
-                t=r["t"],
-                mult=r["mult"],
-                physical_damage=r["physical"],
-                magical_damage=r["magical"],
-                true_damage=r["true"],
-            )
-            for r in dps_rows
-            if r["type"] == "auto"
-        ],
-        casts=[],
-        misc_damage=[],
-        initial_stats=SimStats(**stats["initial_stats"]),
-        final_stats=SimStats(**stats["final_stats"]),
-    )
-    return result
-
-
-def insert_sim_result(req: SimulateRequest, res: SimResult):
+def _insert_sim_result(req: SimulateRequest, res: SimResult):
     id = dbid_from_request(req)
 
     db = TftDb().connect()

@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any, TypeAlias
 
 from tft_dps.lib.utils.misc_utils import to_path
+from tft_dps.lib.web.job_worker import SimulateRequest
 
 Db: TypeAlias = sqlite3.Connection
 
@@ -58,3 +59,17 @@ class DbWrapper:
             return r[key]
         else:
             return None
+
+
+def dbid_from_request(req: SimulateRequest):
+    parts = [req["id_unit"]]
+
+    parts.append(str(req["stars"]))
+
+    parts.extend(sorted(req["items"]))
+
+    parts.extend(
+        [f"{k}|{v}" for k, v in sorted(req["traits"].items(), key=lambda kv: kv[0])]
+    )
+
+    return "_".join(parts)

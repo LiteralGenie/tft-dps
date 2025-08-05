@@ -9,6 +9,7 @@ from fastapi.responses import StreamingResponse
 from tft_dps.lib.constants import MAX_IDS_PER_SIMULATE, PACKED_ID_BIT_ESTIMATE
 from tft_dps.lib.db import TftDb
 from tft_dps.lib.simulator.sim_state import SimResult
+from tft_dps.lib.utils.db_utils import dbid_from_request
 from tft_dps.lib.utils.network_utils import (
     decompress_gzip,
     unpack_sim_id,
@@ -16,7 +17,6 @@ from tft_dps.lib.utils.network_utils import (
 )
 from tft_dps.lib.web.app_worker import AppWorkerContext
 from tft_dps.lib.web.job_worker import SimulateAllRequest, SimulateRequest
-from tft_dps.lib.web.worker_manager import dbid_from_request
 
 APP_WORKER_CONTEXT: AppWorkerContext
 
