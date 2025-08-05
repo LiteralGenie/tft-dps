@@ -1,7 +1,10 @@
+import json
 import sqlite3
+from typing import AsyncGenerator
 
 import bitarray
 from fastapi import Request
+from fastapi.responses import StreamingResponse
 
 from tft_dps.lib.constants import MAX_IDS_PER_SIMULATE, PACKED_ID_BIT_ESTIMATE
 from tft_dps.lib.db import TftDb
@@ -36,7 +39,7 @@ async def handle_simulate(req: Request):
 
     # Convert to SimulateRequest
     sim_requests: list[SimulateRequest] = []
-    for idx, r in enumerate(raw_requests):
+    for r in raw_requests:
         id_unit = APP_WORKER_CONTEXT.unit_info_by_index[r["unit"]]["info"]["id"]
         items = [
             APP_WORKER_CONTEXT.item_info_by_index[itemId]["id"]
@@ -54,37 +57,80 @@ async def handle_simulate(req: Request):
 
         sim_requests.append(sim_req)
 
-    # Load from db
+    # Chunk and process
+    return StreamingResponse(_stream(period, sim_requests))
+
+
+async def _stream(period: float, reqs: list[SimulateRequest]):
     db = TftDb().connect()
-    pending: list[dict | None] = []
-    for sim_req in sim_requests:
-        pending.append(_select_dps(db, sim_req, period))
 
-    # Generate from worker
+    async for chunk in _handle_simulate_chunk(db, period, reqs):
+        yield json.dumps([x["total"] for x in chunk]).encode()
+
+
+async def _handle_simulate_chunk(
+    db: sqlite3.Connection,
+    period: float,
+    reqs: list[SimulateRequest],
+) -> "AsyncGenerator[list[dict]]":
+    """
+    Yielding a large number of responses is slow for some reason
+    (~250ms per chunk on localhost / chrome, independent of chunk size)
+
+    But large fixed-size chunks can take a long time depending on
+    how many requests are in db vs how many need to be generated
+
+    So as a compromise, buffer until we hit G generations and yield that buffer
+    so with R requests, if all are cached, client sees a stream with single chunk of size R
+    if none are cached, client sees stream of (R/G) chunks of size G
+    """
+
+    max_generations_per_batch = 100
+
+    buffer: list[dict | None] = []
     idx_from_worker = []
-    for idx, res in enumerate(pending):
-        if not res:
-            idx_from_worker.append(idx)
 
-    APP_WORKER_CONTEXT.req_queue.put(
-        SimulateAllRequest(
-            type="simulate_all_request",
-            requests=[sim_requests[idx] for idx in idx_from_worker],
-        )
-    )
+    async def _generate():
+        nonlocal buffer, idx_from_worker
 
-    # Collect worker results
-    async with APP_WORKER_CONTEXT.queue_lock:
-        sims_from_workers: list[SimResult] = APP_WORKER_CONTEXT.resp_queue.get()
-        for idx_sim, res in zip(idx_from_worker, sims_from_workers):
-            pending[idx_sim] = dict(
-                total=_calc_dps(res, period),
+        async with APP_WORKER_CONTEXT.queue_lock:
+            APP_WORKER_CONTEXT.req_queue.put(
+                SimulateAllRequest(
+                    type="simulate_all_request",
+                    requests=[reqs[req_idx] for req_idx, _ in idx_from_worker],
+                )
             )
 
-    # Python types suck
-    dps: list[dict] = pending  # type: ignore
+            sims_from_workers: list[SimResult] = APP_WORKER_CONTEXT.resp_queue.get()
+            for idx_sim, res in zip(idx_from_worker, sims_from_workers):
+                buffer[idx_sim] = dict(
+                    total=_calc_dps(res, period),
+                )
 
-    return [x["total"] for x in dps]
+            idx_from_worker = []
+
+    for req_idx, req in enumerate(reqs):
+        buffer_idx = len(buffer)
+
+        # Select from db, scheduling any missing for workers
+        dps = _select_dps(db, req, period)
+        buffer.append(dps)
+        if not dps:
+            idx_from_worker.append((req_idx, buffer_idx))
+
+        # Collect worker results
+        if len(idx_from_worker) >= max_generations_per_batch:
+            await _generate()
+
+            # Flush
+            yield buffer  # type: ignore
+            buffer = []
+
+    if idx_from_worker:
+        await _generate()
+
+    if buffer:
+        yield buffer  # type: ignore
 
 
 def _select_dps(db: sqlite3.Connection, req: SimulateRequest, t: float) -> dict | None:

@@ -95,7 +95,7 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
 
     async function fetchData(ctxVal: ActiveSearchContextValue) {
         const comboIter = new ComboIter(ctxVal.params, infoCtx.value)
-        const batchSize = 3000
+        const batchSize = 5000
 
         ctxVal.progress.total = comboIter.total
 
@@ -112,23 +112,31 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
                     'content-type': 'application/octet-stream',
                 },
             })
-            const data: number[] = await resp.json()
+            const respBody: any = resp.body
 
-            for (let idx = 0; idx < batch.length; idx++) {
-                const packedId = packed[idx]
-                insertData(ctxVal, {
-                    id: packedId,
-                    dps: data[idx],
-                })
-            }
-            applyFilters(ctxVal)
+            let packingIdx = 0
+            for await (const rawChunk of respBody) {
+                const asText = new TextDecoder().decode(rawChunk)
+                const chunk: number[] = JSON.parse(asText)
 
-            ctxVal.progress.count += batch.length
+                for (let chunkIdx = 0; chunkIdx < chunk.length; chunkIdx++) {
+                    const packedId = packed[packingIdx]
+                    packingIdx += 1
 
-            const isCancelled = ctx.value?.id !== ctxVal.id
-            if (isCancelled) {
-                console.log('fetch cancelled')
-                return
+                    insertData(ctxVal, {
+                        id: packedId,
+                        dps: chunk[chunkIdx],
+                    })
+                }
+                applyFilters(ctxVal)
+
+                ctxVal.progress.count += chunk.length
+
+                const isCancelled = ctx.value?.id !== ctxVal.id
+                if (isCancelled) {
+                    console.log('fetch cancelled')
+                    return
+                }
             }
         }
 
