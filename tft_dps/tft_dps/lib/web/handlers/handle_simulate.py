@@ -102,8 +102,8 @@ async def _handle_simulate_chunk(
             )
 
             sims_from_workers: list[SimResult] = APP_WORKER_CONTEXT.resp_queue.get()
-            for idx_sim, res in zip(idx_from_worker, sims_from_workers):
-                buffer[idx_sim] = dict(
+            for (req_idx, buffer_idx), res in zip(idx_from_worker, sims_from_workers):
+                buffer[buffer_idx] = dict(
                     total=_calc_dps(res, period),
                 )
 
