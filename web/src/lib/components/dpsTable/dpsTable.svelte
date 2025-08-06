@@ -80,9 +80,8 @@
     /* Grid */
     .grid-container {
         display: grid;
-        grid-template-columns: 5em 5em 15em 10em 11em;
-        grid-template-rows: max-content;
-        grid-auto-rows: 1fr;
+        grid-template-columns: 5em 5em 15em 10em 11em min-content;
+        grid-auto-rows: min-content;
     }
 
     /* Padded rows */
@@ -90,7 +89,7 @@
         padding: 1em 1em;
     }
     .root :global(.td) {
-        padding: 1em 1em;
+        padding: 1em 1em 0.5em 1em;
     }
 
     /* Smaller body */
@@ -100,7 +99,7 @@
 
     /* Row borders */
     .root :global(.td) {
-        border-top: 1px solid color-mix(in oklab, var(--color-foreground), transparent 80%);
+        border-top: 1.5px solid color-mix(in oklab, var(--color-foreground), transparent 70%);
     }
 
     /* Index col */
@@ -127,5 +126,17 @@
     }
     button:hover {
         background-color: oklch(0.55 0.4 0 / 1);
+        transition: rotate;
+        transition-duration: 300ms;
+    }
+
+    /* Smol gear animation */
+    button :global(svg) {
+        rotate: 0deg;
+        transition: rotate;
+        transition-duration: 300ms;
+    }
+    button:hover :global(svg) {
+        rotate: 60deg;
     }
 </style>

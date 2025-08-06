@@ -1,6 +1,7 @@
 <script lang="ts">
     import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
     import LoaderIcon from '$lib/components/icons/loaderIcon.svelte'
+    import { getSimDetailsContext } from '$lib/simDetailsContext/simDetailsContext.svelte'
     import DpsTableRow from './dpsTableRow.svelte'
 
     const ctx = getActiveSearchContext()
@@ -18,16 +19,21 @@
             .map((id) => ctxValue.data.values.get(id)!)
             .slice(start, end)
     })
+
+    const details = getSimDetailsContext()
+    $effect(() => {
+        details.prefetch(rows.map((r) => r.id))
+    })
 </script>
 
 <div class="font-xs contents">
     {#if ctx.value?.progress.count !== ctx.value?.progress.total}
         <div class="col-span-5 flex items-center justify-center gap-2 border-t p-4 text-sm">
             <LoaderIcon class="size-6 fill-white text-white" />
-            <span
-                >Simulating {ctx.value!.progress.count.toLocaleString()} / {ctx.value!.progress.total.toLocaleString()}
-                ...</span
-            >
+            <span>
+                Simulating {ctx.value!.progress.count.toLocaleString()} / {ctx.value!.progress.total.toLocaleString()}
+                ...
+            </span>
         </div>
     {/if}
 

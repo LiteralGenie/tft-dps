@@ -6,13 +6,13 @@ import bitarray
 from fastapi import Request
 from fastapi.responses import StreamingResponse
 
-from tft_dps.lib.constants import MAX_IDS_PER_SIMULATE, PACKED_ID_BIT_ESTIMATE
+from tft_dps.lib.constants import MAX_IDS_PER_SIMULATE, PACKED_ID_BITS
 from tft_dps.lib.db import TftDb
 from tft_dps.lib.simulator.sim_state import SimResult
 from tft_dps.lib.utils.db_utils import dbid_from_request
 from tft_dps.lib.utils.network_utils import (
     decompress_gzip,
-    unpack_sim_id,
+    sim_id_to_sim_request,
     unpack_sim_id_array,
 )
 from tft_dps.lib.web.app_worker import AppWorkerContext
@@ -27,35 +27,13 @@ async def handle_simulate(req: Request):
     # Decode request
     data = decompress_gzip(
         body,
-        max_bytes=(MAX_IDS_PER_SIMULATE * PACKED_ID_BIT_ESTIMATE) // 8,
+        max_bytes=(MAX_IDS_PER_SIMULATE * PACKED_ID_BITS) // 8,
     )
     unpacked = unpack_sim_id_array(data)
     ids: list[bitarray.bitarray] = unpacked["ids"]
     period: float = unpacked["period"]
 
-    raw_requests = [
-        unpack_sim_id(id, APP_WORKER_CONTEXT.trait_bits_by_unit_index) for id in ids
-    ]
-
-    # Convert to SimulateRequest
-    sim_requests: list[SimulateRequest] = []
-    for r in raw_requests:
-        id_unit = APP_WORKER_CONTEXT.unit_info_by_index[r["unit"]]["info"]["id"]
-        items = [
-            APP_WORKER_CONTEXT.item_info_by_index[itemId]["id"]
-            for itemId in r["items"]
-            if itemId > 0
-        ]
-        traits = APP_WORKER_CONTEXT.unit_info[id_unit]["info"]["traits"]
-        sim_req = SimulateRequest(
-            type="simulate_request",
-            id_unit=id_unit,
-            stars=r["stars"],
-            items=items,
-            traits={trait: tier for trait, tier in zip(traits, r["traits"])},
-        )
-
-        sim_requests.append(sim_req)
+    sim_requests = [sim_id_to_sim_request(id, APP_WORKER_CONTEXT) for id in ids]
 
     # Chunk and process
     return StreamingResponse(_stream(period, sim_requests))
@@ -75,13 +53,14 @@ async def _handle_simulate_chunk(
 ) -> "AsyncGenerator[list[dict]]":
     """
     Yielding a large number of responses is slow for some reason
-    (~250ms per chunk on localhost / chrome, independent of chunk size)
+    response time was also mostly independent of batch size
+    can still repro this changing the flush condition to "... or len(buffer) > 100"
 
-    But large fixed-size chunks can take a long time depending on
-    how many requests are in db vs how many need to be generated
+    But upping the batch size can make the worst-case response time a lot longer,
+    depending how many requests in batch are in db vs how many need to be generated
 
-    So as a compromise, buffer until we hit G generations and yield that buffer
-    so with R requests, if all are cached, client sees a stream with single chunk of size R
+    So as a compromise, buffer responses for chunk until we hit G generations and yield that buffer
+    so for a batch with R requests, if all are cached, client sees a stream with single chunk of size R
     if none are cached, client sees stream of (R/G) chunks of size G
     """
 

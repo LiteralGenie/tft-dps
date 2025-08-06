@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getGameInfoContext } from '$lib/gameInfoContext.svelte'
     import { getSearchContext } from '$lib/searchContext/searchContext.svelte'
-    import { alphabetical } from 'radash'
+    import { sort } from 'radash'
     import { type Component } from 'svelte'
     import Checkbox from '../checkbox.svelte'
     import FourSquareIcon from '../icons/fourSquareIcon.svelte'
@@ -11,10 +11,11 @@
     const { value: info } = getGameInfoContext()
     const search = getSearchContext()
 
-    const unitInfo = alphabetical(
-        [...Object.values(info.units)],
-        (u) => u.info.cost.toString() + u.info.name,
-    )
+    // prettier-ignore
+    const unitInfo = sort(
+        Object.entries(info.unitsByAlphabeticalIndex),
+        ([idx, _]) => parseInt(idx),
+    ).map(([_, unitId]) => info.units[unitId])
 
     function selectAll() {
         for (const unitId of Object.keys(info.units)) {

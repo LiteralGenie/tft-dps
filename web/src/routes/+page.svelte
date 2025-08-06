@@ -4,6 +4,7 @@
     import DpsTable from '$lib/components/dpsTable/dpsTable.svelte'
     import { setGameInfoContext } from '$lib/gameInfoContext.svelte'
     import { setSearchContext } from '$lib/searchContext/searchContext.svelte'
+    import { setSimDetailsContext } from '$lib/simDetailsContext/simDetailsContext.svelte'
     import { onMount } from 'svelte'
 
     let loadStatus = $state<string | null>('')
@@ -12,6 +13,7 @@
 
     setSearchContext(infoCtx)
     setActiveSearchContext(infoCtx)
+    setSimDetailsContext()
 
     onMount(async () => {
         try {
@@ -46,6 +48,8 @@
         }
     })
 </script>
+
+<svelte:window onpopstate={() => window.location.reload()} />
 
 {#if loadStatus !== null}
     <pre>{loadStatus}</pre>

@@ -8,6 +8,8 @@ import { DEFAULT_SEARCH_CONTEXT, EMPTY_SEARCH_CONTEXT } from './searchContextCon
 export type SearchContext = {
     value: SearchContextValue
     lastValue: null | SearchContextValue
+    lastUnitTouched: null | number
+    lastItemTouched: null | number
     reset: () => void
     hasChanges: () => boolean
     toUrl: (v: SearchContextValue) => URLSearchParams
@@ -42,6 +44,8 @@ export function setSearchContext(info: GameInfoContext): SearchContext {
     const ctx = $state<SearchContext>({
         value: DEFAULT_SEARCH_CONTEXT(),
         lastValue: null,
+        lastUnitTouched: null,
+        lastItemTouched: null,
         reset,
         hasChanges,
         toUrl,

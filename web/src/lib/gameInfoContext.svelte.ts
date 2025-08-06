@@ -1,4 +1,6 @@
+import { alphabetical } from 'radash'
 import { getContext, setContext } from 'svelte'
+import { enumerate } from './utils/miscUtils'
 
 export interface GameInfoContext {
     value: GameInfoValue
@@ -25,6 +27,8 @@ export interface GameInfoValue {
         }
     >
     unitsByIndex: Record<number, string>
+    unitsByAlphabeticalIndex: Record<number, string>
+    alphaIndexByUnit: Record<string, number>
 
     items: Record<
         string,
@@ -38,6 +42,8 @@ export interface GameInfoValue {
         }
     >
     itemsByIndex: Record<number, string>
+    itemsByAlphabeticalIndex: Record<number, string>
+    alphaIndexByItem: Record<string, number>
 
     traits: Record<
         string,
@@ -65,8 +71,12 @@ export function setGameInfoContext(): GameInfoContext {
     const value = {
         units: {},
         unitsByIndex: {},
+        unitsByAlphabeticalIndex: {},
+        alphaIndexByUnit: {},
         items: {},
         itemsByIndex: {},
+        itemsByAlphabeticalIndex: {},
+        alphaIndexByItem: {},
         traits: {},
     }
     const ctx = $state<GameInfoContext>({
@@ -91,6 +101,37 @@ export function setGameInfoContext(): GameInfoContext {
             itemsByIndex[item.index] = item.id
         }
 
+        const unitsAlphabetical = alphabetical(
+            [...Object.values(units)],
+            (u) => u.info.cost.toString() + u.info.name,
+        )
+        const unitsByAlphabeticalIndex: GameInfoValue['unitsByAlphabeticalIndex'] = {}
+        const alphaIndexByUnit: GameInfoValue['alphaIndexByUnit'] = {}
+        for (const [idx, unit] of enumerate(unitsAlphabetical)) {
+            unitsByAlphabeticalIndex[idx] = unit.info.id
+            alphaIndexByUnit[unit.info.id] = idx
+        }
+
+        const itemsAlphabetical = alphabetical([...Object.values(items)], (u) => {
+            let typeValue = ''
+            switch (u.type) {
+                case 'Component':
+                    typeValue = 'z'
+                    break
+                case 'Completed':
+                    typeValue = 'a'
+                    break
+            }
+
+            return String(typeValue) + '_' + u.name
+        })
+        const itemsByAlphabeticalIndex: GameInfoValue['itemsByAlphabeticalIndex'] = {}
+        const alphaIndexByItem: GameInfoValue['alphaIndexByItem'] = {}
+        for (const [idx, item] of enumerate(itemsAlphabetical)) {
+            itemsByAlphabeticalIndex[idx] = item.id
+            alphaIndexByItem[item.id] = idx
+        }
+
         for (const trait of Object.values(traits)) {
             let numBps = trait.breakpoints.length
             if (trait.breakpoints[0] <= 1) numBps += 1
@@ -111,7 +152,11 @@ export function setGameInfoContext(): GameInfoContext {
             ctx.value = {
                 units,
                 unitsByIndex,
+                unitsByAlphabeticalIndex,
+                alphaIndexByUnit,
                 items,
+                itemsByAlphabeticalIndex,
+                alphaIndexByItem,
                 itemsByIndex,
                 traits,
             }

@@ -41,5 +41,5 @@
     type="number"
     {max}
     min="1"
-    class="text-foreground! w-18 rounded-md bg-transparent"
+    class="text-foreground! w-20 rounded-md bg-transparent"
 />

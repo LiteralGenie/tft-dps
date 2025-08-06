@@ -116,7 +116,13 @@ export const ITEM_COLUMN: ActiveSearchColumn<number> = {
 export const TRAIT_COLUMN: ActiveSearchColumn = {
     id: 'trait',
     label: 'Traits',
-    getLabel: ({ d }) => 'todo',
+    getLabel: ({ d }) => '',
+}
+
+export const DETAILS_COLUMN: ActiveSearchColumn = {
+    id: 'detail',
+    label: '',
+    getLabel: ({ d }) => '',
 }
 
 export const ACTIVE_SEARCH_COLUMNS = [
@@ -125,4 +131,5 @@ export const ACTIVE_SEARCH_COLUMNS = [
     UNIT_COLUMN,
     ITEM_COLUMN,
     TRAIT_COLUMN,
+    DETAILS_COLUMN,
 ]

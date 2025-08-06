@@ -1,8 +1,14 @@
 import gzip
 from io import BytesIO
+from typing import TYPE_CHECKING
 
 from bitarray import bitarray
 from bitarray.util import ba2int
+
+from tft_dps.lib.web.job_worker import SimulateRequest
+
+if TYPE_CHECKING:
+    from tft_dps.lib.web.app_worker import AppWorkerContext
 
 
 def bytesToIntBe(bs: bytearray):
@@ -60,6 +66,27 @@ def unpack_sim_id(id: bitarray, trait_bits_by_unit: dict[int, list[int]]) -> dic
     except:
         print(id)
         raise
+
+
+def sim_id_to_sim_request(id: bitarray, context: "AppWorkerContext"):
+    raw = unpack_sim_id(bitarray(id), context.trait_bits_by_unit_index)
+
+    id_unit = context.unit_info_by_index[raw["unit"]]["info"]["id"]
+    items = [
+        context.item_info_by_index[itemId]["id"]
+        for itemId in raw["items"]
+        if itemId > 0
+    ]
+    traits = context.unit_info[id_unit]["info"]["traits"]
+
+    req = SimulateRequest(
+        type="simulate_request",
+        id_unit=id_unit,
+        stars=raw["stars"],
+        items=items,
+        traits={trait: tier for trait, tier in zip(traits, raw["traits"])},
+    )
+    return req
 
 
 def decompress_gzip(d: bytes, max_bytes: int, chunk_size=1024):

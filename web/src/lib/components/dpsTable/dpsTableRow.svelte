@@ -2,6 +2,7 @@
     import type { ActiveSearchData } from '$lib/activeSearchContext/activeSearchConstants'
     import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
     import { getGameInfoContext } from '$lib/gameInfoContext.svelte'
+    import { getSimDetailsContext } from '$lib/simDetailsContext/simDetailsContext.svelte'
     import {
         unpackItemIndices,
         unpackTraits,
@@ -10,6 +11,8 @@
     } from '$lib/utils/networkUtils'
     import { range, sort } from 'radash'
     import DpsTableItemIcon from './dpsTableItemIcon.svelte'
+    import DpsTableRowDetails from './dpsTableRowDetails.svelte'
+    import DpsTableRowDetailsTrigger from './dpsTableRowDetailsTrigger.svelte'
     import DpsTableTraitIcon from './dpsTableTraitIcon.svelte'
     import DpsTableUnitIcon from './dpsTableUnitIcon.svelte'
 
@@ -40,6 +43,11 @@
     const traits = $derived(sort(unpackTraits(d.id, info), (trait) => trait.tier))
 
     const offset = $derived(ctx.pageIdx * ctx.pageSize)
+
+    let showDetails = $state(false)
+
+    const detailsCtx = getSimDetailsContext()
+    const details = $derived(detailsCtx.sims.get(d.id))
 </script>
 
 <span class="td index">#{offset + idx + 1}</span>
@@ -53,8 +61,15 @@
         <DpsTableItemIcon item={items[idx] ?? null} />
     {/each}
 </span>
-<span class="td py-0!">
+<span class="td py-2!">
     {#each traits as trait}
         <DpsTableTraitIcon trait={info.traits[trait.id]} tier={trait.tier} />
     {/each}
+</span>
+<span class="td p-0! bg-foreground/3 h-full">
+    <DpsTableRowDetailsTrigger open={showDetails} onclick={() => (showDetails = !showDetails)} />
+</span>
+
+<span class:hidden={!showDetails} class="border-foreground/10 col-span-6 border-t px-12 py-4">
+    <DpsTableRowDetails {details} />
 </span>

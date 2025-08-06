@@ -1,26 +1,59 @@
 <script lang="ts">
     import CheckmarkIcon from '$lib/components/icons/checkmarkIcon.svelte'
-    import { type GameInfoValue } from '$lib/gameInfoContext.svelte'
+    import { getGameInfoContext, type GameInfoValue } from '$lib/gameInfoContext.svelte'
     import { getSearchContext } from '$lib/searchContext/searchContext.svelte'
-    import { SvelteSet } from 'svelte/reactivity'
+    import { range, sort } from 'radash'
     import ItemIcon from './itemIcon.svelte'
 
     const { itemInfo }: { itemInfo: GameInfoValue['items'][string] } = $props()
 
+    const {
+        value: { itemsByAlphabeticalIndex, alphaIndexByItem },
+    } = getGameInfoContext()
+
     const search = getSearchContext()
-    const isSelected = $derived(search.value.items.has(itemInfo.id) && !search.value.onlyItemRecs)
+    const searchItems = $derived(search.value.items)
+    const isSelected = $derived(searchItems.has(itemInfo.id) && !search.value.onlyItemRecs)
 
     let enableRef: HTMLInputElement
 
-    function onEnableChange() {
-        enableRef.click()
-        if (enableRef.checked) {
-            search.value.items.add(itemInfo.id)
+    function onEnableChange(ev: MouseEvent) {
+        if (searchItems.has(itemInfo.id)) {
+            searchItems.delete(itemInfo.id)
         } else {
-            search.value.items.delete(itemInfo.id)
+            searchItems.add(itemInfo.id)
         }
-        search.value.items = new SvelteSet(search.value.items)
+
+        const hasShift = ev.getModifierState('Shift')
+        const alphaIndex = alphaIndexByItem[itemInfo.id]
+        console.log('shift', hasShift, alphaIndex, search.lastItemTouched)
+        if (hasShift && search.lastItemTouched !== null) {
+            const [start, end] = sort([alphaIndex, search.lastItemTouched], (x) => x)
+            console.log(start, end)
+
+            for (const otherAlphaIndex of range(start, end)) {
+                if (otherAlphaIndex === alphaIndex || otherAlphaIndex === search.lastItemTouched) {
+                    continue
+                }
+
+                const otherItemId = itemsByAlphabeticalIndex[otherAlphaIndex]
+
+                if (searchItems.has(otherItemId)) {
+                    searchItems.delete(otherItemId)
+                } else {
+                    searchItems.add(otherItemId)
+                }
+            }
+
+            window.getSelection()?.removeAllRanges()
+        }
+
+        search.lastItemTouched = alphaIndex
     }
+
+    $effect(() => {
+        enableRef.checked = searchItems.has(itemInfo.id)
+    })
 </script>
 
 <button

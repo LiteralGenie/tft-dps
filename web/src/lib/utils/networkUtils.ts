@@ -10,10 +10,10 @@ export function assetUrl(path: string) {
     return `https://raw.communitydragon.org/pbe/game/${path}`
 }
 
-export async function fetchApiJson(path: string) {
+export async function fetchApiJson<T = any>(path: string) {
     const resp = await fetch(API_URL + path)
     const data = await resp.json()
-    return data
+    return data as T
 }
 
 /**
