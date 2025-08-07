@@ -10,8 +10,9 @@
         unpackUnitStars,
     } from '$lib/utils/networkUtils'
     import { range, sort } from 'radash'
+    import DpsDetails from './dpsDetails/dpsDetails.svelte'
+    import DpsTableDmgDistributionIcon from './dpsTableDmgDistributionIcon.svelte'
     import DpsTableItemIcon from './dpsTableItemIcon.svelte'
-    import DpsTableRowDetails from './dpsTableRowDetails.svelte'
     import DpsTableRowDetailsTrigger from './dpsTableRowDetailsTrigger.svelte'
     import DpsTableTraitIcon from './dpsTableTraitIcon.svelte'
     import DpsTableUnitIcon from './dpsTableUnitIcon.svelte'
@@ -51,7 +52,10 @@
 </script>
 
 <span class="td index">#{offset + idx + 1}</span>
-<span class="td text-base! font-bold">{d.dps.toFixed(0)}</span>
+<span class="td text-base! flex flex-col justify-center gap-1 font-bold">
+    <span>{d.dps.toFixed(0)}</span>
+    <DpsTableDmgDistributionIcon id={d.id} />
+</span>
 <span class="td flex gap-2">
     <DpsTableUnitIcon {unit} {stars} />
     <span class="whitespace-nowrap">{stars}* {unit.info.name}</span>
@@ -70,6 +74,6 @@
     <DpsTableRowDetailsTrigger open={showDetails} onclick={() => (showDetails = !showDetails)} />
 </span>
 
-<span class:hidden={!showDetails} class="border-foreground/10 col-span-6 border-t px-12 py-4">
-    <DpsTableRowDetails {details} />
+<span class:hidden={!showDetails} class="border-foreground/10 col-span-6 border-t px-12 py-8">
+    <DpsDetails id={d.id} />
 </span>

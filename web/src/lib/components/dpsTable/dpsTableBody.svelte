@@ -2,6 +2,7 @@
     import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
     import LoaderIcon from '$lib/components/icons/loaderIcon.svelte'
     import { getSimDetailsContext } from '$lib/simDetailsContext/simDetailsContext.svelte'
+    import { untrack } from 'svelte'
     import DpsTableRow from './dpsTableRow.svelte'
 
     const ctx = getActiveSearchContext()
@@ -21,14 +22,23 @@
     })
 
     const details = getSimDetailsContext()
+    let prefetchTimer = $state(0)
     $effect(() => {
-        details.prefetch(rows.map((r) => r.id))
+        const start = Math.max((ctx.pageIdx - 1) * ctx.pageSize, 0)
+        const end = (ctx.pageIdx + 2) * ctx.pageSize
+        const toPrefetch = (ctx.value?.data.sortedFilteredIds ?? []).slice(start, end)
+
+        const timer = setTimeout(() => details.prefetch(toPrefetch), 50)
+        untrack(() => {
+            clearTimeout(prefetchTimer)
+            prefetchTimer = timer
+        })
     })
 </script>
 
 <div class="font-xs contents">
     {#if ctx.value?.progress.count !== ctx.value?.progress.total}
-        <div class="col-span-5 flex items-center justify-center gap-2 border-t p-4 text-sm">
+        <div class="col-span-6 flex items-center justify-center gap-2 border-t p-4 text-sm">
             <LoaderIcon class="size-6 fill-white text-white" />
             <span>
                 Simulating {ctx.value!.progress.count.toLocaleString()} / {ctx.value!.progress.total.toLocaleString()}

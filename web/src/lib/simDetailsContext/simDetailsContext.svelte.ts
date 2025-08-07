@@ -13,7 +13,21 @@ export interface SimDetailsContext {
     prefetch: (ids: PackedId[]) => void
 }
 
-export interface SimDetails {}
+export interface SimDetails {
+    attacks: SimDamage[]
+    casts: SimDamage[]
+    misc_damage: SimDamage[]
+    initial_stats: {}
+    final_stats: {}
+}
+
+interface SimDamage {
+    t: number
+    mult: number
+    physical_damage: number
+    magical_damage: number
+    true_damage: number
+}
 
 const CONTEXT_KEY = 'SimDetailsContext'
 

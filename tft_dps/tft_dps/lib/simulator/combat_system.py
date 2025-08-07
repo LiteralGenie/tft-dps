@@ -181,7 +181,7 @@ class CombatSystem(SimSystem):
         s.casts.append(d)
         return SimEvent(
             type="cast",
-            data=s.attacks[-1],
+            data=s.casts[-1],
         )
 
     def _calc_pre_auto_state(self, s: SimState, stats: SimStats):

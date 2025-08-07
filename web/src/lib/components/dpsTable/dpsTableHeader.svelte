@@ -12,7 +12,7 @@
 
 <div class="contents">
     <DpsTableHeaderCell col={INDEX_COLUMN} />
-    <DpsTableHeaderCell col={DPS_COLUMN} />
+    <DpsTableHeaderCell col={DPS_COLUMN} className="items-center!" />
     <DpsTableHeaderCell col={UNIT_COLUMN} />
     <DpsTableHeaderCell col={ITEM_COLUMN} />
     <DpsTableHeaderCell col={TRAIT_COLUMN} />

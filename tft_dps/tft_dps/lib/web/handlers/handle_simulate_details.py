@@ -71,8 +71,28 @@ def _select_sim_result(req: SimulateRequest) -> SimResult | None:
             for r in dps_rows
             if r["type"] == "auto"
         ],
-        casts=[],
-        misc_damage=[],
+        casts=[
+            SimDamage(
+                t=r["t"],
+                mult=r["mult"],
+                physical_damage=r["physical"],
+                magical_damage=r["magical"],
+                true_damage=r["true"],
+            )
+            for r in dps_rows
+            if r["type"] == "cast"
+        ],
+        misc_damage=[
+            SimDamage(
+                t=r["t"],
+                mult=r["mult"],
+                physical_damage=r["physical"],
+                magical_damage=r["magical"],
+                true_damage=r["true"],
+            )
+            for r in dps_rows
+            if r["type"] == "misc"
+        ],
         initial_stats=SimStats(**stats["initial_stats"]),
         final_stats=SimStats(**stats["final_stats"]),
     )

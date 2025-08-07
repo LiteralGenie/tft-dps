@@ -4,6 +4,7 @@ import time
 from pathlib import Path
 
 from tft_dps.lib.cache import NativeFileCache
+from tft_dps.lib.paths import CD_DIR
 from tft_dps.lib.simulator.sim_runner import SimRunner
 
 """
@@ -23,7 +24,7 @@ mgr <-> workers
 
 async def main():
     print("Initializing simulator ...")
-    cache = NativeFileCache("/tmp/tft_dps")
+    cache = NativeFileCache(CD_DIR)
     runner = await SimRunner.ainit(cache)
 
     #

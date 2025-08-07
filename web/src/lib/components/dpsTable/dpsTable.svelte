@@ -89,7 +89,7 @@
         padding: 1em 1em;
     }
     .root :global(.td) {
-        padding: 1em 1em 0.5em 1em;
+        padding: 1em 1em 1em 1em;
     }
 
     /* Smaller body */

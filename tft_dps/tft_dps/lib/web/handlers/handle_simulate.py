@@ -36,14 +36,17 @@ async def handle_simulate(req: Request):
     sim_requests = [sim_id_to_sim_request(id, APP_WORKER_CONTEXT) for id in ids]
 
     # Chunk and process
-    return StreamingResponse(_stream(period, sim_requests))
+    return StreamingResponse(_stream(period, sim_requests, req))
 
 
-async def _stream(period: float, reqs: list[SimulateRequest]):
+async def _stream(period: float, reqs: list[SimulateRequest], raw_req: Request):
     db = TftDb().connect()
 
     async for chunk in _handle_simulate_chunk(db, period, reqs):
         yield json.dumps([x["total"] for x in chunk]).encode()
+
+        if await raw_req.is_disconnected():
+            return
 
 
 async def _handle_simulate_chunk(
