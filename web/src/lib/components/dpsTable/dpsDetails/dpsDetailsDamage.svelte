@@ -1,70 +1,21 @@
 <script lang="ts">
+    import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
     import type { SimDetails } from '$lib/simDetailsContext/simDetailsContext.svelte'
-    import { sum } from 'radash'
+    import { summarizeDamage } from '$lib/utils/simUtils'
 
     const { details }: { details: SimDetails } = $props()
+    const activeSearch = getActiveSearchContext()
 
-    const dist = $derived.by(() => {
-        const allDamage = [...details.attacks, ...details.casts, ...details.misc_damage]
-
-        const totalPhysical = sum(allDamage, (x) => x.mult * x.physical_damage)
-        const totalMagical = sum(allDamage, (x) => x.mult * x.magical_damage)
-        const totalTrue = sum(allDamage, (x) => x.mult * x.true_damage)
-
-        const totalAll = totalPhysical + totalMagical + totalTrue
-
-        const totalAuto = sum(
-            details.attacks.flatMap((x) => [
-                x.mult * x.physical_damage,
-                x.mult * x.magical_damage,
-                x.mult * x.true_damage,
-            ]),
-        )
-        const totalCast = sum(
-            [...details.casts, ...details.misc_damage].flatMap((x) => [
-                x.mult * x.physical_damage,
-                x.mult * x.magical_damage,
-                x.mult * x.true_damage,
-            ]),
-        )
-
-        return {
-            total: { total: fmt(totalAll), frac: 1 },
-            physical: {
-                total: fmt(totalPhysical),
-                frac: fmt(100 * (totalPhysical / totalAll)),
-            },
-            magical: {
-                total: fmt(totalMagical),
-                frac: fmt(100 * (totalMagical / totalAll)),
-            },
-            true: {
-                total: fmt(totalTrue),
-                frac: fmt(100 * (totalTrue / totalAll)),
-            },
-            auto: {
-                total: fmt(totalAuto),
-                frac: fmt(100 * (totalAuto / totalAll)),
-            },
-            cast: {
-                total: fmt(totalCast),
-                frac: fmt(100 * (totalCast / totalAll)),
-            },
-        }
-    })
-
-    function fmt(x: number) {
-        return Math.round(x).toLocaleString()
-    }
+    const dist = $derived(summarizeDamage(details, activeSearch.value!.params.period))
 </script>
 
 <section class="flex flex-col gap-2 pb-8">
-    <!-- <h1>Damage</h1> -->
+    <h1 class="font-semibold">Damage</h1>
 
     <div class="grid-container">
         <div class="row">
             <span class="tdd">Total Damage</span>
-            <span class="tdd">{dist.total.total}</span>
+            <span class="tdd">{dist.total.totalString}</span>
             <span class="tdd">100%</span>
         </div>
 
@@ -82,19 +33,19 @@
 
         <div class="row">
             <span class="tdd">Physical Damage</span>
-            <span class="tdd">{dist.physical.total}</span>
+            <span class="tdd">{dist.physical.totalString}</span>
             <span class="tdd">{dist.physical.frac}%</span>
         </div>
 
         <div class="row">
             <span class="tdd">Magical Damage</span>
-            <span class="tdd">{dist.magical.total}</span>
+            <span class="tdd">{dist.magical.totalString}</span>
             <span class="tdd">{dist.magical.frac}%</span>
         </div>
 
         <div class="row">
             <span class="tdd">True Damage</span>
-            <span class="tdd">{dist.true.total}</span>
+            <span class="tdd">{dist.true.totalString}</span>
             <span class="tdd">{dist.true.frac}%</span>
         </div>
 
@@ -111,14 +62,14 @@
         </div>
 
         <div class="row">
-            <span class="tdd">Auto Attacks</span>
-            <span class="tdd">{dist.auto.total}</span>
+            <span class="tdd">Auto Attacks ({dist.auto.count})</span>
+            <span class="tdd">{dist.auto.totalString}</span>
             <span class="tdd">{dist.auto.frac}%</span>
         </div>
 
         <div class="row">
-            <span class="tdd">Spells / Other</span>
-            <span class="tdd">{dist.cast.total}</span>
+            <span class="tdd">Spells / Other ({dist.cast.count})</span>
+            <span class="tdd">{dist.cast.totalString}</span>
             <span class="tdd">{dist.cast.frac}%</span>
         </div>
     </div>

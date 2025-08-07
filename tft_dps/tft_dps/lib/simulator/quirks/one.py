@@ -4,7 +4,7 @@ from tft_dps.lib.simulator.quirks.quirks import UnitQuirks
 from tft_dps.lib.simulator.sim_state import SimState, SimStats
 from tft_dps.lib.simulator.sim_system import SimEvent
 
-from ..sim_state import SimDamage, SimStats, sim_damage_auto, sim_damage_spell
+from ..sim_state import SimDamage, SimStats, sim_damage_spell
 
 if TYPE_CHECKING:
     from ..sim_state import SimState, SimStats
@@ -62,11 +62,7 @@ class EzrealQuirks(UnitQuirks):
             self._increment_passive_buff(s, stats, svs)
 
     def _start_active_buff(self, s: "SimState", stats: SimStats, svs: dict):
-        num_potential = 0
-        if trait := s.ctx.trait_inventory.get("TFT15_BattleAcademia"):
-            num_potential = trait.effects_bonus["numpotential"]
-
-        bonus_speed_mult = num_potential * svs["potentialas"]
+        bonus_speed_mult = svs["potentialas"]
 
         s.buffs[self.BUFF_KEY_ACTIVE] = dict(
             until=s.t + svs["potentialduration"],
@@ -235,11 +231,16 @@ class KayleQuirks(UnitQuirks):
             aoe_mult = s.ctx.flags[self.FLAG_KEY_AOE]
             md += aoe_mult * svs["ascensionmodifiedmagicdamage"]
 
-        return sim_damage_auto(
-            s,
-            stats,
-            ph=stats.effective_ad,
-            ma=md,
+        # Wave / on-hit counts as spell for crit purposes
+        if "spell_crit" in s.buffs:
+            md *= stats.crit_bonus
+
+        return SimDamage(
+            t=s.t,
+            mult=1 + stats.amp,
+            physical_damage=stats.effective_ad * stats.crit_bonus,
+            magical_damage=md,
+            true_damage=0,
         )
 
 

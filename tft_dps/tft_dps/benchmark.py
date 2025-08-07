@@ -35,20 +35,20 @@ async def main():
 
     #
 
-    n = 100
+    n = 1
     ti = time.time()
     for idx in range(n):
         result = await runner.run(
-            "Characters/TFT15_Gnar",
+            "Characters/TFT15_Kayle",
             3,
             [
-                "TFT_Item_ArchangelsStaff",
-                "TFT_Item_ArchangelsStaff",
+                "TFT_Item_GuinsoosRageblade",
+                "TFT_Item_GuinsoosRageblade",
                 "TFT_Item_ArchangelsStaff",
             ],
             dict(
-                TFT15_Luchador=1,
-                TFT15_Sniper=1,
+                TFT15_Empyrean=1,
+                TFT15_Duelist=1,
             ),
         )
     el = time.time() - ti

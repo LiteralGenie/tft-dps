@@ -50,6 +50,9 @@ class CombatSystem(SimSystem):
         elif "Caster" in role:
             self.mana_per_auto = 7
             self.bonus_mana_regen = 2
+        elif "Carry" in role:
+            self.mana_per_auto = 10
+            self.bonus_mana_regen = 0
 
         self.mana = stats.mana
 

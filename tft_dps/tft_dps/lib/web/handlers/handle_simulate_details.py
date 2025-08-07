@@ -1,3 +1,4 @@
+import asyncio
 import json
 
 from tft_dps.lib.db import TftDb
@@ -20,7 +21,10 @@ async def handle_simulate_details(req: SimulateRequest):
                 )
             )
 
-            res: list[SimResult] = APP_WORKER_CONTEXT.resp_queue.get()
+            loop = asyncio.get_running_loop()
+            res: list[SimResult] = await loop.run_in_executor(
+                None, APP_WORKER_CONTEXT.resp_queue.get
+            )
             sim = res[0]
 
     return sim

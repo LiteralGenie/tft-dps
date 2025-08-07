@@ -33,7 +33,6 @@
     })
 
     const doFetch = debounce({ delay: 100 }, (id: PackedId) => ctx.fetchId(id))
-
     $effect(() => {
         doFetch(id)
     })

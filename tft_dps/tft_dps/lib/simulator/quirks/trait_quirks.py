@@ -2,7 +2,7 @@ from abc import ABCMeta
 
 from tft_dps.lib.simulator.crit_system import create_spell_crit_buff
 from tft_dps.lib.simulator.quirks.quirks import TraitQuirks
-from tft_dps.lib.simulator.sim_state import SimState, SimStats, sim_damage_misc
+from tft_dps.lib.simulator.sim_state import SimDamage, SimState, SimStats
 from tft_dps.lib.simulator.sim_system import SimEvent
 
 
@@ -91,14 +91,17 @@ class WraithQuirks(TraitQuirks):
             for value in [x["physical_damage"], x["magical_damage"], x["true_damage"]]
         )
 
+        dmg -= self.last_activation_dmg
+
         after_reduction = dmg * eb["damagepercent"]
-        after_reduction -= self.last_activation_dmg
 
         s.misc_damage.append(
-            sim_damage_misc(
-                s,
-                stats,
-                ma=after_reduction,
+            SimDamage(
+                t=s.t,
+                mult=1,
+                physical_damage=0,
+                magical_damage=after_reduction,
+                true_damage=0,
             )
         )
 

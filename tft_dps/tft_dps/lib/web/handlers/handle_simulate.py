@@ -1,3 +1,4 @@
+import asyncio
 import json
 import sqlite3
 from typing import AsyncGenerator
@@ -83,7 +84,10 @@ async def _handle_simulate_chunk(
                 )
             )
 
-            sims_from_workers: list[SimResult] = APP_WORKER_CONTEXT.resp_queue.get()
+            loop = asyncio.get_running_loop()
+            sims_from_workers: list[SimResult] = await loop.run_in_executor(
+                None, APP_WORKER_CONTEXT.resp_queue.get
+            )
             for (req_idx, buffer_idx), res in zip(idx_from_worker, sims_from_workers):
                 buffer[buffer_idx] = dict(
                     total=_calc_dps(res, period),
@@ -122,20 +126,23 @@ def _select_dps(db: sqlite3.Connection, req: SimulateRequest, t: float) -> dict 
     if not does_exist:
         return None
 
-    total = db.execute(
-        """
-        SELECT AVG(
+    total = (
+        db.execute(
+            """
+        SELECT SUM(
             mult * physical +
             mult * magical +
             mult * true
-        ) avg
+        ) sum
         FROM dps
         WHERE
             id_combo = ?
             AND t <= ?
         """,
-        [id, t],
-    ).fetchone()["avg"]
+            [id, t],
+        ).fetchone()["sum"]
+        / t
+    )
 
     return dict(total=total)
 
@@ -149,7 +156,7 @@ def _calc_dps(res: SimResult, period: float):
         *res["misc_damage"],
     ]:
         if x["t"] > period:
-            break
+            continue
 
         total_damage += x["mult"] * (
             x["physical_damage"] + x["magical_damage"] + x["true_damage"]

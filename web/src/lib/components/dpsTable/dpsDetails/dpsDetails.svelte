@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { PackedId } from '$lib/activeSearchContext/activeSearchConstants'
     import { getSimDetailsContext } from '$lib/simDetailsContext/simDetailsContext.svelte'
+    import DpsDetailsContributions from './dpsDetailsContributions.svelte'
     import DpsDetailsDamage from './dpsDetailsDamage.svelte'
 
     const { id }: { id: PackedId } = $props()
@@ -14,13 +15,7 @@
     {#if details}
         <DpsDetailsDamage {details} />
 
-        <section class="flex flex-col gap-2">
-            <h1>Item Contributions</h1>
-        </section>
-
-        <section class="flex flex-col gap-2">
-            <h1>Trait Contributions</h1>
-        </section>
+        <DpsDetailsContributions {id} {details} />
 
         <section class="flex flex-col gap-2">
             <h1>Graph</h1>

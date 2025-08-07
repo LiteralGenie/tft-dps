@@ -450,9 +450,15 @@ class StrikersFlailQuirks(ItemQuirks):
         bonus.speed_mult = c["AS"] / 100
         bonus.crit_rate = c["CritChance"] / 100
         bonus.amp = c["{1543aa48}"]
-        bonus.amp += c["BuffDamageAmp"] * c["MaxStacks"]
 
         return bonus
+
+    def hook_stats_override(self, s: SimState, stats: SimStats):
+        c = self._constants(s)
+        numAttacks = len([x for x in s.attacks if x["t"] > s.t - c["Duration"]])
+        numCrits = int(numAttacks * stats.crit_rate)
+        numCrits = min(numCrits, c["MaxStacks"])
+        stats.amp += numCrits * c["BuffDamageAmp"]
 
 
 class RabadonsDeathcapQuirks(ItemQuirks):
