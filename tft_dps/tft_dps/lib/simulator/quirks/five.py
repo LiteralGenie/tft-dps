@@ -16,9 +16,9 @@ class BraumQuirks(UnitQuirks):
     FLAG_KEY_2 = "braum_aoe_targets_secondary"
     FLAG_KEY_3 = "braum_execute_bonus"
     notes = [
-        "Primary AoE (spin) hits {braum_aoe_targets_primary} units",
-        "Secondary AoE (throw) hits {braum_aoe_targets_secondary} units",
-        "Execute damage is calculated as true damage equal to ({braum_execute_bonus} * execute_threshold) of the single-target damage",
+        "Braum's primary AoE (spin) hits {braum_aoe_targets_primary} targets",
+        "Braums' secondary AoE (throw) hits {braum_aoe_targets_secondary} targets",
+        "Braum's execute damage is calculated as true damage equal to ({braum_execute_bonus} * execute_threshold) of the single-target damage",
     ]
 
     def hook_stats_override(self, s: SimState, stats: SimStats):
@@ -53,8 +53,8 @@ class GwenQuirks(UnitQuirks):
     FLAG_KEY_1 = "gwen_aoe_targets_spell"
     FLAG_KEY_2 = "gwen_aoe_targets_auto"
     notes = [
-        "Spell AoE hits {gwen_aoe_targets_spell} units",
-        "Auto attack AoE hits {gwen_aoe_targets_auto} units",
+        "Gwen's spell AoE hits {gwen_aoe_targets_spell} targets",
+        "Gwen's auto attack AoE hits {gwen_aoe_targets_auto} targets",
     ]
 
     def get_spell_damage(self, s: SimState, stats: SimStats) -> SimDamage:
@@ -180,7 +180,7 @@ class YoneQuirks(UnitQuirks):
 
     FLAG_KEY = "yone_aoe_targets"
     notes = [
-        "AoE hits {yone_aoe_targets} units total",
+        "Yone's AoE hits {yone_aoe_targets} targets",
     ]
 
     BUFF_KEY = "yone_spell"
@@ -242,7 +242,7 @@ class ZyraQuirks(UnitQuirks):
 
     FLAG_KEY = "zyra_decay"
     notes = [
-        "Attack speed bonus from spell averaged to {zyra_decay} of initial bonus",
+        "Zyra's attack speed bonus from her spell averaged to {zyra_decay} of initial bonus",
     ]
 
     BUFF_KEY = "zyra_spell"

@@ -166,7 +166,7 @@ class KaiSaQuirks(UnitQuirks):
     id = "Characters/TFT15_KaiSa"
 
     FLAG_KEY = "kaisa_passive_stacks"
-    notes = ["Passive stacks set to {kaisa_passive_stacks}"]
+    notes = ["KaiSa always has {kaisa_passive_stacks} passive stacks"]
 
     BUFF_KEY = "kaisa_spell"
 
@@ -200,7 +200,7 @@ class KatarinaQuirks(UnitQuirks):
     id = "Characters/TFT15_Katarina"
 
     FLAG_KEY = "katarina_aoe_targets"
-    notes = ["AoE hits {katarina_aoe_targets}"]
+    notes = ["Kat's AoE hits {katarina_aoe_targets} targets"]
 
     def get_spell_damage(self, s: SimState, stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)
@@ -270,7 +270,7 @@ class LuxQuirks(UnitQuirks):
     id = "Characters/TFT15_Lux"
 
     FLAG_KEY = "lux_aoe_targets"
-    notes = ["AoE hits {lux_aoe_targets}"]
+    notes = ["Lux's AoE hits {lux_aoe_targets} targets"]
 
     def get_spell_damage(self, s: SimState, stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)
@@ -373,7 +373,7 @@ class ViQuirks(UnitQuirks):
     id = "Characters/TFT15_Vi"
 
     FLAG_KEY = "vi_aoe_targets"
-    notes = ["AoE hits {vi_aoe_targets}"]
+    notes = ["Vi's AoE hits {vi_aoe_targets} targets"]
 
     def get_spell_damage(self, s: SimState, stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)
@@ -448,7 +448,7 @@ class XinZhaoQuirks(UnitQuirks):
     id = "Characters/TFT15_XinZhao"
 
     FLAG_KEY = "xin_aoe_targets"
-    notes = ["AoE hits {xin_aoe_targets}"]
+    notes = ["Xin's AoE hits {xin_aoe_targets} targets"]
 
     def get_spell_damage(self, s: SimState, stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)

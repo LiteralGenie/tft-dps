@@ -15,7 +15,7 @@ class AkaliQuirks(UnitQuirks):
     FLAG_KEY_1 = "akali_strike_targets"
     FLAG_KEY_2 = "akali_dash_targets"
     notes = [
-        "Each spell cast triggers {akali_strike_targets} dashes that hit a marked unit and {akali_dash_targets} additional units."
+        "Each of Akali's spell cast triggers {akali_strike_targets} dashes that hit a marked unit and {akali_dash_targets} additional units."
     ]
 
     def get_spell_damage(self, s: "SimState", stats: SimStats) -> SimDamage:
@@ -85,7 +85,7 @@ class JarvanIVQuirks(UnitQuirks):
     id = "Characters/TFT15_JarvanIV"
 
     FLAG_KEY = "jarvan_aoe_targets"
-    notes = ["AoE hits {jarvan_aoe_targets}"]
+    notes = ["Jarvan's AoE hits {jarvan_aoe_targets} targets"]
 
     def get_spell_damage(self, s: "SimState", stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)
@@ -155,7 +155,7 @@ class KSanteQuirks(UnitQuirks):
     id = "Characters/TFT15_KSante"
 
     FLAG_KEY = "ksante_allout_delay"
-    notes = ["ALL OUT activates after {ksante_allout_delay} seconds"]
+    notes = ["KSante's ALL OUT activates after {ksante_allout_delay} seconds"]
 
     BUFF_KEY = "ksante_allout"
 
@@ -212,7 +212,7 @@ class KarmaQuirks(UnitQuirks):
     id = "Characters/TFT15_Karma"
 
     FLAG_KEY = "karma_aoe_targets"
-    notes = ["AoE hits {karma_aoe_targets}"]
+    notes = ["Karma's AoE hits {karma_aoe_targets} targets"]
 
     def get_spell_damage(self, s: "SimState", stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)
@@ -230,7 +230,7 @@ class LeonaQuirks(UnitQuirks):
     FLAG_KEY_1 = "leona_aoe_targets"
     FLAG_KEY_2 = "leona_sunburst_targets"
     notes = [
-        "Primary AoE hits {leona_aoe_targets} units and secondary AoE (sunburst) hits {leona_sunburst_targets} units"
+        "Leona's primary AoE hits {leona_aoe_targets} units and secondary AoE (sunburst) hits {leona_sunburst_targets} units"
     ]
 
     def get_spell_damage(self, s: "SimState", stats: SimStats) -> SimDamage:
@@ -259,8 +259,8 @@ class PoppyQuirks(UnitQuirks):
     FLAG_KEY_1 = "poppy_shield_duration"
     FLAG_KEY_2 = "poppy_aoe_targets"
     notes = [
-        "Spell damage applied {poppy_shield_duration} seconds after casting",
-        "AoE hits {poppy_aoe_targets} targets",
+        "Poppy's Spell damage applied {poppy_shield_duration} seconds after casting",
+        "Poppy's AoE hits {poppy_aoe_targets} targets",
     ]
 
     def hook_stats_override(self, s: SimState, stats: SimStats):
@@ -286,7 +286,7 @@ class RyzeQuirks(UnitQuirks):
 
     FLAG_KEY = "ryze_aoe_targets"
     notes = [
-        "AoE hits {ryze_aoe_targets} targets",
+        "Ryze's AoE hits {ryze_aoe_targets} targets",
     ]
 
     def hook_stats_override(self, s: SimState, stats: SimStats):
@@ -313,7 +313,7 @@ class SamiraQuirks(UnitQuirks):
 
     FLAG_KEY = "samira_aoe_targets"
     notes = [
-        "AoE hits {samira_aoe_targets} targets",
+        "Samira's AoE hits {samira_aoe_targets} targets",
     ]
 
     def get_spell_damage(self, s: "SimState", stats: SimStats) -> SimDamage:
@@ -339,8 +339,8 @@ class SettQuirks(UnitQuirks):
     FLAG_KEY_1 = "sett_aoe_targets"
     FLAG_KEY_2 = "sett_spell_heal_mult"
     notes = [
-        "AoE hits {sett_aoe_targets} targets",
-        "Healing received at any point is assumed to be {sett_spell_heal_mult}x the healing from spell casts",
+        "Sett's AoE hits {sett_aoe_targets} targets",
+        "Healing received by Sett at any point is assumed to be {sett_spell_heal_mult}x the healing from spell casts",
     ]
 
     BUFF_KEY = "sett_spell"
@@ -389,8 +389,8 @@ class VolibearQuirks(UnitQuirks):
     FLAG_KEY_1 = "volibear_aoe_targets"
     FLAG_KEY_2 = "volibear_slam_frequency"
     notes = [
-        "AoE hits {volibear_aoe_targets} targets",
-        "Every {volibear_slam_frequency} autos triggers the target-change slam effect",
+        "Volibear's AoE hits {volibear_aoe_targets} targets",
+        "Volibear triggers the target-change slam effect after every {volibear_slam_frequency} autos",
     ]
 
     BUFF_KEY = "volibear_spell"

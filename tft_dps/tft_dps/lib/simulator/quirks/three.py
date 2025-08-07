@@ -17,8 +17,8 @@ class AhriQuirks(UnitQuirks):
     FLAG_KEY_1 = "ahri_missing_hp_bonus"
     FLAG_KEY_2 = "ahri_overkill_frequency"
     notes = [
-        "Bonus spell damage from missing health averaged to {ahri_missing_hp_bonus} per cast",
-        "Overkill effect is triggered every {ahri_overkill_frequency} casts. Overkill damage is assumed to be zero so only the flat bonus is added.",
+        "Ahri's bonus spell damage from missing health averaged to {ahri_missing_hp_bonus} per cast",
+        "Ahri's overkill effect is triggered every {ahri_overkill_frequency} casts. Overkill damage is assumed to be zero so only the flat bonus is added.",
     ]
 
     def get_spell_damage(self, s: SimState, stats: SimStats) -> SimDamage:
@@ -65,8 +65,8 @@ class DariusQuirks(UnitQuirks):
     FLAG_KEY_1 = "darius_spell_bonus_mult"
     FLAG_KEY_2 = "darius_kill_frequency"
     notes = [
-        "Bonus spell damage from targeting tanks is averaged to {darius_spell_bonus_mult} of original bonus per cast",
-        "On-kill bonus cast is triggered every {darius_kill_frequency} casts.",
+        "Darius' bonus spell damage from targeting tanks is averaged to {darius_spell_bonus_mult} of original bonus per cast",
+        "Darius' on-kill bonus cast is triggered every {darius_kill_frequency} casts.",
     ]
 
     def get_spell_damage(self, s: SimState, stats: SimStats) -> SimDamage:
@@ -91,7 +91,7 @@ class JayceQuirks(UnitQuirks):
     id = "Characters/TFT15_Jayce"
 
     FLAG_KEY = "jayce_aoe_targets"
-    notes = ["AoE hits {jayce_aoe_targets}"]
+    notes = ["Jayce's AoE hits {jayce_aoe_targets} targets"]
 
     def get_spell_damage(self, s: SimState, stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)
@@ -169,7 +169,7 @@ class NeekoQuirks(UnitQuirks):
     id = "Characters/TFT15_Neeko"
 
     FLAG_KEY = "neeko_aoe_targets"
-    notes = ["AoE hits {neeko_aoe_targets}"]
+    notes = ["Neeko's AoE hits {neeko_aoe_targets} targets"]
 
     def get_spell_damage(self, s: SimState, stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)
@@ -185,7 +185,7 @@ class SennaQuirks(UnitQuirks):
     id = "Characters/TFT15_Senna"
 
     FLAG_KEY = "senna_aoe_targets"
-    notes = ["AoE hits {senna_aoe_targets}"]
+    notes = ["Senna's AoE hits {senna_aoe_targets} targets"]
 
     def hook_stats_override(self, s: SimState, stats: SimStats):
         stats.cast_time = 1.25
@@ -209,7 +209,7 @@ class SwainQuirks(UnitQuirks):
     id = "Characters/TFT15_Swain"
 
     FLAG_KEY = "swain_aoe_targets"
-    notes = ["AoE hits {swain_aoe_targets}"]
+    notes = ["Swain's AoE hits {swain_aoe_targets} targets"]
 
     BUFF_KEY = "swain_spell"
 
@@ -267,7 +267,7 @@ class UdyrQuirks(UnitQuirks):
     id = "Characters/TFT15_Udyr"
 
     FLAG_KEY = "udyr_aoe_targets"
-    notes = ["AoE hits {udyr_aoe_targets}"]
+    notes = ["Udyr's AoE hits {udyr_aoe_targets} targets"]
 
     BUFF_KEY = "udyr_spell"
 
@@ -387,7 +387,7 @@ class ZiggsQuirks(UnitQuirks):
     id = "Characters/TFT15_Ziggs"
 
     FLAG_KEY = "ziggs_aoe_targets"
-    notes = ["AoE hits {ziggs_aoe_targets}"]
+    notes = ["Ziggs' AoE hits {ziggs_aoe_targets} targets"]
 
     def get_spell_damage(self, s: SimState, stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)
@@ -411,7 +411,7 @@ class ZiggsQuirks(UnitQuirks):
 #     id = "Characters/TFT15_KogMaw"
 
 #     FLAG_KEY = "kogmaw_trainer_level"
-#     notes = ["Trainer Leve {ziggs_aoe_targets}"]
+#     notes = ["Trainer Leve {ziggs_aoe_targets} targets"]
 
 #     def get_spell_damage(self, s: SimState, stats: SimStats) -> SimDamage:
 #         svs = self._calc_spell_vars(s, stats)

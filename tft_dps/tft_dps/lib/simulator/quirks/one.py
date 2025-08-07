@@ -140,7 +140,7 @@ class GnarQuirks(UnitQuirks):
     id = "Characters/TFT15_Gnar"
 
     FLAG_KEY = "gnar_passive_stacks"
-    notes = ["Passive stacks fixed at {gnar_passive_stacks}"]
+    notes = ["Gnar's passive stacks are fixed to {gnar_passive_stacks}"]
 
     BUFF_KEY_ACTIVE = "gnar_spell_active"
     BUFF_KEY_PASSIVE = "gnar_spell_passive"
@@ -155,6 +155,9 @@ class GnarQuirks(UnitQuirks):
             bonus.speed_mult = passive["bonus_speed_mult"]
 
         return bonus
+
+    def hook_stats_override(self, s: SimState, stats: SimStats):
+        stats.cast_time = 0
 
     def hook_events(
         self, s: "SimState", evs: list[SimEvent], stats: SimStats
@@ -213,8 +216,8 @@ class KayleQuirks(UnitQuirks):
     FLAG_KEY_FREQ = "kayle_wave_frequency"
     FLAG_KEY_AOE = "kayle_aoe_targets"
     notes = [
-        "Kayle launches waves every {kayle_wave_frequency} attacks",
-        "AoE hits {kayle_aoe_targets} targets",
+        "Kayle launches a wave every {kayle_wave_frequency} attacks and hits {kayle_aoe_targets} targets",
+        "Kayle's on-hit bonus and wave attack can only crit if spell crit is available",
     ]
 
     def hook_init(self, s: SimState, stats: SimStats):
@@ -272,7 +275,7 @@ class MalphiteQuirks(UnitQuirks):
     id = "Characters/TFT15_Malphite"
 
     FLAG_KEY = "malphite_aoe_targets"
-    notes = ["AoE hits {malphite_aoe_targets} targets"]
+    notes = ["Malphite's AoE hits {malphite_aoe_targets} targets"]
 
     BUFF_KEY = "malphite_spell"
 
@@ -319,7 +322,7 @@ class RellQuirks(UnitQuirks):
     id = "Characters/TFT15_Rell"
 
     FLAG_KEY = "rell_aoe_targets"
-    notes = ["AoE hits {rell_aoe_targets} targets"]
+    notes = ["Rell's AoE hits {rell_aoe_targets} targets"]
 
     def get_spell_damage(self, s: "SimState", stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)
@@ -335,7 +338,7 @@ class SivirQuirks(UnitQuirks):
     id = "Characters/TFT15_Sivir"
 
     FLAG_KEY = "sivir_aoe_targets"
-    notes = ["AoE hits {sivir_aoe_targets} targets"]
+    notes = ["Sivir's AoE hits {sivir_aoe_targets} targets"]
 
     def get_spell_damage(self, s: "SimState", stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)

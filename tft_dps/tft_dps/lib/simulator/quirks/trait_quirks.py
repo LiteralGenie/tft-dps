@@ -48,7 +48,7 @@ class DragonFistQuirks(TraitQuirks):
 class EdgelordQuirks(TraitQuirks):
     id = "TFT15_Edgelord"
 
-    notes = ["Low-target-health bonus is always active"]
+    notes = ["Edgelords' low-target-health bonus is always active"]
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
@@ -134,7 +134,7 @@ class HeavyweightQuirks(TraitQuirks):
 class SorcererQuirks(TraitQuirks):
     id = "TFT15_Spellslinger"
 
-    notes = ["On-target-death effect is modeled as additional damage amp"]
+    notes = ["Sorcerers' on-target-death effect is modeled as additional damage amp"]
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
@@ -225,7 +225,7 @@ class SniperQuirks(TraitQuirks):
     id = "TFT15_Sniper"
 
     FLAG_KEY = "sniper_hexes"
-    notes = ["Target assumed to be {sniper_hexes} away"]
+    notes = ["Sniper target modeled as {sniper_hexes} hexes away"]
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
@@ -268,8 +268,8 @@ class StarGuardianQuirks(TraitQuirks):
 
     FLAG_KEY_STAR_JINX = "star_jinx_as"
     notes = [
-        "Activation order: (current unit) -> Syndra (AP) -> Ahri (mana) -> Xayah (auto dmg) - > Jinx (AS) -> Seraphine (all) -> ...rest... -> emblem",
-        "Bonus AS from Jinx modeled as +{star_jinx_as} AS bonus",
+        "Star guardian's activation order is (current unit) -> Syndra (AP) -> Ahri (mana) -> Xayah (auto dmg) - > Jinx (AS) -> Seraphine (all) -> ...rest... -> emblem",
+        "Jinx's star guardian bonus is modeled as a flat +{star_jinx_as}% AS bonus",
     ]
 
     effects = {

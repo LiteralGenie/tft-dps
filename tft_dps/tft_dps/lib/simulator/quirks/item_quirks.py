@@ -36,7 +36,7 @@ class BrambleVestQuirks(ItemQuirks):
     id = "TFT_Item_BrambleVest"
 
     FLAG_KEY = "bramble_aoe_targets"
-    notes = ["AoE hits {bramble_aoe_targets} targets"]
+    notes = ["Bramble vest's AoE hits {bramble_aoe_targets} targets"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -169,7 +169,9 @@ class GiantSlayerQuirks(ItemQuirks):
     id = "TFT_Item_MadredsBloodrazor"
 
     FLAG_KEY = "giant_bonus_amp_frac"
-    notes = ["{giant_bonus_amp_frac}% of the role-based damage amp is always active"]
+    notes = [
+        "Giant slayer is modeled as having {giant_bonus_amp_frac}% of the role-based damage amp constantly active"
+    ]
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
@@ -222,7 +224,7 @@ class GuinsoosRagebladeQuirks(ItemQuirks):
 class HandOfJusticeQuirks(ItemQuirks):
     id = "TFT_Item_UnstableConcoction"
 
-    notes = ["Double AD and AP bonuses always applied"]
+    notes = ["Hand of Justice's double AD and AP bonuses always active"]
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
@@ -274,7 +276,7 @@ class IonicSparkQuirks(ItemQuirks):
     FLAG_KEY_FREQUENCY = "item_spark_frequency"
 
     notes = [
-        "Damage is modeled as {item_spark_damage} damage every {item_spark_frequency} seconds"
+        "Ionic spark's damage is modeled as {item_spark_damage} damage every {item_spark_frequency} seconds"
     ]
 
     def __init__(self, *args, **kwargs):
@@ -440,8 +442,6 @@ class NegatronCloakQuirks(ItemQuirks):
 class StrikersFlailQuirks(ItemQuirks):
     id = "TFT_Item_PowerGauntlet"
 
-    notes = ["Max damage amp is always applied"]
-
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
         c = self._constants(s)
@@ -478,7 +478,7 @@ class RedBuffQuirks(ItemQuirks):
     id = "TFT_Item_RapidFireCannon"
 
     FLAG_KEY = "burn_damage_amp"
-    notes = ["Damage is modeled as {burn_damage_amp}% extra damage amp"]
+    notes = ["Red buff's burn damage is modeled as {burn_damage_amp}% extra damage amp"]
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
@@ -508,7 +508,9 @@ class SunfireCapeQuirks(ItemQuirks):
     id = "TFT_Item_RedBuff"
 
     FLAG_KEY = "sunfire_burn_damage"
-    notes = ["Damage is modeled as {sunfire_burn_damage}% extra damage amp"]
+    notes = [
+        "Sunfire cape's burn damage is modeled as {sunfire_burn_damage}% extra damage amp"
+    ]
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
@@ -584,7 +586,9 @@ class GargoyleStoneplateQuirks(ItemQuirks):
     id = "TFT_Item_GargoyleStoneplate"
 
     FLAG_KEY = "gargoyle_num_enemies"
-    notes = ["Number of attackers is assumed to be {gargoyle_num_enemies}"]
+    notes = [
+        "Gargoyle stoneplate's passive bonus is calculated with {gargoyle_num_enemies} attackers"
+    ]
 
     def hook_stats(self, s: SimState) -> SimStats | None:
         bonus = SimStats.zeros()
@@ -617,7 +621,9 @@ class TitansResolveQuirks(ItemQuirks):
     id = "TFT_Item_TitansResolve"
 
     FLAG_KEY = "titans_stack_frequency"
-    notes = ["Stack gained every {titans_stack_frequency}s"]
+    notes = [
+        "Titan's resolve modeled as gaining a stack every {titans_stack_frequency} seconds"
+    ]
 
     def hook_init(self, s: SimState, stats: SimStats):
         self.t_wake = s.ctx.flags[self.FLAG_KEY]
