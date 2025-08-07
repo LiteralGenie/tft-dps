@@ -4,7 +4,7 @@ from pathlib import Path
 
 from tft_dps.lib.cache import NativeFileCache
 from tft_dps.lib.db import TftDb
-from tft_dps.lib.paths import CD_DIR
+from tft_dps.lib.paths import CD_DIR, DEBUG_DIR
 from tft_dps.lib.simulator.sim_runner import SimRunner
 from tft_dps.lib.web.worker_manager import WorkerManager
 
@@ -32,12 +32,13 @@ async def main():
 
     #
 
-    Path("/tmp/units").write_text(json.dumps(runner.units, indent=2))
-    Path("/tmp/items").write_text(json.dumps(runner.items, indent=2))
-    Path("/tmp/traits").write_text(json.dumps(runner.traits, indent=2))
-    Path("/tmp/props").write_text(
-        json.dumps(runner.unit_proc.unit_properties, indent=2)
+    Path(DEBUG_DIR / "units").write_text(json.dumps(runner.units, indent=4))
+    Path(DEBUG_DIR / "items").write_text(json.dumps(runner.items, indent=4))
+    Path(DEBUG_DIR / "traits").write_text(json.dumps(runner.traits, indent=4))
+    Path(DEBUG_DIR / "props").write_text(
+        json.dumps(runner.unit_proc.unit_properties, indent=4)
     )
+    Path(DEBUG_DIR / "notes").write_text(json.dumps(runner.notes, indent=4))
 
     #
 

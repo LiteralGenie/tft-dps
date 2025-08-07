@@ -10,11 +10,13 @@ export async function* bootstrap() {
     const units = await fetchApiJson('/info/units')
     const items = await fetchApiJson('/info/items')
     const traits = await fetchApiJson('/info/traits')
+    const notes = await fetchApiJson('/info/notes')
 
     return {
         cache,
         units,
         items,
         traits,
+        notes,
     }
 }

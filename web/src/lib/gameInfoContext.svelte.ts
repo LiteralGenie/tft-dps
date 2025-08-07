@@ -8,6 +8,7 @@ export interface GameInfoContext {
         units: GameInfoValue['units'],
         items: GameInfoValue['items'],
         traits: GameInfoValue['traits'],
+        notes: GameInfoValue['notes'],
     ) => void
 }
 
@@ -63,6 +64,8 @@ export interface GameInfoValue {
             has_bp_1: boolean
         }
     >
+
+    notes: Record<string, string[]>
 }
 
 const CONTEXT_KEY = 'game_info_context'
@@ -78,6 +81,7 @@ export function setGameInfoContext(): GameInfoContext {
         itemsByAlphabeticalIndex: {},
         alphaIndexByItem: {},
         traits: {},
+        notes: {},
     }
     const ctx = $state<GameInfoContext>({
         value,
@@ -90,6 +94,7 @@ export function setGameInfoContext(): GameInfoContext {
         units: GameInfoValue['units'],
         items: GameInfoValue['items'],
         traits: GameInfoValue['traits'],
+        notes: GameInfoValue['notes'],
     ) {
         const unitsByIndex: GameInfoValue['unitsByIndex'] = {}
         for (const unit of Object.values(units)) {
@@ -159,6 +164,7 @@ export function setGameInfoContext(): GameInfoContext {
                 alphaIndexByItem,
                 itemsByIndex,
                 traits,
+                notes,
             }
         }
     }

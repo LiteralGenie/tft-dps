@@ -111,8 +111,8 @@
     })
 </script>
 
-<section class="flex flex-col gap-2 pb-8">
-    <h1 class="font-semibold">Contributions</h1>
+<section class="flex flex-col">
+    <h1 class="pb-2 font-semibold">Contributions</h1>
 
     {#each contributions.items as c}
         <div>

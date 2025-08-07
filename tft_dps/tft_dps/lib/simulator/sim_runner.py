@@ -13,6 +13,7 @@ from tft_dps.lib.resolver import (
     fetch_cdragon_version_cached,
 )
 from tft_dps.lib.simulator.quirks.item_quirks import ITEM_QUIRK_MAP
+from tft_dps.lib.simulator.quirks.quirks import ItemQuirks, TraitQuirks, UnitQuirks
 from tft_dps.lib.simulator.quirks.trait_quirks import TRAIT_QUIRK_MAP
 from tft_dps.lib.simulator.quirks.unit_quirk_map import UNIT_QUIRK_MAP
 from tft_dps.lib.simulator.sim_state import SimResult
@@ -41,6 +42,7 @@ class SimRunner:
         items: dict,
         traits: dict,
         unit_props: dict,
+        notes: dict,
     ) -> None:
         self.cache = cache
         self.unit_proc = unit_proc
@@ -48,6 +50,7 @@ class SimRunner:
         self.items = items
         self.traits = traits
         self.unit_props = unit_props
+        self.notes = notes
 
     @classmethod
     async def ainit(cls, cache: Cache):
@@ -57,7 +60,10 @@ class SimRunner:
         items = await cls._get_items(cache)
         traits = await cls._get_traits(cache)
         units = cls._get_units(unit_proc)
-        return cls(cache, unit_proc, units, items, traits, unit_proc.unit_properties)
+        notes = cls._get_notes()
+        return cls(
+            cache, unit_proc, units, items, traits, unit_proc.unit_properties, notes
+        )
 
     async def run(
         self,
@@ -201,3 +207,21 @@ class SimRunner:
             )
 
         return result
+
+    @classmethod
+    def _get_notes(cls):
+        quirks: list[
+            tuple[str, type[UnitQuirks] | type[ItemQuirks] | type[TraitQuirks]]
+        ] = [
+            *UNIT_QUIRK_MAP.items(),
+            *ITEM_QUIRK_MAP.items(),
+            *TRAIT_QUIRK_MAP.items(),
+        ]
+
+        notes: dict[str, list[str]] = {}
+        for id, quirk_cls in quirks:
+            notes[id] = []
+            for note in quirk_cls.notes:
+                notes[id].append(note.format(**FLAGS))
+
+        return notes

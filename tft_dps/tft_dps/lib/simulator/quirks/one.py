@@ -272,7 +272,7 @@ class MalphiteQuirks(UnitQuirks):
     id = "Characters/TFT15_Malphite"
 
     FLAG_KEY = "malphite_aoe_targets"
-    notes = ["AoE hits {malphite_aoe_targets}"]
+    notes = ["AoE hits {malphite_aoe_targets} targets"]
 
     BUFF_KEY = "malphite_spell"
 
@@ -319,7 +319,7 @@ class RellQuirks(UnitQuirks):
     id = "Characters/TFT15_Rell"
 
     FLAG_KEY = "rell_aoe_targets"
-    notes = ["AoE hits {rell_aoe_targets}"]
+    notes = ["AoE hits {rell_aoe_targets} targets"]
 
     def get_spell_damage(self, s: "SimState", stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)
@@ -335,7 +335,7 @@ class SivirQuirks(UnitQuirks):
     id = "Characters/TFT15_Sivir"
 
     FLAG_KEY = "sivir_aoe_targets"
-    notes = ["AoE hits {sivir_aoe_targets}"]
+    notes = ["AoE hits {sivir_aoe_targets} targets"]
 
     def get_spell_damage(self, s: "SimState", stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)
@@ -363,7 +363,7 @@ class ZacQuirks(UnitQuirks):
     id = "Characters/TFT15_Zac"
 
     FLAG_KEY = "zac_aoe_targets"
-    notes = ["AoE hits {zac_aoe_targets}"]
+    notes = ["AoE hits {zac_aoe_targets} targets"]
 
     def get_spell_damage(self, s: "SimState", stats: SimStats) -> SimDamage:
         svs = self._calc_spell_vars(s, stats)

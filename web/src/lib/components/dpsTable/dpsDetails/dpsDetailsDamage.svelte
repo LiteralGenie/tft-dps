@@ -9,10 +9,10 @@
     const dist = $derived(summarizeDamage(details, activeSearch.value!.params.period))
 </script>
 
-<section class="flex flex-col gap-2 pb-8">
-    <h1 class="font-semibold">Damage</h1>
+<section class="flex flex-col">
+    <h1 class="pb-2 font-semibold">Damage</h1>
 
-    <div class="grid-container">
+    <div class="grid-container bg-foreground/3 w-max">
         <div class="row">
             <span class="tdd">Total Damage</span>
             <span class="tdd">{dist.total.totalString}</span>

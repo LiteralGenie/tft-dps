@@ -3,7 +3,10 @@
     import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
     import CogIcon from '$lib/components/icons/cogIcon.svelte'
     import { getSearchContext } from '$lib/searchContext/searchContext.svelte'
-    import { EMPTY_SEARCH_CONTEXT } from '$lib/searchContext/searchContextConstants'
+    import {
+        DEFAULT_SEARCH_CONTEXT,
+        EMPTY_SEARCH_CONTEXT,
+    } from '$lib/searchContext/searchContextConstants'
     import { onMount } from 'svelte'
     import { SvelteSet } from 'svelte/reactivity'
     import SearchFormDialog from '../searchForm/searchFormDialog.svelte'
@@ -45,6 +48,10 @@
                 ...EMPTY_SEARCH_CONTEXT(),
                 ...lastSearch,
             }
+            if (v.onlyItemRecs) {
+                v.items = DEFAULT_SEARCH_CONTEXT().items
+            }
+
             search.value = v
             search.lastValue = {
                 ...v,
@@ -54,6 +61,11 @@
             activeSearch.set(v)
         } else {
             activeSearch.set(search.value)
+            search.lastValue = {
+                ...search.value,
+                units: new SvelteSet(search.value.units),
+                items: new SvelteSet(search.value.items),
+            }
         }
     })
 </script>

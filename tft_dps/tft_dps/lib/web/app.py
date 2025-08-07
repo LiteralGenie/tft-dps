@@ -84,4 +84,9 @@ async def get_item_info():
 @app.get("/info/traits")
 async def get_trait_info():
     return APP_WORKER_CONTEXT.trait_info
-    return APP_WORKER_CONTEXT.trait_info
+
+
+@app.get("/info/notes")
+async def get_notes():
+    return APP_WORKER_CONTEXT.notes
+    return APP_WORKER_CONTEXT.notes

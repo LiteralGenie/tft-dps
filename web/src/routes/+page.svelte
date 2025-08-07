@@ -40,7 +40,7 @@
             }
 
             ;(window as any).tft = tft
-            infoCtx.set(tft.units, tft.items, tft.traits)
+            infoCtx.set(tft.units, tft.items, tft.traits, tft.notes)
 
             loadStatus = null
         } catch (e) {

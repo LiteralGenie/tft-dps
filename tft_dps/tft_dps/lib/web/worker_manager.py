@@ -99,6 +99,7 @@ class WorkerManager:
                     unit_info=runner.units,
                     item_info=runner.items,
                     trait_info=runner.traits,
+                    notes=runner.notes,
                 ),
             )
             proc.start()
