@@ -127,12 +127,10 @@ class MalzaharQuirks(UnitQuirks):
         t_wake = 999
 
         for dot in s.buffs.get(self.BUFF_KEY, []):
-            rem_ticks = dot["ticks_total"] - dot["ticks_applied"]
-            if rem_ticks <= 0:
-                continue
+            idx_tick = int((s.t - dot["start"]) / dot["tick_rate"])
+            idx_tick = min(idx_tick, dot["ticks_total"] - 1)
 
-            num_to_apply = int((s.t - dot["start"]) / dot["tick_rate"])
-            for _ in range(min(num_to_apply, rem_ticks)):
+            for _ in range(dot["ticks_applied"], idx_tick + 1):
                 s.misc_damage.append(
                     sim_damage_spell(
                         s,
@@ -142,10 +140,11 @@ class MalzaharQuirks(UnitQuirks):
                 )
                 dot["ticks_applied"] += 1
 
-            t_wake = min(
-                int((num_to_apply + 1) * dot["tick_rate"]),
-                t_wake,
-            )
+            if idx_tick < dot["ticks_total"] - 1:
+                t_wake = min(
+                    int((idx_tick + 1) * dot["tick_rate"]) + dot["start"],
+                    t_wake,
+                )
 
         self.t_wake = t_wake
 

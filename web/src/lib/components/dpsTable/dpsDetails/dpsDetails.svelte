@@ -6,6 +6,7 @@
     import { unpackItemIndices, unpackTraits, unpackUnitIndex } from '$lib/utils/networkUtils'
     import DpsDetailsContributions from './dpsDetailsContributions.svelte'
     import DpsDetailsDamage from './dpsDetailsDamage.svelte'
+    import DpsDetailsDmgPlot from './dpsDetailsDmgPlot.svelte'
 
     const { id }: { id: PackedId } = $props()
 
@@ -27,7 +28,7 @@
     })
 </script>
 
-<div class="flex flex-col gap-6 text-sm">
+<div class="flex flex-col gap-8 text-sm">
     {#if details}
         <section>
             <h1 class="pb-1 font-semibold">Notes</h1>
@@ -47,9 +48,7 @@
 
         <DpsDetailsContributions {id} {details} />
 
-        <section class="flex flex-col gap-2">
-            <h1>Graph</h1>
-        </section>
+        <DpsDetailsDmgPlot {details} />
 
         <pre class="text-xs">{JSON.stringify(details, null, 2)}</pre>
     {:else}

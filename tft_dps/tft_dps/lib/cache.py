@@ -29,7 +29,7 @@ class NativeFileCache(Cache):
         return json.loads(self._get_fp(key).read_text())
 
     async def set(self, key: str, value: dict) -> None:
-        self._get_fp(key).write_text(json.dumps(value))
+        self._get_fp(key).write_text(json.dumps(value, indent=2))
 
 
 async def fetch_cached(

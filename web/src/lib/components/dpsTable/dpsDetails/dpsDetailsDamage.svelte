@@ -33,20 +33,62 @@
 
         <div class="row">
             <span class="tdd">Physical Damage</span>
-            <span class="tdd">{dist.physical.totalString}</span>
-            <span class="tdd">{dist.physical.frac}%</span>
+            <span
+                class={{
+                    'tdd text-orange-300': true,
+                    'text-orange-300/60': dist.physical.total === 0,
+                }}
+            >
+                {dist.physical.totalString}
+            </span>
+            <span
+                class={{
+                    'tdd text-orange-300': true,
+                    'text-orange-300/60': dist.physical.total === 0,
+                }}
+            >
+                {dist.physical.frac}%
+            </span>
         </div>
 
         <div class="row">
             <span class="tdd">Magical Damage</span>
-            <span class="tdd">{dist.magical.totalString}</span>
-            <span class="tdd">{dist.magical.frac}%</span>
+            <span
+                class={{
+                    'tdd text-blue-300': true,
+                    'text-blue-300/60': dist.magical.total === 0,
+                }}
+            >
+                {dist.magical.totalString}
+            </span>
+            <span
+                class={{
+                    'tdd text-blue-300': true,
+                    'text-blue-300/60': dist.magical.total === 0,
+                }}
+            >
+                {dist.magical.frac}%
+            </span>
         </div>
 
         <div class="row">
             <span class="tdd">True Damage</span>
-            <span class="tdd">{dist.true.totalString}</span>
-            <span class="tdd">{dist.true.frac}%</span>
+            <span
+                class={{
+                    tdd: true,
+                    'text-foreground/60': dist.true.total === 0,
+                }}
+            >
+                {dist.true.totalString}
+            </span>
+            <span
+                class={{
+                    tdd: true,
+                    'text-foreground/60': dist.true.total === 0,
+                }}
+            >
+                {dist.true.frac}%
+            </span>
         </div>
 
         <div class="row divider-padding">
@@ -63,14 +105,42 @@
 
         <div class="row">
             <span class="tdd">Auto Attacks ({dist.auto.count})</span>
-            <span class="tdd">{dist.auto.totalString}</span>
-            <span class="tdd">{dist.auto.frac}%</span>
+            <span
+                class={{
+                    tdd: true,
+                    'opacity-60': dist.auto.total === 0,
+                }}
+            >
+                {dist.auto.totalString}
+            </span>
+            <span
+                class={{
+                    tdd: true,
+                    'opacity-60': dist.auto.total === 0,
+                }}
+            >
+                {dist.auto.frac}%
+            </span>
         </div>
 
         <div class="row">
             <span class="tdd">Spells / Other ({dist.cast.count})</span>
-            <span class="tdd">{dist.cast.totalString}</span>
-            <span class="tdd">{dist.cast.frac}%</span>
+            <span
+                class={{
+                    tdd: true,
+                    'opacity-60': dist.cast.total === 0,
+                }}
+            >
+                {dist.cast.totalString}
+            </span>
+            <span
+                class={{
+                    tdd: true,
+                    'opacity-60': dist.cast.total === 0,
+                }}
+            >
+                {dist.cast.frac}%
+            </span>
         </div>
     </div>
 </section>

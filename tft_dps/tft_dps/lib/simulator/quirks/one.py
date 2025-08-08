@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from tft_dps.lib.simulator.quirks.quirks import UnitQuirks
 from tft_dps.lib.simulator.sim_state import SimState, SimStats
 from tft_dps.lib.simulator.sim_system import SimEvent
+from tft_dps.lib.utils.sim_utils import total_sim_damage
 
 from ..sim_state import SimDamage, SimStats, sim_damage_spell
 
@@ -44,8 +45,8 @@ class EzrealQuirks(UnitQuirks):
         return sim_damage_spell(
             s,
             stats,
-            ph=svs["addamage"],
-            ma=svs["apdamage"],
+            ph=svs["modifiedaddamage"],
+            ma=svs["modifiedapdamage"],
         )
 
     def hook_events(
@@ -139,8 +140,8 @@ class GarenQuirks(UnitQuirks):
 class GnarQuirks(UnitQuirks):
     id = "Characters/TFT15_Gnar"
 
-    FLAG_KEY = "gnar_passive_stacks"
-    notes = ["Gnar's passive stacks are fixed to {gnar_passive_stacks}"]
+    FLAG_KEY = "gnar_max_damage"
+    notes = ["Gnar's passive stacks reset every {gnar_max_damage} damage"]
 
     BUFF_KEY_ACTIVE = "gnar_spell_active"
     BUFF_KEY_PASSIVE = "gnar_spell_passive"
@@ -152,7 +153,7 @@ class GnarQuirks(UnitQuirks):
             bonus.ad_mult = active["bonus_ad_mult"]
 
         if passive := s.buffs.get(self.BUFF_KEY_PASSIVE):
-            bonus.speed_mult = passive["bonus_speed_mult"]
+            bonus.speed_mult = passive["num_stacks"] * passive["asperstack"]
 
         return bonus
 
@@ -171,7 +172,9 @@ class GnarQuirks(UnitQuirks):
         if buff and s.t > buff["until"]:
             self._end_active_buff(s)
 
-        self._set_passive_buff(s, stats)
+        did_auto = any(ev.type == "auto" for ev in evs)
+        if did_auto:
+            self._increment_passive_buff(s, stats)
 
     def _start_active_buff(self, s: "SimState", stats: SimStats, svs: dict):
         until = s.t + svs["spellduration"]
@@ -189,13 +192,25 @@ class GnarQuirks(UnitQuirks):
 
         self.t_wake = 999
 
-    def _set_passive_buff(self, s: "SimState", stats: SimStats):
+    def _increment_passive_buff(self, s: "SimState", stats: SimStats):
+        svs = self._calc_spell_vars(s, stats)
+
         if self.BUFF_KEY_PASSIVE not in s.buffs:
-            svs = self._calc_spell_vars(s, stats)
-            bonus_speed_mult = s.ctx.flags["gnar_passive_stacks"] * svs["asperstack"]
             s.buffs[self.BUFF_KEY_PASSIVE] = dict(
-                bonus_speed_mult=bonus_speed_mult,
+                asperstack=svs["asperstack"],
+                num_stacks=0,
+                damage_tracker=0,
             )
+
+        passive = s.buffs[self.BUFF_KEY_PASSIVE]
+
+        passive["num_stacks"] += 1
+        passive["num_stacks"] = min(passive["num_stacks"], svs["maxstacks"])
+
+        passive["damage_tracker"] += total_sim_damage(s.attacks[-1])
+        if passive["damage_tracker"] >= s.ctx.flags[self.FLAG_KEY]:
+            passive["num_stacks"] = 0
+            passive["damage_tracker"] = 0
 
 
 class KalistaQuirks(UnitQuirks):

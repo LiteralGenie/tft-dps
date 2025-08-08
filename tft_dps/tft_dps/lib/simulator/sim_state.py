@@ -81,7 +81,7 @@ class SimStats:
             0: self.ap,
             1: self.armor,
             2: self.effective_ad,
-            3: 1,
+            3: self.ad_mult,
             4: self.effective_speed,
             6: self.mr,
             7: 0,

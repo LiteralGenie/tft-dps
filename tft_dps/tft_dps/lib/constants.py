@@ -131,7 +131,7 @@ CHAMPION_UNITS = [
 ]
 
 FLAGS = dict(
-    gnar_passive_stacks=7,
+    gnar_max_damage=10_000,
     kayle_wave_frequency=3,
     kayle_aoe_targets=1.25,
     malphite_aoe_targets=2,
@@ -192,6 +192,6 @@ FLAGS = dict(
     #
     tank_mana_regen=0.2,
     #
-    sniper_hexes=5,
+    sniper_hexes=4,
     star_jinx_as=10,
 )

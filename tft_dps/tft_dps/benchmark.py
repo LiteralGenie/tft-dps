@@ -39,12 +39,10 @@ async def main():
     ti = time.time()
     for idx in range(n):
         result = await runner.run(
-            "Characters/TFT15_Kayle",
+            "Characters/TFT15_Ezreal",
             3,
             [
-                "TFT_Item_GuinsoosRageblade",
-                "TFT_Item_GuinsoosRageblade",
-                "TFT_Item_ArchangelsStaff",
+                "TFT_Item_BFSword",
             ],
             dict(
                 TFT15_Empyrean=1,

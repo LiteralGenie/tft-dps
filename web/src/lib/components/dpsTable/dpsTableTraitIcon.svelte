@@ -2,7 +2,11 @@
     import type { GameInfoValue } from '$lib/gameInfoContext.svelte'
     import { assetUrl } from '$lib/utils/networkUtils'
 
-    const { trait, tier }: { trait: GameInfoValue['traits'][string]; tier: number } = $props()
+    const {
+        trait,
+        tier,
+        showBp = true,
+    }: { trait: GameInfoValue['traits'][string]; tier: number; showBp: boolean } = $props()
 
     const variant: string = 'sm'
 
@@ -52,7 +56,7 @@
         </div>
     </div>
 
-    <span class="text-xs"> ({bp}) </span>
+    <span class:hidden={!showBp} class="text-xs"> ({bp}) </span>
 </div>
 
 <style lang="postcss">

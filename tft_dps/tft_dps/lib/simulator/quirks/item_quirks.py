@@ -13,7 +13,7 @@ class BFQuirks(ItemQuirks):
         bonus = SimStats.zeros()
         c = self._constants(s)
 
-        bonus.ad_mult = c["AD"] / 100
+        bonus.ad_mult = c["AD"]
 
         return bonus
 
@@ -25,7 +25,7 @@ class BloodthirsterQuirks(ItemQuirks):
         bonus = SimStats.zeros()
         c = self._constants(s)
 
-        bonus.ad_mult = c["AD"] / 100
+        bonus.ad_mult = c["AD"]
         bonus.ap = c["AP"]
         bonus.mr = c["MagicResist"]
 
