@@ -56,7 +56,7 @@ loguru.logger.add(
 )
 SIM_LOGGER = loguru.logger.bind(name="sim")
 
-TICK_PERIOD_MS = 25
+TICK_PERIOD_MS = 100
 MAX_TICK_PERIOD_MS = 500
 
 
@@ -72,7 +72,7 @@ def simulate(ctx: CalcCtx) -> SimResult:
         mana_locks=0,
     )
 
-    initial_stats = _calc_stats(s, override_phase=False)
+    initial_stats = _calc_stats(s)
 
     for sys in s.systems:
         sys.hook_init(s, initial_stats)
@@ -129,7 +129,7 @@ def _init_systems(ctx: CalcCtx):
     return systems
 
 
-def _calc_stats(s: SimState, override_phase=True) -> SimStats:
+def _calc_stats(s: SimState) -> SimStats:
     base = _init_stats(s.ctx)
 
     bonus = SimStats.zeros()
@@ -139,9 +139,8 @@ def _calc_stats(s: SimState, override_phase=True) -> SimStats:
 
     total = base + bonus
 
-    if override_phase:
-        for sys in s.systems:
-            sys.hook_stats_override(s, total)
+    for sys in s.systems:
+        sys.hook_stats_override(s, total)
 
     if total.effective_speed > 5:
         total.speed_mult = 5 / total.speed

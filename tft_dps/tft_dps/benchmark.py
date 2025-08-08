@@ -35,11 +35,11 @@ async def main():
 
     #
 
-    n = 1
+    n = 10
     ti = time.time()
     for idx in range(n):
         result = await runner.run(
-            "Characters/TFT15_Ezreal",
+            "Characters/TFT15_Jhin",
             3,
             [
                 "TFT_Item_BFSword",

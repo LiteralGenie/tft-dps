@@ -55,7 +55,11 @@
             const newDetails = detailsCtx.sims.get(newId)
             if (newDetails) {
                 const newDist = summarizeDamage(newDetails, activeSearch.value!.params.period)
-                diff = dist.total.total - newDist.total.total
+                diff = {
+                    total: dist.total.total - newDist.total.total,
+                    physical: dist.physical.total - newDist.physical.total,
+                    magical: dist.magical.total - newDist.magical.total,
+                }
             }
 
             itemContributions.push({
@@ -75,7 +79,11 @@
                 traitContributions.push({
                     original: traitId,
                     newId: id,
-                    diff: 0,
+                    diff: {
+                        total: 0,
+                        physical: 0,
+                        magical: 0,
+                    },
                 })
                 continue
             } else {
@@ -88,7 +96,11 @@
             const newDetails = detailsCtx.sims.get(newId)
             if (newDetails) {
                 const newDist = summarizeDamage(newDetails, activeSearch.value!.params.period)
-                diff = dist.total.total - newDist.total.total
+                diff = {
+                    total: dist.total.total - newDist.total.total,
+                    physical: dist.physical.total - newDist.physical.total,
+                    magical: dist.magical.total - newDist.magical.total,
+                }
             }
 
             traitContributions.push({
@@ -115,27 +127,114 @@
     <h1 class="font-semibold">Contributions</h1>
 
     <p class="text-foreground/80 pb-2 pt-1 text-xs">
-        Damage lost if item is removed or trait count is set to 1
+        Damage lost if item is removed or trait level is set to 1.
     </p>
 
-    <ul class="flex flex-col gap-1 pl-4">
+    <div class="grid-container bg-foreground/3 w-max">
+        {#snippet divider()}
+            <div class="row divider-padding">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <span class="divider"></span>
+            <div class="row divider-padding">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        {/snippet}
+
+        {#snippet cont(label: string, c: (typeof contributions)['items'][number])}
+            <div class="row">
+                {#if c.diff}
+                    <span class="tdd">{label}</span>
+                    <span class="tdd">{Math.round(c.diff.total).toLocaleString()}</span>
+                    <span class="tdd">{Math.round(c.diff.physical).toLocaleString()}</span>
+                    <span class="tdd">{Math.round(c.diff.magical).toLocaleString()}</span>
+                {:else}
+                    <span class="tdd">{label}</span>
+                    <span class="tdd"> ... </span>
+                    <span class="tdd"> ... </span>
+                    <span class="tdd"> ... </span>
+                {/if}
+            </div>
+        {/snippet}
+
+        <div class="row">
+            <span class="tdd"></span>
+            <span class="tdd">Total</span>
+            <span class="tdd">Physical</span>
+            <span class="tdd">Magical</span>
+        </div>
+
+        {@render divider()}
+
         {#each contributions.items as c}
-            <li>
-                <!-- <DpsTableItemIcon item={iv.items[c.original]} /> -->
-                <span class="">- {iv.items[c.original].name}:</span>
-                <span class="font-semibold">{Math.round(c.diff ?? 0).toLocaleString()}</span>
-            </li>
+            {@render cont(iv.items[c.original].name, c)}
         {/each}
 
+        {@render divider()}
+
         {#each contributions.traits as c}
-            <li>
-                <!-- <DpsTableTraitIcon trait={iv.traits[c.original]} tier={0} showBp={false} /> -->
-                <span>- {iv.traits[c.original].name}:</span>
-                <span class="font-semibold">{Math.round(c.diff ?? 0).toLocaleString()}</span>
-            </li>
+            {@render cont(iv.traits[c.original].name, c)}
         {/each}
-    </ul>
+    </div>
 </section>
 
 <style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(4, max-content);
+        line-height: 1;
+        font-size: small;
+        text-align: right;
+    }
+    .row {
+        display: contents;
+    }
+
+    .tdd,
+    .divider,
+    .divider-padding > * {
+        border-style: solid;
+        border-color: color-mix(in oklab, var(--color-foreground), transparent 50%);
+    }
+
+    .tdd {
+        padding: 0.25em 1rem;
+    }
+
+    .row:first-child .tdd {
+        border-top-width: 1px;
+        padding-top: 0.75em;
+    }
+    .row:last-child .tdd {
+        border-bottom-width: 1px;
+        padding-bottom: 0.75em;
+    }
+
+    .tdd,
+    .row.divider-padding > * {
+        border-left-width: 1px;
+    }
+    .tdd:last-child,
+    .row.divider-padding > :last-child {
+        border-right-width: 1px;
+    }
+
+    .divider {
+        grid-column: span 4 / span 4;
+        height: 0.25em;
+        border-left-width: 1px;
+        border-right-width: 1px;
+        border-top-width: 0.5px;
+        border-bottom-width: 0.5px;
+    }
+    .row.divider-padding > * {
+        height: 0.5em;
+        width: auto;
+    }
 </style>

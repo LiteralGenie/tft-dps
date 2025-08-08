@@ -10,9 +10,11 @@
 </script>
 
 <section class="flex flex-col">
-    <h1 class="pb-2 font-semibold">Damage</h1>
+    <h1 class="font-semibold">Damage</h1>
 
-    <div class="grid-container bg-foreground/3 w-max">
+    <p class="text-foreground/80 pb-2 pt-1 text-xs">Damage before mitigations (armor / mr).</p>
+
+    <div class="grid-container bg-foreground/3 w-max pt-2">
         <div class="row">
             <span class="tdd">Total Damage</span>
             <span class="tdd">{dist.total.totalString}</span>

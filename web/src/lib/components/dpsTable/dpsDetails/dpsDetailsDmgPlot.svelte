@@ -73,6 +73,12 @@
             labelArrow: false,
             symbol: { legend: true },
             grid: true,
+            x: {
+                label: 'Time (s)',
+            },
+            y: {
+                label: 'Damage',
+            },
         })
     })
 
@@ -83,7 +89,7 @@
 </script>
 
 <section>
-    <h1 class="pb-1 font-semibold">Damage Graph</h1>
+    <h1 class="pb-1 font-semibold">Damage</h1>
 
     <p class="text-foreground/80 pb-2 pt-1 text-xs">
         Dots indicate auto attacks. Stars indicate spell casts and other damage (eg DoTs, wraith
@@ -91,8 +97,8 @@
 
         <br />
 
-        Color indicates the damage type. Orange for physical, blue for magical.
+        Color indicates the damage type. Orange for physical, blue for magical. Gray-ish for mixed.
     </p>
 
-    <div bind:this={containerEl}></div>
+    <div class="pt-2" bind:this={containerEl}></div>
 </section>

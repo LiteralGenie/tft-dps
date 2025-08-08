@@ -141,7 +141,7 @@ class JhinQuirks(UnitQuirks):
         speed_mult = stats.speed_mult
         stats.speed = svs["attackspeed"]
         stats.speed_mult = 1
-        stats.ad_mult += speed_mult * 0.8
+        stats.ad_mult += (speed_mult - 1) * 0.8
 
         return stats
 
