@@ -2,6 +2,7 @@
     import { pushState } from '$app/navigation'
     import { getActiveSearchContext } from '$lib/activeSearchContext/activeSearchContext.svelte'
     import CogIcon from '$lib/components/icons/cogIcon.svelte'
+    import { getGameInfoContext } from '$lib/gameInfoContext.svelte'
     import { getSearchContext } from '$lib/searchContext/searchContext.svelte'
     import {
         DEFAULT_SEARCH_CONTEXT,
@@ -18,6 +19,7 @@
 
     const search = getSearchContext()
     const activeSearch = getActiveSearchContext()
+    const gameInfo = getGameInfoContext()
 
     function onClose() {
         showDialog = false

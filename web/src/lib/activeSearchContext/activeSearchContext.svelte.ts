@@ -216,7 +216,7 @@ export function getActiveSearchContext(): ActiveSearchContext {
     return getContext(CONTEXT_KEY)
 }
 
-class ComboIter {
+export class ComboIter {
     total: number
 
     constructor(
