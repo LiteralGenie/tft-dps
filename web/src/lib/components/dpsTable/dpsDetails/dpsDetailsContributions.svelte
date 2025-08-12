@@ -59,6 +59,7 @@
                     total: dist.total.total - newDist.total.total,
                     physical: dist.physical.total - newDist.physical.total,
                     magical: dist.magical.total - newDist.magical.total,
+                    true: dist.true.total - newDist.true.total,
                 }
             }
 
@@ -83,6 +84,7 @@
                         total: 0,
                         physical: 0,
                         magical: 0,
+                        true: 0,
                     },
                 })
                 continue
@@ -100,6 +102,7 @@
                     total: dist.total.total - newDist.total.total,
                     physical: dist.physical.total - newDist.physical.total,
                     magical: dist.magical.total - newDist.magical.total,
+                    true: dist.true.total - newDist.true.total,
                 }
             }
 
@@ -137,9 +140,11 @@
                 <span></span>
                 <span></span>
                 <span></span>
+                <span></span>
             </div>
             <span class="divider"></span>
             <div class="row divider-padding">
+                <span></span>
                 <span></span>
                 <span></span>
                 <span></span>
@@ -154,8 +159,10 @@
                     <span class="tdd">{Math.round(c.diff.total).toLocaleString()}</span>
                     <span class="tdd">{Math.round(c.diff.physical).toLocaleString()}</span>
                     <span class="tdd">{Math.round(c.diff.magical).toLocaleString()}</span>
+                    <span class="tdd">{Math.round(c.diff.true).toLocaleString()}</span>
                 {:else}
                     <span class="tdd">{label}</span>
+                    <span class="tdd"> ... </span>
                     <span class="tdd"> ... </span>
                     <span class="tdd"> ... </span>
                     <span class="tdd"> ... </span>
@@ -168,6 +175,7 @@
             <span class="tdd">Total</span>
             <span class="tdd">Physical</span>
             <span class="tdd">Magical</span>
+            <span class="tdd">True</span>
         </div>
 
         {@render divider()}
@@ -187,7 +195,7 @@
 <style>
     .grid-container {
         display: grid;
-        grid-template-columns: repeat(4, max-content);
+        grid-template-columns: repeat(5, max-content);
         line-height: 1;
         font-size: small;
         text-align: right;
@@ -226,7 +234,7 @@
     }
 
     .divider {
-        grid-column: span 4 / span 4;
+        grid-column: span 5 / span 5;
         height: 0.25em;
         border-left-width: 1px;
         border-right-width: 1px;

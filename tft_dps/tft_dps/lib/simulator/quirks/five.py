@@ -206,16 +206,18 @@ class YoneQuirks(UnitQuirks):
         svs = self._calc_spell_vars(s, stats)
 
         num_autos = len(s.attacks) + 1
-        if (num_autos % 2) == 0:
+        if (num_autos % 2) == 1:
             dmg = sim_damage_auto(
                 s,
                 stats,
+                ph=stats.effective_ad * stats.crit_bonus,
                 tr=svs["modifiedattacktruedamage"] * stats.crit_bonus,
             )
         else:
             dmg = sim_damage_auto(
                 s,
                 stats,
+                ph=stats.effective_ad * stats.crit_bonus,
                 ma=svs["modifiedattackmagicdamage"] * stats.crit_bonus,
             )
 

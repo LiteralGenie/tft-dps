@@ -16,8 +16,8 @@
                 },
             },
             {
-                value: Math.round((s.ad_mult - 1) * 100),
-                label: 'Attack Damage',
+                value: `${Math.round((s.ad_mult - 1) * 100)}%`,
+                label: 'Bonus AD',
                 icon: {
                     x: -864,
                     y: 0,
@@ -25,7 +25,7 @@
             },
             {
                 value: Math.round(s.ap - 100),
-                label: 'Ability Power',
+                label: 'Bonus AP',
                 icon: {
                     x: -864 - 3 * 24,
                     y: 0,

@@ -79,6 +79,7 @@
             y: {
                 label: 'Damage',
             },
+            marginLeft: 50,
         })
     })
 

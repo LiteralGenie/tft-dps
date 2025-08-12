@@ -622,7 +622,7 @@ class TitansResolveQuirks(ItemQuirks):
 
     FLAG_KEY = "titans_stack_frequency"
     notes = [
-        "Titan's resolve modeled as gaining a stack every {titans_stack_frequency} seconds"
+        "Titan's resolve modeled as gaining a stack every attack and every {titans_stack_frequency} seconds"
     ]
 
     def hook_init(self, s: SimState, stats: SimStats):
@@ -635,7 +635,7 @@ class TitansResolveQuirks(ItemQuirks):
         bonus.armor = c["Armor"]
         bonus.speed_mult = c["AS"] / 100
 
-        num_stacks = int(s.t / s.ctx.flags[self.FLAG_KEY])
+        num_stacks = int(s.t / s.ctx.flags[self.FLAG_KEY]) + len(s.attacks)
         num_stacks = min(num_stacks, c["StackCap"])
 
         bonus.ad_mult += num_stacks * c["StackingAD"]
