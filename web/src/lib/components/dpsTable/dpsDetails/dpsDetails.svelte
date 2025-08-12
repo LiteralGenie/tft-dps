@@ -7,6 +7,7 @@
     import DpsDetailsContributions from './dpsDetailsContributions.svelte'
     import DpsDetailsDamage from './dpsDetailsDamage.svelte'
     import DpsDetailsDmgPlot from './dpsDetailsDmgPlot.svelte'
+    import DpsDetailsEvents from './dpsDetailsEvents.svelte'
 
     const { id }: { id: PackedId } = $props()
 
@@ -49,6 +50,8 @@
         <DpsDetailsContributions {id} {details} />
 
         <DpsDetailsDmgPlot {details} />
+
+        <DpsDetailsEvents {details} />
 
         <pre class="text-xs">{JSON.stringify(details, null, 2)}</pre>
     {:else}
