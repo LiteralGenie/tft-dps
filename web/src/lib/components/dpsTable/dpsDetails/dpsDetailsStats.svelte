@@ -24,7 +24,7 @@
                 },
             },
             {
-                value: s.ap - 100,
+                value: Math.round(s.ap - 100),
                 label: 'Ability Power',
                 icon: {
                     x: -864 - 3 * 24,
@@ -64,7 +64,7 @@
                 },
             },
             {
-                value: s.armor,
+                value: Math.round(s.armor),
                 label: 'Armor',
                 icon: {
                     x: -864 - 5 * 24,
@@ -72,7 +72,7 @@
                 },
             },
             {
-                value: s.mr,
+                value: Math.round(s.mr),
                 label: 'Magic Resist',
                 icon: {
                     x: -864 - 18 * 24,
@@ -80,7 +80,7 @@
                 },
             },
             {
-                value: s.health_max * s.health_mult,
+                value: Math.round(s.health_max * s.health_mult),
                 label: 'Health',
                 icon: {
                     x: -864 - 11 * 24,
@@ -88,7 +88,7 @@
                 },
             },
             {
-                value: s.mana_max,
+                value: Math.round(s.mana_max),
                 label: 'Max Mana',
                 icon: {
                     x: -864 - 15 * 24,
@@ -96,14 +96,18 @@
                 },
             },
             {
-                value: s.mana_regen,
+                value: Math.round(s.mana_regen * 10) / 10,
                 label: 'Mana Regen',
                 icon: {
                     x: -864 - 16 * 24,
                     y: 0,
                 },
             },
-            { value: s.mana_per_auto, label: 'Mana Regen (attacks)', icon: null },
+            {
+                value: Math.round(s.mana_per_auto * 10) / 10,
+                label: 'Mana Regen (attacks)',
+                icon: null,
+            },
         ]
     })
 </script>

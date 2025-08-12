@@ -22,8 +22,10 @@ export interface GameInfoValue {
                 name: string
                 traits: string[]
                 cost: number
-                icon: string
                 role_items: string[]
+                icon: string
+                splashSmall: string
+                splashLarge: string
             }
         }
     >

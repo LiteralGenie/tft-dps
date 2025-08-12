@@ -17,7 +17,7 @@ class BraumQuirks(UnitQuirks):
     FLAG_KEY_3 = "braum_execute_bonus"
     notes = [
         "Braum's primary AoE (spin) hits {braum_aoe_targets_primary} targets",
-        "Braums' secondary AoE (throw) hits {braum_aoe_targets_secondary} targets",
+        "Braum's secondary AoE (throw) hits {braum_aoe_targets_secondary} targets",
         "Braum's execute damage is calculated as true damage equal to ({braum_execute_bonus} * execute_threshold) of the single-target damage",
     ]
 

@@ -6,24 +6,27 @@
         trait,
         tier,
         showBp = true,
-    }: { trait: GameInfoValue['traits'][string]; tier: number; showBp: boolean } = $props()
+    }: { trait: GameInfoValue['traits'][string]; tier: number; showBp?: boolean } = $props()
 
     const variant: string = 'sm'
 
-    let rarity = $state('')
-    let bp = $state(0)
-    if (trait.has_bp_1) {
-        const t = trait.tiers[tier]
-        rarity = t.rarity
-        bp = t.breakpoint
-    } else if (tier === 0) {
-        rarity = 'inactive'
-        bp = 1
-    } else {
-        const t = trait.tiers[tier - 1]
-        rarity = t.rarity
-        bp = t.breakpoint
-    }
+    const [bp, rarity] = $derived.by(() => {
+        let bp, rarity
+        if (trait.has_bp_1) {
+            const t = trait.tiers[tier]
+            rarity = t.rarity
+            bp = t.breakpoint
+        } else if (tier === 0) {
+            rarity = 'inactive'
+            bp = 1
+        } else {
+            const t = trait.tiers[tier - 1]
+            rarity = t.rarity
+            bp = t.breakpoint
+        }
+
+        return [bp, rarity]
+    })
 
     const showHover = true
 
