@@ -115,9 +115,18 @@ export function setActiveSearchContext(infoCtx: GameInfoContext): ActiveSearchCo
             const respBody: any = resp.body
 
             let packingIdx = 0
+            let buffer: string = ''
             for await (const rawChunk of respBody) {
-                const asText = new TextDecoder().decode(rawChunk)
-                const chunk: number[] = JSON.parse(asText)
+                buffer += new TextDecoder().decode(rawChunk)
+
+                let chunk: number[]
+                try {
+                    chunk = JSON.parse(buffer)
+                    buffer = ''
+                } catch (e) {
+                    console.warn('Response chunk was truncated', buffer)
+                    continue
+                }
 
                 for (let chunkIdx = 0; chunkIdx < chunk.length; chunkIdx++) {
                     const packedId = packed[packingIdx]

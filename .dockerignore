@@ -1,0 +1,6 @@
+tft_dps/data
+tft_dps/venv
+tft_dps/dist
+web/.svelte-kit
+web/build
+web/node_modules
