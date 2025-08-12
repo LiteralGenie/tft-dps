@@ -110,8 +110,14 @@ class SimStats:
 
     @property
     def crit_bonus(self):
-        rate = min(self.crit_rate, 1)
-        return 1 + (self.crit_mult - 1) * rate
+        rate = self.crit_rate
+        mult = self.crit_mult
+
+        if rate > 1:
+            mult += (rate - 1) / 2
+            rate = 1
+
+        return 1 + (mult - 1) * rate
 
 
 class SimResult(TypedDict):

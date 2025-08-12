@@ -5,14 +5,14 @@ MAX_IDS_PER_SIMULATE = 10_000
 PACKED_ID_BITS = 40
 
 ITEMS = [
-    "TFT_Item_BFSword",
-    "TFT_Item_NeedlesslyLargeRod",
-    "TFT_Item_RecurveBow",
-    "TFT_Item_SparringGloves",
-    "TFT_Item_TearOfTheGoddess",
-    "TFT_Item_GiantsBelt",
-    "TFT_Item_ChainVest",
-    "TFT_Item_NegatronCloak",
+    # "TFT_Item_BFSword",
+    # "TFT_Item_NeedlesslyLargeRod",
+    # "TFT_Item_RecurveBow",
+    # "TFT_Item_SparringGloves",
+    # "TFT_Item_TearOfTheGoddess",
+    # "TFT_Item_GiantsBelt",
+    # "TFT_Item_ChainVest",
+    # "TFT_Item_NegatronCloak",
     #
     "TFT_Item_Deathblade",
     "TFT_Item_HextechGunblade",

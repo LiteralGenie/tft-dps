@@ -72,15 +72,17 @@ def simulate(ctx: CalcCtx) -> SimResult:
         mana_locks=0,
     )
 
-    initial_stats = _calc_stats(s)
-
+    stats = _calc_stats(s)
     for sys in s.systems:
-        sys.hook_init(s, initial_stats)
+        sys.hook_init(s, stats)
+
+    initial_stats = _calc_stats(s)
 
     while s.t <= ctx.T:
         new_events = []
         for sys in s.systems:
             stats = _calc_stats(s)
+
             evs = sys.hook_main(s, stats) or []
             new_events.extend(evs)
 

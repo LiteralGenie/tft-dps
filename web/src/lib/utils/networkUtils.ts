@@ -54,7 +54,7 @@ export function packSimId(
         const trait = info.traits[id]
         const v = traitValueMap[id] ?? 1
 
-        let tier = info.traits[id].breakpoints.findIndex((x) => x === v)
+        let tier = info.traits[id].tiers.findIndex((x) => x.breakpoint === v)
         if (trait.has_bp_1) {
             assert(tier > -1)
         } else {

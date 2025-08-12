@@ -27,9 +27,7 @@
 </script>
 
 <section class="flex flex-col">
-    <h1 class="pb-2 font-semibold">Events</h1>
-
-    <!-- <p class="text-foreground/80 pb-2 pt-1 text-xs">Damage before mitigations (armor / mr).</p> -->
+    <h1 class="pb-2 font-semibold">Combat Log</h1>
 
     <div class="grid-container max-h-[50vh] overflow-auto">
         <div class="row contents">

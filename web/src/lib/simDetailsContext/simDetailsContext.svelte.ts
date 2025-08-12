@@ -17,8 +17,8 @@ export interface SimDetails {
     attacks: SimDamage[]
     casts: SimDamage[]
     misc_damage: SimDamage[]
-    initial_stats: {}
-    final_stats: {}
+    initial_stats: SimStats
+    final_stats: SimStats
 }
 
 interface SimDamage {
@@ -27,6 +27,28 @@ interface SimDamage {
     physical_damage: number
     magical_damage: number
     true_damage: number
+}
+
+interface SimStats {
+    ad: number
+    ad_mult: number
+    ap: number
+    speed: number
+    speed_mult: number
+    mana: number
+    mana_max: number
+    mana_regen: number
+    mana_per_auto: number
+    health_max: number
+    health_mult: number
+    armor: number
+    mr: number
+    crit_rate: number
+    crit_mult: number
+    cast_time: number
+    range: number
+    move_speed: number
+    amp: number
 }
 
 const CONTEXT_KEY = 'SimDetailsContext'

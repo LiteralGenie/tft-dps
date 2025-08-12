@@ -387,7 +387,7 @@ class SupremeCellsQuirks(TraitQuirks):
 class SentaiRangerQuirks(TraitQuirks):
     id = "TFT15_SentaiRanger"
 
-    notes = ["Not modeled ¯\_(ツ)_/¯"]
+    notes = ["Mighty mech damage not factored into unit DPS"]
 
 
 class LuchadorQuirks(TraitQuirks):
